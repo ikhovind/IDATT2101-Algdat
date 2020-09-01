@@ -1,0 +1,12 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Learning/Sortering/Kapittel 2/gcd.cpp
+iostream
+-
+

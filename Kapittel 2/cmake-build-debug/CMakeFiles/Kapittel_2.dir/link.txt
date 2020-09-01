@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Kapittel_2.dir/gcd.cpp.o  -o Kapittel_2 

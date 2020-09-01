@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Oeving2.dir/quicksort.cpp.o  -o Oeving2 

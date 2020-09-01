@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/DualPivot.cpp
+iostream
+-
+chrono
+-
+
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/Main.cpp
+iostream
+-
+chrono
+-
+Quicksort.cpp
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/Quicksort.cpp
+DualPivot.cpp
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/DualPivot.cpp
+
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/Quicksort.cpp
+iostream
+-
+chrono
+-
+

@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Kapittel_3.dir/bubblesort.cpp.o  -o Kapittel_3 
