@@ -12,6 +12,8 @@ iostream
 chrono
 -
 
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/InsertionSort.cpp
+
 /home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/Main.cpp
 iostream
 -
@@ -23,8 +25,6 @@ DualPivot.cpp
 /home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/DualPivot.cpp
 
 /home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/Quicksort.cpp
-iostream
--
-chrono
--
+InsertionSort.cpp
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving2/InsertionSort.cpp
 

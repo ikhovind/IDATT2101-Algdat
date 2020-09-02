@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <chrono>
-
 class DualPivot{
 
     static int partition(int * arr, int low, int high, int* lp)
@@ -62,15 +61,19 @@ class DualPivot{
     }
 
 public:
-    static void dualPivotQuicksort(int* arr, int low, int high)
+    static void dualPivotQuicksort(int* arr, int low, int high, int insertionLength)
     {
-        if (low < high) {
-            // lp means left pivot, and rp means right pivot.
-            int lp, rp;
-            rp = partition(arr, low, high, &lp);
-            dualPivotQuicksort(arr, low, lp - 1);
-            dualPivotQuicksort(arr, lp + 1, rp - 1);
-            dualPivotQuicksort(arr, rp + 1, high);
+        if(low-high > 10) {
+            if (low < high) {
+                // lp means left pivot, and rp means right pivot.
+                int lp, rp;
+                rp = partition(arr, low, high, &lp);
+                dualPivotQuicksort(arr, low, lp - 1);
+                dualPivotQuicksort(arr, lp + 1, rp - 1);
+                dualPivotQuicksort(arr, rp + 1, high);
+            }
+        } else{
+            return
         }
     }
 };
