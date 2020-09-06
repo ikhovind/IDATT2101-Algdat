@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Del2.dir/main.cpp.o  -o Del2 
