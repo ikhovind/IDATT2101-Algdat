@@ -82,7 +82,7 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/main.cpp">
+		<Unit filename="/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/linkedListMain.cpp">
 			<Option target="Del1"/>
 		</Unit>
 		<Unit filename="/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/CMakeLists.txt">

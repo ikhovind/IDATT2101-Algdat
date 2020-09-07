@@ -1,7 +1,7 @@
 
 class InsertionSort{
 
-    int binarySearch(int a[], int item, int low, int high)
+    static int binarySearch(int a[], int item, int low, int high)
     {
         if (high <= low)
             return (item > a[low])?  (low + 1): low;
@@ -18,9 +18,9 @@ class InsertionSort{
 
 public: static void insertionSort(int array[], int left, int right)
     {
-        int i, loc, j, k, selected;
+        int i, loc, j, selected;
 
-        for (i = left; i < right; ++i)
+        for (i = left; i <= right; ++i)
         {
             j = i - 1;
             selected = array[i];

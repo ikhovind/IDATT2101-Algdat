@@ -77,27 +77,27 @@ include CMakeFiles/Del1.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/Del1.dir/flags.make
 
-CMakeFiles/Del1.dir/main.cpp.o: CMakeFiles/Del1.dir/flags.make
-CMakeFiles/Del1.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Del1.dir/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Del1.dir/main.cpp.o -c "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/main.cpp"
+CMakeFiles/Del1.dir/linkedListMain.cpp.o: CMakeFiles/Del1.dir/flags.make
+CMakeFiles/Del1.dir/linkedListMain.cpp.o: ../linkedListMain.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Del1.dir/linkedListMain.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Del1.dir/linkedListMain.cpp.o -c "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/linkedListMain.cpp"
 
-CMakeFiles/Del1.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Del1.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/main.cpp" > CMakeFiles/Del1.dir/main.cpp.i
+CMakeFiles/Del1.dir/linkedListMain.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Del1.dir/linkedListMain.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/linkedListMain.cpp" > CMakeFiles/Del1.dir/linkedListMain.cpp.i
 
-CMakeFiles/Del1.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Del1.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/main.cpp" -o CMakeFiles/Del1.dir/main.cpp.s
+CMakeFiles/Del1.dir/linkedListMain.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Del1.dir/linkedListMain.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/linkedListMain.cpp" -o CMakeFiles/Del1.dir/linkedListMain.cpp.s
 
 # Object files for target Del1
 Del1_OBJECTS = \
-"CMakeFiles/Del1.dir/main.cpp.o"
+"CMakeFiles/Del1.dir/linkedListMain.cpp.o"
 
 # External object files for target Del1
 Del1_EXTERNAL_OBJECTS =
 
-Del1: CMakeFiles/Del1.dir/main.cpp.o
+Del1: CMakeFiles/Del1.dir/linkedListMain.cpp.o
 Del1: CMakeFiles/Del1.dir/build.make
 Del1: CMakeFiles/Del1.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable Del1"

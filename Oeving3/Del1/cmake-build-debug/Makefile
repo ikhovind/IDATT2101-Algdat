@@ -143,32 +143,32 @@ Del1/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Del1.dir/build.make CMakeFiles/Del1.dir/build
 .PHONY : Del1/fast
 
-main.o: main.cpp.o
+linkedListMain.o: linkedListMain.cpp.o
 
-.PHONY : main.o
+.PHONY : linkedListMain.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Del1.dir/build.make CMakeFiles/Del1.dir/main.cpp.o
-.PHONY : main.cpp.o
+linkedListMain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Del1.dir/build.make CMakeFiles/Del1.dir/linkedListMain.cpp.o
+.PHONY : linkedListMain.cpp.o
 
-main.i: main.cpp.i
+linkedListMain.i: linkedListMain.cpp.i
 
-.PHONY : main.i
+.PHONY : linkedListMain.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Del1.dir/build.make CMakeFiles/Del1.dir/main.cpp.i
-.PHONY : main.cpp.i
+linkedListMain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Del1.dir/build.make CMakeFiles/Del1.dir/linkedListMain.cpp.i
+.PHONY : linkedListMain.cpp.i
 
-main.s: main.cpp.s
+linkedListMain.s: linkedListMain.cpp.s
 
-.PHONY : main.s
+.PHONY : linkedListMain.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Del1.dir/build.make CMakeFiles/Del1.dir/main.cpp.s
-.PHONY : main.cpp.s
+linkedListMain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Del1.dir/build.make CMakeFiles/Del1.dir/linkedListMain.cpp.s
+.PHONY : linkedListMain.cpp.s
 
 # Help Target
 help:
@@ -179,9 +179,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Del1"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... linkedListMain.o"
+	@echo "... linkedListMain.i"
+	@echo "... linkedListMain.s"
 .PHONY : help
 
 

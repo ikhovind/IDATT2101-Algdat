@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/main.cpp" "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/cmake-build-debug/CMakeFiles/Del1.dir/main.cpp.o"
+  "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/linkedListMain.cpp" "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oeving3/Del1/cmake-build-debug/CMakeFiles/Del1.dir/linkedListMain.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

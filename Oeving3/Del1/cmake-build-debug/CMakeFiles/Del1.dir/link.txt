@@ -1,1 +1,1 @@
-/usr/bin/c++  -g   CMakeFiles/Del1.dir/main.cpp.o  -o Del1 
+/usr/bin/c++  -g   CMakeFiles/Del1.dir/linkedListMain.cpp.o  -o Del1 

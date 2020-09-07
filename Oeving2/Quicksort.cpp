@@ -4,7 +4,7 @@
 
 #ifndef OEVING2_QUICKSORT_H
 #define OEVING2_QUICKSORT_H
-#include "InsertionSort.cpp"
+
 
 class Quicksort {
     static void bytt(int *i, int *j){
@@ -35,13 +35,13 @@ class Quicksort {
         bytt(&t[iv], &t[h-1]);
         return iv;
     };
-public:static void quickSort(int *array, int v, int h, int insertionSortLength){
-        if(h-v > insertionSortLength){
+public:static void quickSort(int *array, int v, int h){
+
+        if(h-v > 2){
             int delepos = splitt(array,v,h);
-            quickSort(array,v, delepos-1, insertionSortLength);
-            quickSort(array,delepos+1, h, insertionSortLength);
+            quickSort(array,v, delepos-1);
+            quickSort(array,delepos+1, h);
         } else{
-            InsertionSort::insertionSort(array, v,h);
             median3sort(array, v,h);
         }
     }
@@ -99,19 +99,15 @@ public:static void quickSort(int *array, int v, int h, int insertionSortLength){
         *b = temp;
     }
 public:
-    static void dualPivotQuicksort(int* arr, int low, int high, int insertionLength)
+    static void dualPivotQuicksort(int* arr, int low, int high)
     {
-        if(low-high > insertionLength) {
-            if (low < high) {
-                // lp means left pivot, and rp means right pivot.
-                int lp, rp;
-                rp = partition(arr, low, high, &lp);
-                dualPivotQuicksort(arr, low, lp - 1,insertionLength);
-                dualPivotQuicksort(arr, lp + 1, rp - 1, insertionLength);
-                dualPivotQuicksort(arr, rp + 1, high, insertionLength);
-            }
-        } else{
-            return InsertionSort::insertionSort(arr,low,high);
+        if (low < high) {
+            // lp means left pivot, and rp means right pivot.
+            int lp, rp;
+            rp = partition(arr, low, high, &lp);
+            dualPivotQuicksort(arr, low, lp - 1);
+            dualPivotQuicksort(arr, lp + 1, rp - 1);
+            dualPivotQuicksort(arr, rp + 1, high);
         }
     }
 
