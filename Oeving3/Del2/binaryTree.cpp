@@ -56,31 +56,42 @@ binaryTree* insertNode(binaryTree* rootPointer, string value){
 }
 
 
-string printGivenLevel(binaryTree* root, int level) {
+string printGivenLevel(binaryTree* root, int level, int width) {
     string levelToString = "";
     if (root == NULL && level == 1) {
-        levelToString += " ";
+        for(int i = 0; i < width; i++){
+            levelToString += " ";
+        }
     }
     else if (level == 1 && root != NULL){
-        levelToString+= root->value;
+        cout << width << "\n";
+        for(int i = 0; i<width; i++){
+            if(i < width-root->value.size()/2 || i > width+root->value.size()/2){
+                levelToString += " ";
+            }
+            else{
+                levelToString+= root->value;
+                i+= root->value.size();
+            }
+        }
     }
     if (level > 1) {
         if (root != NULL) {
             if (root->leftChild != NULL) {
-                levelToString += printGivenLevel(root->leftChild, level - 1);
+                levelToString += printGivenLevel(root->leftChild, level - 1, width/2);
             } else {
-                levelToString += printGivenLevel(NULL, level - 1);
+                levelToString += printGivenLevel(NULL, level - 1, width/2);
             }
             if (root->rightChild != NULL) {
-                levelToString += printGivenLevel(root->rightChild, level - 1);
+                levelToString += printGivenLevel(root->rightChild, level - 1, width/2);
             } else {
-                levelToString += printGivenLevel(NULL, level - 1);
+                levelToString += printGivenLevel(NULL, level - 1, width/2);
             }
         }
         //lager to barn selv om noden er null for at disse skal ta plass i grafikken
         else{
-            levelToString += printGivenLevel(NULL, level - 1);
-            levelToString += printGivenLevel(NULL, level - 1);
+            levelToString += printGivenLevel(NULL, level - 1, width/2);
+            levelToString += printGivenLevel(NULL, level - 1, width/2);
         }
     }
     return levelToString;
