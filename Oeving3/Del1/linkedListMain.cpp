@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     } else if(choice == "-"){
         std::cout << toString(head) << "\n-\n";
         std::cout << toString(head2) << "\n=\n";
-        subtractListFromList(&head,&head2);
+        head = (subtractLinkedList(head,head2));
         std::cout << toString(head) << "\n";
     }
     return 0;
