@@ -26,8 +26,15 @@ int main(int argc, char *argv[]) {
     } else if(choice == "-"){
         std::cout << toString(head) << "\n-\n";
         std::cout << toString(head2) << "\n=\n";
-        subtractListFromList(&head,&head2);
-        std::cout << toString(head) << "\n";
+        //dersom tallene ble byttet om for å gjøre det mulig å regne riktig
+        if(subtractListFromList(&head,&head2)){
+            //hvis vi trekker liste 1 fra liste 2 så er svaret negativt
+            head2->digit *= -1;
+            std::cout << toString(head2) << "\n";
+        }
+        else{
+            std::cout << toString(head) << "\n";
+        }
     }
     return 0;
 }
