@@ -10,37 +10,37 @@ binaryTree* insertNode(binaryTree* rootPointer, string value){
     binaryTree* node = new binaryTree;
     node->value = value;
     if(rootPointer == NULL){
-        rootPointer = node;
-        binaryTree* compareToNode = rootPointer;
+        //setter root like noden
+        return node;
     }
     else{
         binaryTree* compareToNode = rootPointer;
-        //sammenligner hver karakter med hver karakter i hodet og påfølgende noder
+        //sammenligner hvert med ordet i hodet og påfølgende noder
         int i = 0;
         while (i < node->value.size()){
-            //if it comes before
+            //hvis det nye ordet er tidligere alfabetisk og venstre bein er ledig
             if(node->value < compareToNode->value && compareToNode->leftChild == NULL){
                 compareToNode->leftChild = node;
                 node->parent = compareToNode;
                 return node;
+                //dersom den er tidligere alfabetisk og venstre bein ikke er ledig
             } else if (node->value < compareToNode->value && compareToNode->leftChild != NULL){
+                //så sammenlignes med venstre bein
                 compareToNode = compareToNode->leftChild;
             }
-            //if it comes after and the right child is null it will be the new right child
+            //hvis den kommer etterpå og høyre bein er ledig
             else if(compareToNode->rightChild == NULL && node->value > compareToNode->value){
                 compareToNode->rightChild = node;
                 node->parent = compareToNode;
                 return node;
             }
-            //if the new node comes after and the right child is not null we compare to the right child
+            //hvis den er større og høyre bein ikke er ledig
             else if(node->value > compareToNode->value){
+                //sammenlignes med høyre bein
                 compareToNode = compareToNode->rightChild;
             }
-            //for loop only increases if previous char was equal
+            //if the words are equal it is placed to the right
             if(node->value == compareToNode->value){
-                i++;
-            }
-            if(i == node->value.size() -1){
                 if(compareToNode->rightChild == NULL){
                     compareToNode->rightChild = node;
                     node->parent = compareToNode;
@@ -49,7 +49,6 @@ binaryTree* insertNode(binaryTree* rootPointer, string value){
                 else{
                     compareToNode = compareToNode->rightChild;
                 }
-                i = 0;
             }
         }
     }
