@@ -2,40 +2,32 @@
 #include <string>
 #include "node.cpp"
 
-int main() {
+int main(int argc, char *argv[]) {
     struct Node* head = NULL;
     struct Node* head2 = NULL;
-    std::string choice;
-    std::string number1;
-    std::string number2;
-    std::cout << "Enter the first number:\n";
-    std::cin >> number1;
-    std::cout << "Enter the second number:\n";
-    std::cin >> number2;
+    std::string number1 = argv[1];
+    std::string choice = argv[2];
+    std::string number2 = argv[3];
+
     for(unsigned int i = 0; i<number1.length(); i++) {
-        char c = number1[i]; //this is your character
+        char c = number1[i]; //character
+        //gjør c numerisk
         insertAtBack(&head,c - '0');
     }
     for(unsigned int i = 0; i<number2.length(); i++) {
-        char c = number2[i]; //this is your character
+        char c = number2[i]; //charcter
         insertAtBack(&head2,c - '0');
     }
-    std::cout << "Enter 1 for addition, 2 for subtraction:\n";
-    std::cin >> choice;
-    if(choice == "1"){
+    if(choice == "+"){
         std::cout << toString(head) << "\n+\n";
         std::cout << toString(head2) << "\n=\n";
         addListToList(&head,&head2);
         std::cout << toString(head) << "\n";
-    } else if(choice == "2"){
+    } else if(choice == "-"){
         std::cout << toString(head) << "\n-\n";
         std::cout << toString(head2) << "\n=\n";
         subtractListFromList(&head,&head2);
         std::cout << toString(head) << "\n";
-
-    }
-    else{
-        std::cout << "please input a valid choice\n";
     }
     return 0;
 }

@@ -76,42 +76,52 @@ void insertAtBack(struct Node** headRef, int newDigit){
 }
 
 void addDigitToNode(struct Node** headRef, struct Node* node, int newDigit){
+    //dersom svaret blir under ti så endrer det ikke noen andre noder
     if(node->digit + newDigit < 10){
         node->digit += newDigit;
     }
     else{
+        //dersom den som kommer før er null så må det settes in et ny node som kan ta det ekstra tallet
         if(node->prev == NULL){
             insertBefore(headRef,node,0);
         }
+        //legger til 1 i den forrige noden rekursivt
         addDigitToNode(headRef,node->prev,1);
         node->digit += newDigit -10;
     }
 }
+
 void deleteNode(struct Node** headRef, struct Node* node){
 
     if(node->prev == NULL && node->next == NULL){
         node = NULL;
+        delete node;
         return;
     }
     if(node->prev == NULL){
         (*headRef) = node->next;
         node->next->prev = NULL;
+        delete node;
         return;
     }
     if(node->next == NULL){
         (*headRef) = node->prev;
         node->prev->next = NULL;
+        delete node;
         return;
     }
     node->prev->next = node->next;
     node->next->prev = node->prev;
     delete(node);
 }
+
 void subtractDigitFromNode(struct Node** headRef, struct Node* node, int newDigit){
+    //dersom tallet ikke blir negativt så slipper man å tenke på de andre nodene
     if(node->digit - newDigit >= 0){
         node->digit -= newDigit;
     }
     else{
+        //dersom forrige er null så må det settes inn for å ta resten
         if(node->prev == NULL && node->digit - newDigit <= -10){
             insertBefore(headRef,node,0);
             subtractDigitFromNode(headRef,node->prev,1);
@@ -120,6 +130,8 @@ void subtractDigitFromNode(struct Node** headRef, struct Node* node, int newDigi
             node->digit -= newDigit;
         }
     }
+
+    //deletes excess zeroes
     struct Node* first = *headRef;
     struct Node* toBeDeleted;
     while (first != NULL && first->digit == 0) {
@@ -131,22 +143,29 @@ void subtractDigitFromNode(struct Node** headRef, struct Node* node, int newDigi
 
 void addListToList(struct Node** firstHeadRef, struct Node** secondHeadRef){
     struct Node* firstNode = *firstHeadRef;
+    struct Node* secondNode = *secondHeadRef;
+
     struct Node* firstLast;
     while (firstNode != NULL) {
         firstLast = firstNode;
         firstNode = firstNode->next;
     }
 
-    struct Node* secondNode = *secondHeadRef;
     struct Node* secondLast;
     while (secondNode != NULL) {
         secondLast = secondNode;
         secondNode = secondNode->next;
     }
-
-    while(firstLast != NULL && secondLast != NULL){
-        addDigitToNode(firstHeadRef,firstLast,secondLast->digit);
-        firstLast = firstLast->prev;
+    //if both numbers have a digit or only the first
+    while(firstLast != NULL && secondLast != NULL || secondLast != NULL){
+        //if the second number is longer than the first
+        if(firstLast == NULL){
+            insertAtFront(firstHeadRef, secondLast->digit);
+        }
+        else{
+            addDigitToNode(firstHeadRef,firstLast,secondLast->digit);
+            firstLast = firstLast->prev;
+        }
         secondLast = secondLast->prev;
     }
 }
@@ -183,3 +202,4 @@ std::string toString(struct Node* node)
     }
     return toString;
 }
+
