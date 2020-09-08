@@ -9,7 +9,6 @@ int main(int argc, char *argv[]) {
     std::string choice = argv[2];
     std::string number2 = argv[3];
 
-
     for(unsigned int i = 0; i<number1.length(); i++) {
         char c = number1[i]; //character
         //gjør c numerisk
@@ -27,15 +26,15 @@ int main(int argc, char *argv[]) {
     } else if(choice == "-"){
         std::cout << toString(head) << "\n-\n";
         std::cout << toString(head2) << "\n=\n";
-        head = (subtractLinkedList(head,head2));
-        if (number1.length() > number2.length()) {
-            std::cout << toString(head) << "\n";
-        } else
-        {   
-            head->digit *= -1;
+        //dersom tallene ble byttet om for å gjøre det mulig å regne riktig
+        if(subtractListFromList(&head,&head2)){
+            //hvis vi trekker liste 1 fra liste 2 så er svaret negativt
+            head2->digit *= -1;
+            std::cout << toString(head2) << "\n";
+        }
+        else{
             std::cout << toString(head) << "\n";
         }
-        
     }
     return 0;
 }
