@@ -19,25 +19,25 @@ binaryTree* insertNode(binaryTree* rootPointer, string value){
         int i = 0;
         while (i < node->value.size()){
             //if it comes before
-            if(node->value.at(i) < compareToNode->value.at(i) && compareToNode->leftChild == NULL){
+            if(node->value < compareToNode->value && compareToNode->leftChild == NULL){
                 compareToNode->leftChild = node;
                 node->parent = compareToNode;
                 return node;
-            } else if (node->value.at(i) < compareToNode->value.at(i) && compareToNode->leftChild != NULL){
+            } else if (node->value < compareToNode->value && compareToNode->leftChild != NULL){
                 compareToNode = compareToNode->leftChild;
             }
             //if it comes after and the right child is null it will be the new right child
-            else if(compareToNode->rightChild == NULL && node->value.at(i) > compareToNode->value.at(i)){
+            else if(compareToNode->rightChild == NULL && node->value > compareToNode->value){
                 compareToNode->rightChild = node;
                 node->parent = compareToNode;
                 return node;
             }
             //if the new node comes after and the right child is not null we compare to the right child
-            else if(node->value.at(i) > compareToNode->value.at(i)){
+            else if(node->value > compareToNode->value){
                 compareToNode = compareToNode->rightChild;
             }
             //for loop only increases if previous char was equal
-            if(node->value.at(i) == compareToNode->value.at(i)){
+            if(node->value == compareToNode->value){
                 i++;
             }
             if(i == node->value.size() -1){

@@ -29,13 +29,10 @@ int main()
     insertNode(root, "tå");
     string test = "hånd";
     string test1 = "hond";
-    cout << (test > test1) <<"\n";
+    //cout << (test > test1) <<"\n";
     //cout << root->rightChild->leftChild->leftChild->value << "\n";
-    for(int i = 1; i<5; i++){
-        //cout << printGivenLevel(root,i) << "\n";
-    }
+
     //method to enter words and insert them into the tree
-    /*
     string display = "";
     for(int i = 1; i<5; i++){
         //cout << 64/pow(2,i-1) << "\n";
@@ -43,14 +40,13 @@ int main()
         for(int k = 0; k < printGivenLevel(root, i).size();k++){
             j = 64/pow(2,i-1);
             display += multiplyString(" ", (j/2));
-            display += printGivenLevel(root,i).at(k);
+            display += printGivenLevel(root,i);
             display += multiplyString(" ", (j/2));
         }
         display += "\n";
         //display += " \n";
     }
     cout << display;
-    */
 }
 
 
