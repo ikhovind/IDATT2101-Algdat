@@ -59,60 +59,31 @@ binaryTree* insertNode(binaryTree* rootPointer, string value){
 string printGivenLevel(binaryTree* root, int level) {
     string levelToString = "";
     if (root == NULL && level == 1) {
-        cout << "test\n";
         levelToString += " ";
     }
-    else if (level == 1){
+    else if (level == 1 && root != NULL){
         levelToString+= root->value;
     }
     if (level > 1) {
-        if(root->leftChild != NULL){
-            levelToString += printGivenLevel(root->leftChild, level - 1);
+        if (root != NULL) {
+            if (root->leftChild != NULL) {
+                levelToString += printGivenLevel(root->leftChild, level - 1);
+            } else {
+                levelToString += printGivenLevel(NULL, level - 1);
+            }
+            if (root->rightChild != NULL) {
+                levelToString += printGivenLevel(root->rightChild, level - 1);
+            } else {
+                levelToString += printGivenLevel(NULL, level - 1);
+            }
         }
+        //lager to barn selv om noden er null for at disse skal ta plass i grafikken
         else{
             levelToString += printGivenLevel(NULL, level - 1);
-
-        }
-        if(root->rightChild != NULL){
-            levelToString += printGivenLevel(root->rightChild, level - 1);
-        }
-        else{
             levelToString += printGivenLevel(NULL, level - 1);
         }
     }
     return levelToString;
 }
-
-string formatNode(int width, binaryTree* currentNode) {
-    string toString = "";
-    if(width < 8) return toString;
-    cout << "bredden er: " << width << "\n";
-
-    if(currentNode == NULL) {
-        toString += " ";
-    }
-    else{
-        toString += currentNode->value;
-    }
-    if(currentNode == NULL){
-        toString +=formatNode(width / 2, NULL);
-        toString += formatNode(width / 2, NULL);
-    }
-    else{
-        toString +=formatNode(width / 2, currentNode->leftChild);
-        toString += formatNode(width / 2, currentNode->rightChild);
-    }
-    return toString;
-}
-
-
-string getLevelOrder(binaryTree* rootPointer) {
-    binaryTree *currentNode = rootPointer;
-    string toString = "";
-
-    return formatNode(64, rootPointer);
-
-}
-
 
 
