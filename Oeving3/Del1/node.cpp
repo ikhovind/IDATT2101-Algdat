@@ -159,6 +159,19 @@ void addListToList(struct Node** firstHeadRef, struct Node** secondHeadRef){
         secondLast = secondLast->prev;
     }
 }
+
+void cleanUpList(struct Node** head) {
+    struct Node* temp = *head;
+    bool isNull = true;
+    while (temp->next != NULL && isNull) {
+        temp = temp->next;
+        if (temp->digit != 0) {
+            isNull = false;
+            *head = temp;
+        }
+    }
+}
+
 //vanskelig å få til en skikkelig løsning, men dette funker
 //returnerer true hvis vi måtte trekke liste 1 fra liste 2 istedenfor motsatt
 bool subtractListFromList(struct Node** firstHeadRef, struct Node** secondHeadRef){
