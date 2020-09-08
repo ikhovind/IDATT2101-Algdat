@@ -2,13 +2,6 @@
 #include "binaryTree.cpp"
 #include <cmath>
 
-string multiplyString(string string1, int factor){
-    string temp = string1;
-    for(int i = 1; i<factor; i++){
-        string1+=temp;
-    }
-    return string1;
-}
 int main()
 {
     using namespace std;

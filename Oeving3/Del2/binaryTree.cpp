@@ -64,9 +64,8 @@ string printGivenLevel(binaryTree* root, int level, int width) {
         }
     }
     else if (level == 1 && root != NULL){
-        cout << width << " " << root->value << "\n";
         for(int i = 0; i<width; i++){
-            if(i < width-root->value.size()/2 || i > width+root->value.size()/2){
+            if(i < (width-root->value.size())/2 || i > (width+root->value.size())/2){
                 levelToString += " ";
             }
             else{
