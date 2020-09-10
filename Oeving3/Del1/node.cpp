@@ -163,12 +163,12 @@ void addListToList(struct Node** firstHeadRef, struct Node** secondHeadRef){
 void cleanUpList(struct Node** head) {
     struct Node* temp = *head;
     bool isNull = true;
-    while (temp->next != NULL && isNull) {
-        temp = temp->next;
+    while (temp->next != NULL && isNull && temp->digit != 0) {
         if (temp->digit != 0) {
             isNull = false;
             *head = temp;
         }
+        temp = temp->next;
     }
 }
 
