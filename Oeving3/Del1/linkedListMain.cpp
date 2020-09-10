@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
         std::cout << toString(head) << "\n+\n";
         std::cout << toString(head2) << "\n=\n";
         addListToList(&head,&head2);
-        cleanUpList(&head);
+
         std::cout << toString(head) << "\n";
     } else if(choice == "-"){
         std::cout << toString(head) << "\n-\n";
@@ -32,10 +32,11 @@ int main(int argc, char *argv[]) {
             //hvis vi trekker liste 1 fra liste 2 så er svaret negativt
             cleanUpList(&head2);
             head2->digit *= -1;
+
             std::cout << toString(head2) << "\n";
         }
         else{
-            cleanUpList(&head);
+	   cleanUpList(&head2);
             std::cout << toString(head) << "\n";
         }
     }
