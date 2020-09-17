@@ -1,0 +1,3 @@
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving4/Del1/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving4/Del1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving4/Del1/cmake-build-debug/CMakeFiles/Del1.dir

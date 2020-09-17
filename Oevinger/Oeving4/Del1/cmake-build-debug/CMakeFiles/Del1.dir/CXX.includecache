@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving4/Del1/main.cpp
+stdio.h
+-
+memory.h
+-
+iostream
+-
+fstream
+-
+
