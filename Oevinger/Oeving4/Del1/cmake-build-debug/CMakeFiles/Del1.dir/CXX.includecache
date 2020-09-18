@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving4/Del1/main.cpp
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving4/Del1/HashTable.cpp
 stdio.h
 -
 memory.h
@@ -15,4 +15,12 @@ iostream
 -
 fstream
 -
+
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving4/Del1/main.cpp
+stdio.h
+-
+memory.h
+-
+HashTable.cpp
+/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving4/Del1/HashTable.cpp
 
