@@ -14,7 +14,6 @@ unsigned long keyGen(unsigned char *str);
 #define MAXCHAR 1000
 int main() {
     using namespace std;
-    unsigned char line[MAXCHAR];
     char str[MAXCHAR];
     char* filename = "navn20.txt";
     FILE *fp;
@@ -36,10 +35,7 @@ int main() {
         struct placedLink name = {NULL, NULL};
         memcpy(name.name,str, sizeof(str));
         printf("%lu\n", multhash(keyGen(name.name),7));
-        counter++;
     }
-    printf("\nmin: %lu", min);
-    printf("\nmax: %lu", max);
     fclose(fp);
     return 0;
 }
