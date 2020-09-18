@@ -16,7 +16,7 @@ int main() {
     {
         struct placedLink name = {nullptr};
         memcpy(name.name, str, sizeof(str));
-        place(&name,strlen(str));
+        place(name,strlen(str));
     }
     for(int i = 0; i < 128; i++){
            printf("output %s\n", (hashTable[i]).name);

@@ -22,18 +22,20 @@ unsigned long multhash(int k, int x){
     return k * knuth >> (32-x);
 }
 
-unsigned place(placedLink *name, int length){
-    unsigned index = (keyGen(name,length));
+unsigned place(placedLink name, int length){
+    unsigned index = (keyGen(&name,length));
     if(hashTable[index].next == NULL){
-        hashTable[index].next = name;
-        printf("input %s",hashTable[index].next->name);
+        memcpy(hashTable[index].name, "test", sizeof("test"));
+        printf("input %s\n",hashTable[index].name);
     }
     else{
         placedLink *current ={hashTable[index].next};
+        /*
         while(current->next != NULL){
             printf("kollisjon på %d\n", index);
         }
-        current->next = name;
+        current->next = &name;
+         */
     }
     return index;
 }
