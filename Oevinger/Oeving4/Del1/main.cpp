@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <memory.h>
 #include "HashTable.cpp"
-#define MAXCHAR 1000
+#define MAXCHAR 100
 
 int main() {
     using namespace std;
@@ -15,11 +15,11 @@ int main() {
     while (fgets(str, MAXCHAR, fp) != NULL)
     {
         struct placedLink name = {nullptr};
-        memcpy(name.name,str, sizeof(str));
+        memcpy(name.name, str, sizeof(str));
         place(&name,strlen(str));
     }
     for(int i = 0; i < 128; i++){
-            printf("%s\n", hashTable[i].name);
+           printf("output %s\n", (hashTable[i]).name);
     }
     fclose(fp);
     return 0;

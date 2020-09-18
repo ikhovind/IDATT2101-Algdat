@@ -2,15 +2,10 @@
 #include <memory.h>
 #include <iostream>
 #include <fstream>
-
+#include "HashTable.h"
 using namespace std;
 unsigned long multhash(int k, int x);
-struct placedLink{
-    struct placedLink *next;
-    unsigned char name[];
-};
 
-placedLink hashTable[128];
 unsigned long keyGen(placedLink *name, int length){
     using namespace std;
     unsigned long sum = 0;
@@ -31,12 +26,14 @@ unsigned place(placedLink *name, int length){
     unsigned index = (keyGen(name,length));
     if(hashTable[index].next == NULL){
         hashTable[index].next = name;
+        printf("input %s",hashTable[index].next->name);
     }
     else{
         placedLink *current ={hashTable[index].next};
         while(current->next != NULL){
-            current->next = name;
             printf("kollisjon på %d\n", index);
         }
+        current->next = name;
     }
+    return index;
 }
