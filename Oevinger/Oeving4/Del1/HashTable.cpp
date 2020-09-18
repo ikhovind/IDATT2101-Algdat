@@ -22,10 +22,11 @@ unsigned long multhash(int k, int x){
     return k * knuth >> (32-x);
 }
 
-unsigned place(placedLink name, int length){
-    unsigned index = (keyGen(&name,length));
+unsigned place(placedLink *name, int length){
+    unsigned index = (keyGen(name,length));
     if(hashTable[index].next == NULL){
-        memcpy(hashTable[index].name, "test", sizeof("test"));
+        //temp size while i figure some shit out
+        memcpy(hashTable[index].name, name->name, sizeof("Ingebrigt Kristoffer Thomassen, Hovind"));
         printf("input %s\n",hashTable[index].name);
     }
     else{

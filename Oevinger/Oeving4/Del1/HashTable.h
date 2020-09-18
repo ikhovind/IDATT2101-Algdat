@@ -9,6 +9,6 @@ struct placedLink{
     unsigned char name[];
 };
 
-placedLink hashTable[128] = {};
+placedLink hashTable[128];
 
 #endif //DEL1_HASHTABLE_H
