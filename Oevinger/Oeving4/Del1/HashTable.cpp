@@ -1,20 +1,16 @@
-#include <stdio.h>
-#include <memory.h>
 #include <iostream>
-#include <fstream>
 #include <list>
-#include <algorithm>
 
 using namespace std;
 
 class HashTable{
 private:
+    //Bruker c++ sine innebygde lenkede liste,
+    // dette er en doubly linked list, men den brukes bare i én retning
     list<std::string> *table;
     int totalElements;
 
 public:
-    //Bruker c++ sine innebygde lenkede liste,
-    // dette er en doubly linked list, men den brukes bare i én retning
     HashTable(int n){
         totalElements = n;
         table = new list<std::string>[totalElements];

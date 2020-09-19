@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <memory.h>
+#include <fstream>
 #include "HashTable.cpp"
 #define MAXCHAR 100
 
