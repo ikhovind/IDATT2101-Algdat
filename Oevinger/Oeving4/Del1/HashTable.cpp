@@ -3,40 +3,57 @@
 #include <iostream>
 #include <fstream>
 #include "HashTable.h"
+#include <list>
+
 using namespace std;
-unsigned long multhash(int k, int x);
 
-unsigned long keyGen(placedLink *name, int length){
-    using namespace std;
-    unsigned long sum = 0;
-    for(int i = 0; i < length; i++){
-        //ganger med  7^i
-        sum = sum * 7+ (name->name[i])*(7);
+class HashTable{
+private:
+    list<std::string> *table;
+    int total_elements;
+
+public:
+    // Constructor to create a hash table with 'n' indices:
+    HashTable(int n){
+        total_elements = n;
+        table = new list<std::string>[total_elements];
     }
-    //får ikke til å funke uten metodekall
-    return multhash(sum,7);
-}
 
-unsigned long multhash(int k, int x){
-    const std::uint32_t knuth = 2654435769;
-    return k * knuth >> (32-x);
-}
+private:
 
-unsigned place(placedLink *name, int length){
-    unsigned index = (keyGen(name,length));
-    if(hashTable[index].next == NULL){
-        //temp size while i figure some shit out
-        memcpy(hashTable[index].name, name->name, sizeof("Ingebrigt Kristoffer Thomassen, Hovind"));
-        printf("input %s\n",hashTable[index].name);
-    }
-    else{
-        placedLink *current ={hashTable[index].next};
-        /*
-        while(current->next != NULL){
-            printf("kollisjon på %d\n", index);
+    unsigned long keyGen(std::string name, int length){
+        using namespace std;
+        unsigned long sum = 0;
+        for(int i = 0; i < length; i++){
+            //ganger med  7^i
+            sum = sum * 7+ (name.at(i))*(7);
         }
-        current->next = &name;
-         */
+        //får ikke til å funke uten metodekall
+        return multHash(sum, 7);
     }
-    return index;
-}
+
+    unsigned long multHash(int k, int x){
+        const std::uint32_t knuth = 2654435769;
+        return k * knuth >> (32-x);
+    }
+
+public:
+    // Insert data in the hash table:
+    void insertElement(std::string name){
+        //TODO fix
+        table[keyGen(name, name.string::length())].push_back(name);
+    }
+
+    void printAll(){
+        // Traverse each index:
+        for(int i = 0; i < total_elements; i++){
+            cout << "Index " << i << ": ";
+            // Traverse the list at current index:
+            for(std::string j : table[i])
+                cout << j << " => ";
+
+            cout << endl;
+        }
+    }
+};
+

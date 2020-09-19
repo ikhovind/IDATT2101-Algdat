@@ -5,23 +5,15 @@
 
 int main() {
     using namespace std;
-    char str[MAXCHAR];
-    char* filename = "navn20.txt";
-    FILE *fp;
-    fp = fopen(filename, "r");
-    if (fp == NULL){
-        return 1;
-    }
-    while (fgets(str, MAXCHAR, fp) != NULL)
+    string item_name;
+    ifstream nameFileout;
+    nameFileout.open("navn20.txt");
+    string line;
+    HashTable hashTable1(128);
+    while(std::getline(nameFileout, line))
     {
-        struct placedLink name = {nullptr};
-        memcpy(name.name, str, sizeof(str));
-        place(&name,strlen(str));
+        hashTable1.insertElement(line);
     }
-    for(int i = 0; i < 128; i++){
-        printf("output %s\n",hashTable->name);
-    }
-    fclose(fp);
-    return 0;
+    hashTable1.printAll();
 }
 
