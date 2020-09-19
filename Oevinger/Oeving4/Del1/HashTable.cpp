@@ -26,13 +26,13 @@ private:
         unsigned long sum = 0;
         for(int i = 0; i < length; i++){
             //ganger med  7^i
-            sum = sum * 7+ (name.at(i))*(7);
+            sum += sum * 7+ (name.at(i))*(7);
         }
         //får ikke til å funke uten metodekall
         return multHash(sum, 7);
     }
 
-    unsigned long multHash(int k, int x){
+    unsigned long multHash(unsigned k, int x){
         const std::uint32_t knuth = 2654435769;
         return k * knuth >> (32-x);
     }
@@ -46,14 +46,21 @@ public:
 
     void printAll(){
         // Traverse each index:
-        for(int i = 0; i < total_elements; i++){
+        int counter = 0;
+        for(int i = 0; i < total_elements; i++) {
+            int innerCounter = 0;
             cout << "Index " << i << ": ";
             // Traverse the list at current index:
-            for(std::string j : table[i])
+            for (std::string j : table[i]){
+                innerCounter++;
                 cout << j << " => ";
-
+            }
+            if(innerCounter > 1){
+                counter += innerCounter-1;
+            }
             cout << endl;
         }
+        cout << "antall kollisjoner " << counter << endl;
     }
 };
 
