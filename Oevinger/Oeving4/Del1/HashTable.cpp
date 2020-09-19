@@ -2,60 +2,78 @@
 #include <memory.h>
 #include <iostream>
 #include <fstream>
-#include "HashTable.h"
 #include <list>
+#include <algorithm>
 
 using namespace std;
 
 class HashTable{
 private:
     list<std::string> *table;
-    int total_elements;
+    int totalElements;
 
 public:
-    // Constructor to create a hash table with 'n' indices:
+    //Bruker c++ sine innebygde lenkede liste,
+    // dette er en doubly linked list, men den brukes bare i én retning
     HashTable(int n){
-        total_elements = n;
-        table = new list<std::string>[total_elements];
+        totalElements = n;
+        table = new list<std::string>[totalElements];
     }
 
 private:
-
-    unsigned long keyGen(std::string name, int length){
+    unsigned long keyGen(std::string name){
         using namespace std;
         unsigned long sum = 0;
-        for(int i = 0; i < length; i++){
+        for(int i = 0; i < name.string::length(); i++){
             //ganger med  7^i
             sum += sum * 7+ (name.at(i))*(7);
         }
-        //får ikke til å funke uten metodekall
+        //får segmentation fault dersom jeg prøver å flytte utregningen fra multHash inn i keyGen?
+        //men det fungerer slik det er nå
         return multHash(sum, 7);
     }
 
-    unsigned long multHash(unsigned k, int x){
+    unsigned long multHash(unsigned sum, int x){
         const std::uint32_t knuth = 2654435769;
-        return k * knuth >> (32-x);
+        return sum * knuth >> (32-x);
     }
 
 public:
-    // Insert data in the hash table:
+    //Sette data inn i hashTable:
     void insertElement(std::string name){
-        //TODO fix
-        table[keyGen(name, name.string::length())].push_back(name);
+        table[keyGen(name)].push_back(name);
+    }
+    //Brukes til å lete etter et navn i tabellen
+    bool existsInTable(std::string name){
+        //finner hashen
+        int index = keyGen(name);
+        //itererer over alle navnene med samme hash
+        for(std::string s : table[index]){
+            //dersom et av navnene er like
+            if (name == s){
+                return true;
+            }
+        }
+        return false;
     }
 
     void printAll(){
-        // Traverse each index:
+        //brukes til å telle antall kollisjoner totalt
         int counter = 0;
-        for(int i = 0; i < total_elements; i++) {
+
+        for(int i = 0; i < totalElements; i++) {
             int innerCounter = 0;
             cout << "Index " << i << ": ";
-            // Traverse the list at current index:
+            //Traverserer listen og printer ut denne
             for (std::string j : table[i]){
+                //teller antall navn på samme indeks
                 innerCounter++;
+                //dersom det er en kollisjon så indikeres dette med en slik pil
                 cout << j << " => ";
             }
+            //dersom det er mer enn ett navn på en indeks så er det kollisjoner
             if(innerCounter > 1){
+                //counter teller antall kollisjoner, som er antall navn som ble lagt til etter det første
                 counter += innerCounter-1;
             }
             cout << endl;
