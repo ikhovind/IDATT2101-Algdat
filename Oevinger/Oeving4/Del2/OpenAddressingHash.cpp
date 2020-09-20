@@ -22,7 +22,7 @@ unsigned hashTwo(int num){
 
 unsigned insertNum(int *key, int length, int *hashTable[]){
     //std::cout << "\ninputrunde:\n";
-    long int hash1 = hashOne(*key);
+    const long int hash1 = hashOne(*key);
     int index = -1;
     if(!hashTable[hash1]){
         hashTable[hash1] = key;
@@ -30,31 +30,35 @@ unsigned insertNum(int *key, int length, int *hashTable[]){
     }
     else{
         collisions++;
-        long int hash2 = hashTwo(*key);
-        if(hash1+hash2 >= length){
-            hash1 = (hash1 > hash2) ? length-hash1 : length-hash2;
+        const long int hash2 = hashTwo(*key);
+        long int sum = hash1 + hash2;
+        if(sum >= length){
+            sum -=length;
         }
-        while(hashTable[hash1+hash2] != NULL){
+        while(hashTable[sum] != NULL){
+            collisions++;
             std::cout << "kollisjon\n" << std::endl;
             /*
             std::cout << "hash1 " << hash1 << std::endl;
             std::cout << "hash2 " << hash2 << std::endl;
             std::cout << "lengde " << length << std::endl;
              */
-            hash2 += hash2;
-            if((hash1 + hash2) >= length){
-                hash2 = hash1 + hash2;
-                hash2 -= length;
-                hash1 = 0;
+            sum += hash2;
+            if((sum) >= length){
+                sum-=length;
                 /*
                 std::cout << "hash1 etter " << hash1 << std::endl;
                 std::cout << "test \n\n\n\n\n";
                 std::cout << "hash2 etter " << hash2 << std::endl;
                  */
             }
+            if(collisions > 50){
+                sum %= length;
+                std::cout << "fack\n";
+            }
         }
-        hashTable[hash1 + hash2] = key;
-        index = hash1+ hash2;
+        hashTable[sum] = key;
+        index = sum;
     }
     return index;
 }
