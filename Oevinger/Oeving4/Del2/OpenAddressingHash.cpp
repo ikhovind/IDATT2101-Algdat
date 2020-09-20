@@ -2,7 +2,10 @@
 #include <iostream>
 #include <cstdint>
 #include <climits>
-
+#include <iostream>
+#include <chrono>
+#include <cmath>
+#include <unordered_map>
 #define twoToTwentyFour 16777216U
 int collisions = 0;
 unsigned hashOne(int num){
@@ -14,9 +17,6 @@ unsigned hashOne(int num){
 unsigned hashTwo(int num){
     //gir kun oddetall
     unsigned value = ((2*num+1)%twoToTwentyFour);
-    if(value == 0 || value == twoToTwentyFour){
-        std::cout << "feil" << std::endl;
-    }
     return (value);
 }
 
@@ -29,33 +29,14 @@ unsigned insertNum(int *key, int length, int *hashTable[]){
         index = hash1;
     }
     else{
+        //kolliderer etter første hash
         collisions++;
         const long int hash2 = hashTwo(*key);
-        long int sum = hash1 + hash2;
-        if(sum >= length){
-            sum -=length;
-        }
+        long int sum = (hash1 + hash2) % length;
         while(hashTable[sum] != NULL){
+            //dersom det kolliderer etter andre og påfølgende hash
             collisions++;
-            std::cout << "kollisjon\n" << std::endl;
-            /*
-            std::cout << "hash1 " << hash1 << std::endl;
-            std::cout << "hash2 " << hash2 << std::endl;
-            std::cout << "lengde " << length << std::endl;
-             */
-            sum += hash2;
-            if((sum) >= length){
-                sum-=length;
-                /*
-                std::cout << "hash1 etter " << hash1 << std::endl;
-                std::cout << "test \n\n\n\n\n";
-                std::cout << "hash2 etter " << hash2 << std::endl;
-                 */
-            }
-            if(collisions > 50){
-                sum %= length;
-                std::cout << "fack\n";
-            }
+            sum = (sum+hash2)%length;
         }
         hashTable[sum] = key;
         index = sum;
@@ -76,12 +57,26 @@ int main() {
         int random = rand();
         normalArray[i] = random;
     }
-    //TODO kjører bra opp til ca 7-8 millioner, så blir det bare kollisjoner?
+    std::chrono::milliseconds start = std::chrono::duration_cast< std::chrono::milliseconds 	>(std::chrono::system_clock::now().time_since_epoch());
     for(int i = 0; i < 10000000; i++){
-        std::cout << "indeks: " << i << std::endl;
         insertNum(&normalArray[i], twoToTwentyFour, hashMap);
     }
+    std::chrono::milliseconds end = std::chrono::duration_cast< std::chrono::milliseconds 	>(std::chrono::system_clock::now().time_since_epoch());
+
+    std::cout << "Millisekunder: " << (end-start).count() << std::endl;
     std::cout << "Antall kollisjoner: " << collisions << std::endl;
+    std::cout << "Lastfaktor: " << 10000000.0/twoToTwentyFour << std::endl;
+
+    std::unordered_map<int, int> m;
+
+    std::chrono::milliseconds start2 = std::chrono::duration_cast< std::chrono::milliseconds 	>(std::chrono::system_clock::now().time_since_epoch());
+    for(int i = 0; i < 10000000; i++){
+        //TODO this does not hash, only places the number at its own index i think
+        m[normalArray[i]] = normalArray[i];
+    }
+    std::chrono::milliseconds end2 = std::chrono::duration_cast< std::chrono::milliseconds 	>(std::chrono::system_clock::now().time_since_epoch());
+    std::cout << "Millisekunder: " << (end2-start2).count() << std::endl;
+
     return 0;
 }
 
