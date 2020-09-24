@@ -53,7 +53,7 @@ public:
         return false;
     }
 
-    void printAll(){
+    int printAll(){
         //brukes til å telle antall kollisjoner totalt
         int counter = 0;
 
@@ -74,7 +74,7 @@ public:
             }
             cout << endl;
         }
-        cout << "antall kollisjoner " << counter << endl;
+        return counter;
     }
 };
 

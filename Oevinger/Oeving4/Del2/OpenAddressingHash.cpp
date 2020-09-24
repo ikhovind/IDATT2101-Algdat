@@ -1,8 +1,5 @@
 
 #include <iostream>
-#include <cstdint>
-#include <climits>
-#include <iostream>
 #include <chrono>
 #include <cmath>
 #include <unordered_map>
@@ -21,7 +18,6 @@ unsigned hashTwo(int num){
 }
 
 unsigned insertNum(int *key, int length, int *hashTable[]){
-    //std::cout << "\ninputrunde:\n";
     const long int hash1 = hashOne(*key);
     int index = -1;
     if(!hashTable[hash1]){
@@ -51,12 +47,15 @@ int main() {
     /* initialize random seed: */
     srand (time(NULL));
 
-    /* generate secret number between 1 and 10: */
     for(int i = 0; i < 10000000; i++){
         //RAND_MAX er på ca 2 milliarder, som er mye større enn vår 16 millioner lange tabell
         int random = rand();
         normalArray[i] = random;
     }
+
+
+
+    //tidtaking og utskrift av min metode
     std::chrono::milliseconds start = std::chrono::duration_cast< std::chrono::milliseconds 	>(std::chrono::system_clock::now().time_since_epoch());
     for(int i = 0; i < 10000000; i++){
         insertNum(&normalArray[i], twoToTwentyFour, hashMap);
@@ -67,11 +66,13 @@ int main() {
     std::cout << "Antall kollisjoner: " << collisions << std::endl;
     std::cout << "Lastfaktor: " << 10000000.0/twoToTwentyFour << std::endl;
 
+
+
+    //tidtaking og utskrift av c++ sin metode
     std::unordered_map<int, int> m;
 
     std::chrono::milliseconds start2 = std::chrono::duration_cast< std::chrono::milliseconds 	>(std::chrono::system_clock::now().time_since_epoch());
     for(int i = 0; i < 10000000; i++){
-        //TODO this does not hash, only places the number at its own index i think
         m[normalArray[i]] = normalArray[i];
     }
     std::chrono::milliseconds end2 = std::chrono::duration_cast< std::chrono::milliseconds 	>(std::chrono::system_clock::now().time_since_epoch());

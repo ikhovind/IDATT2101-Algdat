@@ -18,10 +18,11 @@ int main() {
         hashTable1.insertElement(line);
     }
     //Hvilke navn som kolliderte vises grafisk
-    hashTable1.printAll();
+    int collisions = hashTable1.printAll();
     //kunne ha oppnådd en en mer gunstig lastfaktor dersom vi hadde hashet med modulo og ikke heltallsdivisjon
     //Fokus på hastighet førte til at vi valgte 2^7 som tabellstørrelse, som er en del større enn de 85 navnene som skulle lagres
     cout << "Lastfaktor: " << nameCounter/128.0 << endl;
+    cout << "Kollisjoner per navn: " << ((double)collisions)/nameCounter << endl;
     //Viser at den finnes igjen i tabellen
     if(hashTable1.existsInTable("Ingebrigt Kristoffer Thomassen,Hovind")){
         cout << "Ingebrigt finnes i tabellen" << endl;
