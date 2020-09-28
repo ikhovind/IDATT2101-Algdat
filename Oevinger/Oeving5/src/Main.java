@@ -16,6 +16,10 @@ public class Main {
         for(Node n : table.depthFirst(1,0)){
             System.out.println(n.toString());
         }
+        //Gå gjennom nodene og finn de med senest ferdig tid, kjør dybde først på hver disse, grafene man får ut da etter å has kjørt det sekvensielt blir de sterkt sammenhengende
+        //dvs start med kolonner istedenfor rader når man søker kanskje?
+        //Det eneste vi er interessert i fra første søk er finishTime, så kan simpelthen legge til alle nodene etter sorteringene i én liste
+        //Flytt for-løkka ut av metoden? 
     }
 }
 
