@@ -9,24 +9,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+//TODO bytt fra arraylist til array i hele programmet
+//TODO prøv å gi mer minne til java
 public class Main {
     public static void main(String[] args) throws IOException {
-        File linkedGraph = new File("L7Skandinavia");
+        File linkedGraph = new File("D:\\uni - 2\\Algoritmer og datastrukturer\\Oevinger\\Oeving5\\L7Skandinavia");
 
-        LinkedListGraph linkedTable = new LinkedListGraph(new BufferedReader(new FileReader(linkedGraph)));
         //svar fra nabolisten
 
-        HashMap<Integer, List<Node>> stronglyConnectedLink = linkedTable.getStronglyConnnected();
+        HashMap<Integer, List<Node>> stronglyConnectedLink = new LinkedListGraph(new BufferedReader(new FileReader(linkedGraph))).getStronglyConnnected();
+        System.gc();
         //svar fra nabotabellen
         String answerLinked = "Komponent   :   Noder i Komponenten\n";
         int componentsLinked = 0;
         for (Map.Entry<Integer, List<Node>> set : stronglyConnectedLink.entrySet()) {
-            answerLinked += set.getKey() + " : ";
+            //answerLinked += set.getKey() + " : ";
             componentsLinked++;
             for(Node n : set.getValue()){
-                answerLinked += n.index + " ";
+                //answerLinked += n.index + " ";
             }
-            answerLinked+="\n";
+            //answerLinked+="\n";
         }
         System.out.println("Grafen har " + componentsLinked + " sterkt sammenhengende komponenter");
        //System.out.println(answerLinked);
@@ -286,6 +288,7 @@ class LinkedListGraph {
         tempEdge.nextEdge = new Edge(toNode,null);
     }
     public List<Node> depthFirst(int index, int dist) {
+        System.gc();
         Node startNode = nodes[index];
         if(startNode.foundTime == 0){
             startNode.setFoundTime();
@@ -319,6 +322,7 @@ class LinkedListGraph {
         return foundNodes;
     }
     public HashMap<Integer, List<Node>> getStronglyConnnected(){
+        System.gc();
         HashMap<Integer, List<Node>> testingHash = new HashMap<>();
         List<Node> foundNodes = sortByFoundTime();
         LinkedListGraph transposeTable = new LinkedListGraph(transposeTable());
