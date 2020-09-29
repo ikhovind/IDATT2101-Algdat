@@ -3,7 +3,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +13,19 @@ public class Main {
     public static void main(String[] args) throws IOException {
         File graph = new File("L7g6");
 
-        BufferedReader br = new BufferedReader(new FileReader(graph));
-        Graphtable table = new Graphtable(br);
+        GraphTable doubleArrayGraph = new GraphTable(new BufferedReader(new FileReader(graph)));
+        LinkedListGraph linkedTable = new LinkedListGraph(new BufferedReader(new FileReader(graph)));
 
-        HashMap<Integer, List<Node>> stronglyConnected = table.getStronglyConnnected();
-        String answer = "";
-        answer = "Komponent   :   Noder i Komponenten\n";
+
+        //svar fra nabolisten
+        System.out.println(linkedTable.toString());
+        System.out.println("-------------------------------------");
+        System.out.println(linkedTable.transposeTable().toString());
+        System.out.println("-------------------------------------");
+
+        HashMap<Integer, List<Node>> stronglyConnected = doubleArrayGraph.getStronglyConnnected();
+        //svar fra nabotabellen
+        String answer = "Komponent   :   Noder i Komponenten\n";
         int components = 0;
         for (Map.Entry<Integer, List<Node>> set : stronglyConnected.entrySet()) {
             answer += set.getKey() + " : ";
@@ -31,8 +37,6 @@ public class Main {
         }
         System.out.println("Grafen har " + components + " sterkt sammenhengende komponenter");
         System.out.println(answer);
-        GraphLinkedList test = new GraphLinkedList(new BufferedReader(new FileReader(graph)));
-        System.out.println(test.toString());
     }
 
 }
@@ -40,16 +44,16 @@ public class Main {
 
 
 class Edge{
-    Edge next;
-    Node to;
+    Edge nextEdge = null;
+    Node to = null;
+    boolean exist = false;
+
     public Edge(){
-        exist = false;
     }
-    public Edge(Node n, Edge next){
+    public Edge(Node n, Edge nextEdge){
         to = n;
-        this.next = next;
+        this.nextEdge = nextEdge;
     }
-    boolean exist;
 }
  class Node{
     static int inf = 1000000000;
@@ -58,7 +62,8 @@ class Edge{
     int foundTime;
     int finsishedTime;
     int dist = inf;
-    Edge next = null;
+    Edge nextEdge = null;
+
     public Node(int index){
         this.index = index;
     }
@@ -86,12 +91,13 @@ class Edge{
 /**
  * Grafer som nabotabell, denne klarer ikke håndtere Skandinaviagrafen, da pcen min har for lite
  * ram til heapen som trengs :)
+ * I verste-fall så blir det n^2 plass, som blir ca 22 gb med 142 mb hver side
  */
-class Graphtable{
+class GraphTable {
     int N;
     Edge edgeTable[][];
     Node nodes[];
-    public Graphtable(BufferedReader br) throws IOException {
+    public GraphTable(BufferedReader br) throws IOException {
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         edgeTable = new Edge[N][N];
@@ -110,7 +116,7 @@ class Graphtable{
             edgeTable[from][to].exist = true;
         }
     }
-    public Graphtable(Edge[][] edgeTable){
+    public GraphTable(Edge[][] edgeTable){
         this.edgeTable = edgeTable;
         nodes = new Node[edgeTable.length];
         for(int i = 0; i < edgeTable.length; i++){
@@ -182,7 +188,7 @@ class Graphtable{
     public HashMap<Integer, List<Node>> getStronglyConnnected(){
         HashMap<Integer, List<Node>> testingHash = new HashMap<>();
         List<Node> foundNodes = sortByFoundTime();
-        Graphtable transposeTable = new Graphtable(transposeTable());
+        GraphTable transposeTable = new GraphTable(transposeTable());
         int counter = 0;
         for(Node n : foundNodes){
             ArrayList<Node> tempList = new ArrayList<>();
@@ -201,10 +207,10 @@ class Graphtable{
     }
 }
 
-class GraphLinkedList{
+class LinkedListGraph {
     Node[] nodes;
     int N;
-    public GraphLinkedList(BufferedReader br) throws IOException {
+    public LinkedListGraph(BufferedReader br) throws IOException {
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         nodes = new Node[N];
@@ -217,20 +223,127 @@ class GraphLinkedList{
             st = new StringTokenizer(br.readLine());
             int from = Integer.parseInt(st.nextToken());
             int to = Integer.parseInt(st.nextToken());
-            Edge edge = new Edge(nodes[to],nodes[from].next);
-            nodes[from].next = edge;
+            Edge edge = new Edge(nodes[to],nodes[from].nextEdge);
+            nodes[from].nextEdge = edge;
         }
     }
+    public LinkedListGraph(Node[] nodes){
+        this.nodes = nodes;
+        N = nodes.length;
+    }
+    public LinkedListGraph transposeTable(){
+        Node[] transposedTable = new Node[nodes.length];
+        Edge tempEdge;
+        for(Node n : nodes){
+            transposedTable[n.index] = new Node(n.index);
+        }
+        //sjekker hvor det går veier til
+        for(int i = 0; i < nodes.length; i++){
+            //sjekker hvor det går veier fra
+            for(int j = 0; j < nodes.length; j++){
+                //dersom det er kobling fra j til i
+                if(hasConnection(nodes[j],nodes[i])){
+                    addConnection(transposedTable[i],transposedTable[j]);
+                }
+            }
+        }
+        return new LinkedListGraph(transposedTable);
+    }
+
+    private boolean hasConnection(Node from, Node to){
+        Edge tempEdge = from.nextEdge;
+        if(tempEdge == null){
+            return false;
+        }
+        while(tempEdge.nextEdge != null){
+            if(tempEdge.to.equals(to)){
+                return true;
+            }
+            tempEdge = tempEdge.nextEdge;
+        }
+        return tempEdge.to.equals(to);
+    }
+    private void addConnection(Node fromNode, Node toNode){
+        Edge tempEdge = fromNode.nextEdge;
+        if(tempEdge == null){
+            fromNode.nextEdge = new Edge(toNode,null);
+            return;
+        }
+        //finner siste kant
+        while(tempEdge.nextEdge != null){
+            tempEdge = tempEdge.nextEdge;
+        }
+        tempEdge.nextEdge = new Edge(toNode,null);
+    }
+
+    public List<Node> depthFirst(int index, int dist){
+        ArrayList<Node> foundNodes = new ArrayList<>();
+        nodes[index].dist = ++dist;
+        Edge tempEdge = nodes[index].nextEdge;
+        foundNodes.add(nodes[index]);
+
+        if(nodes[index].foundTime == 0){
+            nodes[index].setFoundTime();
+        }
+        while(tempEdge != null){
+            if(tempEdge.to.dist == Node.inf){
+                tempEdge.to.dist = dist;
+                tempEdge.to.setFoundTime();
+                foundNodes.addAll(depthFirst(tempEdge.to.index,dist));
+            }
+            tempEdge = tempEdge.nextEdge;
+        }
+        nodes[index].setFinsishedTime();
+        return foundNodes;
+    }
+
+    public List<Node> sortByFoundTime() {
+        ArrayList<Node> foundNodes = new ArrayList<>();
+        for (int i = 0; i < nodes.length; i++) {
+            for (Node n : depthFirst(i, 0)) {
+                if (!foundNodes.contains(n)) {
+                    foundNodes.add(n);
+                }
+            }
+        }
+        //sorterer i synkende rekkefølge
+        foundNodes.sort(Comparator.comparingInt(o -> -o.finsishedTime));
+        return foundNodes;
+    }
+/*
+    public HashMap<Integer, List<Node>> getStronglyConnnected(){
+        HashMap<Integer, List<Node>> testingHash = new HashMap<>();
+        List<Node> foundNodes = sortByFoundTime();
+      //  GraphTable transposeTable = new GraphTable(transposeTable());
+        int counter = 0;
+        for(Node n : foundNodes){
+            ArrayList<Node> tempList = new ArrayList<>();
+            for(Node n2 : transposeTable.depthFirst(n.index,0)){
+                if(!tempList.contains(n2)){
+                    tempList.add(n2);
+                }
+            }
+            if(!tempList.isEmpty()){
+                testingHash.put(counter, tempList);
+                counter++;
+            }
+
+        }
+        return testingHash;
+    }
+
+ */
+
 
     @Override
     public String toString() {
         String answer = "";
         for(Node n : nodes){
             answer += n.index + " => ";
-            Edge tempEdge = n.next;
+            Edge tempEdge = n.nextEdge;
             while(tempEdge != null){
                 answer += tempEdge.to.index + " => ";
-                tempEdge = tempEdge.next;
+                tempEdge = tempEdge.nextEdge;
             }
             answer +="\n";
         }
