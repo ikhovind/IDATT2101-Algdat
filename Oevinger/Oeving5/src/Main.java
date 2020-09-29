@@ -276,6 +276,7 @@ class LinkedListGraph {
     }
 
     public List<Node> depthFirst(int index, int dist){
+        //TODO slett dette, bruk has connection-metodene istedenfor
         ArrayList<Node> foundNodes = new ArrayList<>();
         nodes[index].dist = ++dist;
         Edge tempEdge = nodes[index].nextEdge;
