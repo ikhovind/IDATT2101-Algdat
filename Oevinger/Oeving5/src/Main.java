@@ -12,16 +12,16 @@ import java.util.StringTokenizer;
 public class Main {
     public static void main(String[] args) throws IOException {
         File graph = new File("L7g6");
+        LinkedListGraph linkedTable = new LinkedListGraph(new BufferedReader(new FileReader(graph)));
+        //svar fra nabolisten
+        linkedTable.getStronglyConnnected();
+        for(Node n : linkedTable.nodes){
+            System.out.println(n.toString());
+        }
+        Node.resetTime();
+        System.out.println("-------------------------------------");
 
         GraphTable doubleArrayGraph = new GraphTable(new BufferedReader(new FileReader(graph)));
-        LinkedListGraph linkedTable = new LinkedListGraph(new BufferedReader(new FileReader(graph)));
-
-
-        //svar fra nabolisten
-        System.out.println(linkedTable.toString());
-        System.out.println("-------------------------------------");
-        System.out.println(linkedTable.transposeTable().toString());
-        System.out.println("-------------------------------------");
 
         HashMap<Integer, List<Node>> stronglyConnected = doubleArrayGraph.getStronglyConnnected();
         //svar fra nabotabellen
@@ -70,6 +70,9 @@ class Edge{
     public void setFoundTime(){
         this.foundTime = ++time;
     }
+    public static void resetTime(){
+        time = 0;
+    }
     public void setFinsishedTime(){
         this.finsishedTime = ++time;
     }
@@ -91,7 +94,8 @@ class Edge{
 /**
  * Grafer som nabotabell, denne klarer ikke håndtere Skandinaviagrafen, da pcen min har for lite
  * ram til heapen som trengs :)
- * I verste-fall så blir det n^2 plass, som blir ca 22 gb med 142 mb hver side
+ * I verste-fall så blir det n^2 plass, som blir ca 22 gb med 142 mb hver side, i realiteten
+ * lavere enn dette, da tabellen er litt fullere enn dette
  */
 class GraphTable {
     int N;
@@ -124,7 +128,6 @@ class GraphTable {
         }
         N = nodes.length;
     }
-
     public String toString(){
         String toString = "";
         for(Edge[] row : edgeTable){
@@ -139,7 +142,6 @@ class GraphTable {
         }
         return toString;
     }
-
     public Edge[][] transposeTable() {
         Edge[][] transposedEdges = new Edge[edgeTable.length][edgeTable[0].length];
         for(int i = 0; i < edgeTable.length; i++){
@@ -149,7 +151,6 @@ class GraphTable {
         }
         return transposedEdges;
     }
-
     public List<Node> depthFirst(int nodeIndex, int dist){
         ArrayList<Node> foundNodes = new ArrayList<>();
         for(int i = 0; i < edgeTable[nodeIndex].length; i++){
@@ -170,7 +171,6 @@ class GraphTable {
         }
         return foundNodes;
     }
-
     private List<Node> sortByFoundTime() {
         ArrayList<Node> foundNodes = new ArrayList<>();
         for (int i = 0; i < edgeTable.length; i++) {
@@ -184,7 +184,6 @@ class GraphTable {
         foundNodes.sort(Comparator.comparingInt(o -> -o.finsishedTime));
         return foundNodes;
     }
-
     public HashMap<Integer, List<Node>> getStronglyConnnected(){
         HashMap<Integer, List<Node>> testingHash = new HashMap<>();
         List<Node> foundNodes = sortByFoundTime();
@@ -310,11 +309,11 @@ class LinkedListGraph {
         foundNodes.sort(Comparator.comparingInt(o -> -o.finsishedTime));
         return foundNodes;
     }
-/*
+
     public HashMap<Integer, List<Node>> getStronglyConnnected(){
         HashMap<Integer, List<Node>> testingHash = new HashMap<>();
         List<Node> foundNodes = sortByFoundTime();
-      //  GraphTable transposeTable = new GraphTable(transposeTable());
+        LinkedListGraph transposeTable = transposeTable();
         int counter = 0;
         for(Node n : foundNodes){
             ArrayList<Node> tempList = new ArrayList<>();
@@ -332,7 +331,7 @@ class LinkedListGraph {
         return testingHash;
     }
 
- */
+
 
 
     @Override
