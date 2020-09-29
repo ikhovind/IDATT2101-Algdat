@@ -11,18 +11,30 @@ import java.util.StringTokenizer;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        File graph = new File("L7g6");
-        LinkedListGraph linkedTable = new LinkedListGraph(new BufferedReader(new FileReader(graph)));
+        File linkedGraph = new File("L7Skandinavia");
+
+        LinkedListGraph linkedTable = new LinkedListGraph(new BufferedReader(new FileReader(linkedGraph)));
         //svar fra nabolisten
-        linkedTable.getStronglyConnnected();
-        for(Node n : linkedTable.nodes){
-            System.out.println(n.toString());
+
+        HashMap<Integer, List<Node>> stronglyConnectedLink = linkedTable.getStronglyConnnected();
+        //svar fra nabotabellen
+        String answerLinked = "Komponent   :   Noder i Komponenten\n";
+        int componentsLinked = 0;
+        for (Map.Entry<Integer, List<Node>> set : stronglyConnectedLink.entrySet()) {
+            answerLinked += set.getKey() + " : ";
+            componentsLinked++;
+            for(Node n : set.getValue()){
+                answerLinked += n.index + " ";
+            }
+            answerLinked+="\n";
         }
-        Node.resetTime();
+        System.out.println("Grafen har " + componentsLinked + " sterkt sammenhengende komponenter");
+       //System.out.println(answerLinked);
+
         System.out.println("-------------------------------------");
 
+        File graph = new File("L7g6");
         GraphTable doubleArrayGraph = new GraphTable(new BufferedReader(new FileReader(graph)));
-
         HashMap<Integer, List<Node>> stronglyConnected = doubleArrayGraph.getStronglyConnnected();
         //svar fra nabotabellen
         String answer = "Komponent   :   Noder i Komponenten\n";
@@ -38,7 +50,6 @@ public class Main {
         System.out.println("Grafen har " + components + " sterkt sammenhengende komponenter");
         System.out.println(answer);
     }
-
 }
 
 
@@ -154,7 +165,7 @@ class GraphTable {
     public List<Node> depthFirst(int nodeIndex, int dist){
         ArrayList<Node> foundNodes = new ArrayList<>();
         for(int i = 0; i < edgeTable[nodeIndex].length; i++){
-            if(nodes[nodeIndex].dist > 100000000){
+            if(nodes[nodeIndex].dist == Node.inf){
                 nodes[nodeIndex].setFoundTime();
                 nodes[nodeIndex].dist = ++dist;
                 foundNodes.add(nodes[nodeIndex]);
@@ -209,6 +220,7 @@ class GraphTable {
 class LinkedListGraph {
     Node[] nodes;
     int N;
+    static ArrayList<Node> foundNodes = new ArrayList<>();
     public LinkedListGraph(BufferedReader br) throws IOException {
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
@@ -230,7 +242,7 @@ class LinkedListGraph {
         this.nodes = nodes;
         N = nodes.length;
     }
-    public LinkedListGraph transposeTable(){
+    public Node[] transposeTable(){
         Node[] transposedTable = new Node[nodes.length];
         Edge tempEdge;
         for(Node n : nodes){
@@ -246,9 +258,8 @@ class LinkedListGraph {
                 }
             }
         }
-        return new LinkedListGraph(transposedTable);
+        return transposedTable;
     }
-
     private boolean hasConnection(Node from, Node to){
         Edge tempEdge = from.nextEdge;
         if(tempEdge == null){
@@ -274,29 +285,26 @@ class LinkedListGraph {
         }
         tempEdge.nextEdge = new Edge(toNode,null);
     }
-
-    public List<Node> depthFirst(int index, int dist){
-        //TODO slett dette, bruk has connection-metodene istedenfor
-        ArrayList<Node> foundNodes = new ArrayList<>();
-        nodes[index].dist = ++dist;
-        Edge tempEdge = nodes[index].nextEdge;
-        foundNodes.add(nodes[index]);
-
-        if(nodes[index].foundTime == 0){
-            nodes[index].setFoundTime();
+    public List<Node> depthFirst(int index, int dist) {
+        Node startNode = nodes[index];
+        if(startNode.foundTime == 0){
+            startNode.setFoundTime();
         }
-        while(tempEdge != null){
-            if(tempEdge.to.dist == Node.inf){
-                tempEdge.to.dist = dist;
-                tempEdge.to.setFoundTime();
-                foundNodes.addAll(depthFirst(tempEdge.to.index,dist));
+        startNode.dist = dist;
+        foundNodes.add(startNode);
+        Edge tempedge = startNode.nextEdge;
+        while(tempedge != null && tempedge.to != null){
+            if(tempedge.to.dist > 1000000){
+                foundNodes.addAll(depthFirst(tempedge.to.index,dist));
             }
-            tempEdge = tempEdge.nextEdge;
+            tempedge = tempedge.nextEdge;
         }
-        nodes[index].setFinsishedTime();
+        if(startNode.finsishedTime == 0){
+            startNode.setFinsishedTime();
+        }
         return foundNodes;
-    }
 
+    }
     public List<Node> sortByFoundTime() {
         ArrayList<Node> foundNodes = new ArrayList<>();
         for (int i = 0; i < nodes.length; i++) {
@@ -310,17 +318,20 @@ class LinkedListGraph {
         foundNodes.sort(Comparator.comparingInt(o -> -o.finsishedTime));
         return foundNodes;
     }
-
     public HashMap<Integer, List<Node>> getStronglyConnnected(){
         HashMap<Integer, List<Node>> testingHash = new HashMap<>();
         List<Node> foundNodes = sortByFoundTime();
-        LinkedListGraph transposeTable = transposeTable();
+        LinkedListGraph transposeTable = new LinkedListGraph(transposeTable());
+        ArrayList<Node> allFound = new ArrayList<>();
         int counter = 0;
         for(Node n : foundNodes){
             ArrayList<Node> tempList = new ArrayList<>();
             for(Node n2 : transposeTable.depthFirst(n.index,0)){
-                if(!tempList.contains(n2)){
+                //Hvis jeg ikke har denne sjekken på allFound så blir det lagt til mange ekstra komponenter med noder
+                //som har blitt lagt til allerede
+                if(!tempList.contains(n2) && !allFound.contains(n2)){
                     tempList.add(n2);
+                    allFound.add(n2);
                 }
             }
             if(!tempList.isEmpty()){
@@ -331,11 +342,6 @@ class LinkedListGraph {
         }
         return testingHash;
     }
-
-
-
-
-    @Override
     public String toString() {
         String answer = "";
         for(Node n : nodes){
