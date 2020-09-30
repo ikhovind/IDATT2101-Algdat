@@ -9,39 +9,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-//TODO bytt fra arraylist til array i hele programmet
-//TODO prøv å gi mer minne til java
 public class Main {
     public static void main(String[] args) throws IOException {
-        File linkedGraph = new File("D:\\uni - 2\\Algoritmer og datastrukturer\\Oevinger\\Oeving5\\L7Skandinavia");
 
-        //svar fra nabolisten
+        File linkedGraph = new File("L7Skandinavia");
 
+        System.out.println("Nabolista");
         HashMap<Integer, List<Node>> stronglyConnectedLink = new LinkedListGraph(new BufferedReader(new FileReader(linkedGraph))).getStronglyConnnected();
         System.gc();
         //svar fra nabotabellen
-        String answerLinked = "Komponent   :   Noder i Komponenten\n";
+        //String answerLinked = "Komponent   :   Noder i Komponenten\n";
         int componentsLinked = 0;
         for (Map.Entry<Integer, List<Node>> set : stronglyConnectedLink.entrySet()) {
             //answerLinked += set.getKey() + " : ";
             componentsLinked++;
             for(Node n : set.getValue()){
-                //answerLinked += n.index + " ";
+           //     answerLinked += n.index + " ";
             }
-            //answerLinked+="\n";
+          //  answerLinked+="\n";
         }
         System.out.println("Grafen har " + componentsLinked + " sterkt sammenhengende komponenter");
-       //System.out.println(answerLinked);
+        //System.out.println(answerLinked);
 
         System.out.println("-------------------------------------");
-
-        File graph = new File("L7g6");
+        System.out.println("nabotabellen:");
+        File graph = new File("L7g2");
         GraphTable doubleArrayGraph = new GraphTable(new BufferedReader(new FileReader(graph)));
         HashMap<Integer, List<Node>> stronglyConnected = doubleArrayGraph.getStronglyConnnected();
         //svar fra nabotabellen
         String answer = "Komponent   :   Noder i Komponenten\n";
         int components = 0;
         for (Map.Entry<Integer, List<Node>> set : stronglyConnected.entrySet()) {
+            System.out.println(set.getKey());
             answer += set.getKey() + " : ";
             components++;
             for(Node n : set.getValue()){
@@ -51,6 +50,7 @@ public class Main {
         }
         System.out.println("Grafen har " + components + " sterkt sammenhengende komponenter");
         System.out.println(answer);
+
     }
 }
 
@@ -68,7 +68,7 @@ class Edge{
         this.nextEdge = nextEdge;
     }
 }
- class Node{
+class Node{
     static int inf = 1000000000;
     static int time = 0;
     int index;
@@ -97,18 +97,13 @@ class Edge{
     public boolean equals(Object o){
         if(o == this) return true;
         if(!(o instanceof Node)) return false;
-        if(this.index == ((Node) o).index){
-            return true;
-        }
-        return false;
+        return this.index == ((Node) o).index;
     }
 }
 
 /**
  * Grafer som nabotabell, denne klarer ikke håndtere Skandinaviagrafen, da pcen min har for lite
  * ram til heapen som trengs :)
- * I verste-fall så blir det n^2 plass, som blir ca 22 gb med 142 mb hver side, i realiteten
- * lavere enn dette, da tabellen er litt fullere enn dette
  */
 class GraphTable {
     int N;
@@ -166,18 +161,22 @@ class GraphTable {
     }
     public List<Node> depthFirst(int nodeIndex, int dist){
         ArrayList<Node> foundNodes = new ArrayList<>();
+        //for hver rad i kolonnen
         for(int i = 0; i < edgeTable[nodeIndex].length; i++){
+            //hvis noden ikke er funnet
             if(nodes[nodeIndex].dist == Node.inf){
                 nodes[nodeIndex].setFoundTime();
                 nodes[nodeIndex].dist = ++dist;
                 foundNodes.add(nodes[nodeIndex]);
             }
+            //hvis det går kobling fra noden vi søker fra til node i
             else if(edgeTable[nodeIndex][i].exist && nodes[i].dist == Node.inf){
                 nodes[i].setFoundTime();
                 nodes[i].dist = ++dist;
                 foundNodes.add(nodes[i]);
                 foundNodes.addAll(depthFirst(i, dist));
             }
+            //hvis man kommer helt til slutten av nodene
             if(nodes[nodeIndex].finsishedTime == 0 && i == edgeTable[nodeIndex].length-1){
                 nodes[nodeIndex].setFinsishedTime();
             }
@@ -200,10 +199,13 @@ class GraphTable {
     public HashMap<Integer, List<Node>> getStronglyConnnected(){
         HashMap<Integer, List<Node>> testingHash = new HashMap<>();
         List<Node> foundNodes = sortByFoundTime();
+        //transponerer tabellen
         GraphTable transposeTable = new GraphTable(transposeTable());
         int counter = 0;
+        //for hver node sortert etter funnet tid
         for(Node n : foundNodes){
             ArrayList<Node> tempList = new ArrayList<>();
+            //kjører dybde først på den transponerte tabellen
             for(Node n2 : transposeTable.depthFirst(n.index,0)){
                 if(!tempList.contains(n2)){
                     tempList.add(n2);
@@ -219,10 +221,12 @@ class GraphTable {
     }
 }
 
+/**
+ * Prøvde å implementere denne for å håndtere skandinavia-grafen
+ */
 class LinkedListGraph {
     Node[] nodes;
     int N;
-    static ArrayList<Node> foundNodes = new ArrayList<>();
     public LinkedListGraph(BufferedReader br) throws IOException {
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
@@ -288,20 +292,32 @@ class LinkedListGraph {
         tempEdge.nextEdge = new Edge(toNode,null);
     }
     public List<Node> depthFirst(int index, int dist) {
-        System.gc();
+        //noden jeg søker fra
         Node startNode = nodes[index];
+        //dersom noden ikke er funnet fra før så fant jeg den nå
         if(startNode.foundTime == 0){
             startNode.setFoundTime();
+            startNode.dist = dist;
         }
-        startNode.dist = dist;
+        //nodene jeg finner i søket
+        ArrayList<Node> foundNodes = new ArrayList<>();
         foundNodes.add(startNode);
         Edge tempedge = startNode.nextEdge;
+        //dersom kanten finnes og den peker på en node
         while(tempedge != null && tempedge.to != null){
-            if(tempedge.to.dist > 1000000){
-                foundNodes.addAll(depthFirst(tempedge.to.index,dist));
+            //hvis noden kanten peker på ikke allerede er funnet
+            if(tempedge.to.dist == Node.inf){
+                //rekursivt søker fra alle nodene jeg kommer til
+                for(Node n : depthFirst(tempedge.to.index,dist)){
+                    if(!foundNodes.contains(n)){
+                        foundNodes.add(n);
+                    }
+                }
             }
+            //hopper videre til neste kan
             tempedge = tempedge.nextEdge;
         }
+        //hvis noden vi er på ikke allerede er blitt ferdig
         if(startNode.finsishedTime == 0){
             startNode.setFinsishedTime();
         }
@@ -310,8 +326,11 @@ class LinkedListGraph {
     }
     public List<Node> sortByFoundTime() {
         ArrayList<Node> foundNodes = new ArrayList<>();
+        //for hver node
         for (int i = 0; i < nodes.length; i++) {
+            //så kjører vi et dybde-først søk
             for (Node n : depthFirst(i, 0)) {
+                //legger til noden vi fant
                 if (!foundNodes.contains(n)) {
                     foundNodes.add(n);
                 }
@@ -322,14 +341,19 @@ class LinkedListGraph {
         return foundNodes;
     }
     public HashMap<Integer, List<Node>> getStronglyConnnected(){
-        System.gc();
+
         HashMap<Integer, List<Node>> testingHash = new HashMap<>();
+        //listene som har blitt funnet i dybde først søket sortert synkende på sortert tid
         List<Node> foundNodes = sortByFoundTime();
+        //transponerer tabellen
         LinkedListGraph transposeTable = new LinkedListGraph(transposeTable());
         ArrayList<Node> allFound = new ArrayList<>();
         int counter = 0;
+        //for hver node i den synkende rekkefølgen etter søket
         for(Node n : foundNodes){
+            System.out.println("test");
             ArrayList<Node> tempList = new ArrayList<>();
+            //dybde først-søk på den transponerte tabellen
             for(Node n2 : transposeTable.depthFirst(n.index,0)){
                 //Hvis jeg ikke har denne sjekken på allFound så blir det lagt til mange ekstra komponenter med noder
                 //som har blitt lagt til allerede
