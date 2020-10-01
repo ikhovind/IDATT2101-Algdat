@@ -12,35 +12,34 @@ import java.util.StringTokenizer;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        File linkedGraph = new File("L7Skandinavia");
+        File graphFile = new File("/home/ingebrigt/Documents/uni - 2/Algoritmer og " +
+            "datastrukturer/Oevinger/Oeving5/L7g6");
 
         System.out.println("Nabolista");
-        HashMap<Integer, List<Node>> stronglyConnectedLink = new LinkedListGraph(new BufferedReader(new FileReader(linkedGraph))).getStronglyConnnected();
+        HashMap<Integer, List<Node>> stronglyConnectedLink = new LinkedListGraph(new BufferedReader(new FileReader(graphFile))).getStronglyConnnected();
         System.gc();
         //svar fra nabotabellen
-        //String answerLinked = "Komponent   :   Noder i Komponenten\n";
+        String answerLinked = "Komponent   :   Noder i Komponenten\n";
         int componentsLinked = 0;
         for (Map.Entry<Integer, List<Node>> set : stronglyConnectedLink.entrySet()) {
-            //answerLinked += set.getKey() + " : ";
+            answerLinked += set.getKey() + " : ";
             componentsLinked++;
             for(Node n : set.getValue()){
-           //     answerLinked += n.index + " ";
+                answerLinked += n.index + " ";
             }
-          //  answerLinked+="\n";
+            answerLinked+="\n";
         }
         System.out.println("Grafen har " + componentsLinked + " sterkt sammenhengende komponenter");
-        //System.out.println(answerLinked);
+        System.out.println(answerLinked);
 
         System.out.println("-------------------------------------");
         System.out.println("nabotabellen:");
-        File graph = new File("L7g2");
-        GraphTable doubleArrayGraph = new GraphTable(new BufferedReader(new FileReader(graph)));
+        GraphTable doubleArrayGraph = new GraphTable(new BufferedReader(new FileReader(graphFile)));
         HashMap<Integer, List<Node>> stronglyConnected = doubleArrayGraph.getStronglyConnnected();
         //svar fra nabotabellen
         String answer = "Komponent   :   Noder i Komponenten\n";
         int components = 0;
         for (Map.Entry<Integer, List<Node>> set : stronglyConnected.entrySet()) {
-            System.out.println(set.getKey());
             answer += set.getKey() + " : ";
             components++;
             for(Node n : set.getValue()){
@@ -222,7 +221,8 @@ class GraphTable {
 }
 
 /**
- * Prøvde å implementere denne for å håndtere skandinavia-grafen
+ * Prøvde å implementere denne for å håndtere skandinavia-grafen, men får fortsatt problemer, har
+ * dessverre ikke vilje til å debugge minneproblemer i java
  */
 class LinkedListGraph {
     Node[] nodes;
@@ -351,7 +351,6 @@ class LinkedListGraph {
         int counter = 0;
         //for hver node i den synkende rekkefølgen etter søket
         for(Node n : foundNodes){
-            System.out.println("test");
             ArrayList<Node> tempList = new ArrayList<>();
             //dybde først-søk på den transponerte tabellen
             for(Node n2 : transposeTable.depthFirst(n.index,0)){
@@ -361,6 +360,7 @@ class LinkedListGraph {
                     tempList.add(n2);
                     allFound.add(n2);
                 }
+                
             }
             if(!tempList.isEmpty()){
                 testingHash.put(counter, tempList);
