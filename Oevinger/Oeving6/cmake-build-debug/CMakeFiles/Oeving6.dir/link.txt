@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Oeving6.dir/main.cpp.o  -o Oeving6 
