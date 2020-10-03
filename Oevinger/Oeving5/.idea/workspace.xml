@@ -19,15 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2b042a88-b388-42d7-9280-2e70f2b738d8" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Oeving52/Edge.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Oeving52/Edge.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Oeving52/GraphTable.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Oeving52/GraphTable.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Oeving52/LinkedListGraph.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Oeving52/LinkedListGraph.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Oeving52/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Oeving52/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Oeving52/Node.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Oeving52/Node.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-    </list>
+    <list default="true" id="2b042a88-b388-42d7-9280-2e70f2b738d8" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
