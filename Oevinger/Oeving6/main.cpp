@@ -83,10 +83,9 @@ public:
         myfile >> from >> to;
         this->noVertices = from;
         this->noEdges = to;
-        for(int i = 0; i < from; i++){
-            adj[i] = *(new list<Edge>);
-        }
-       // adj = new list<Edge>[from];
+        //lager tabell med lister
+        adj = new list<Edge>[from];
+        //størrelsen på den første heapen
         heapSize = noVertices;
 
         //leser inn kantene
@@ -104,27 +103,18 @@ public:
         return noVertices;
     }
     int* dijkstra(int start, int *distTo, NodeResult* minHeap) {
-        //std::cout << "test\n";
-        deleteRoot(minHeap, heapSize);
-        //TODO sjekk om heapSize blir redusert i delete root
         if(heapSize == 0){
             return distTo;
         }
-        /*
-         * Starter med å slette rota fra heapen - Det er den jeg jobber på nå
-         *sjekker så om det er noen av veiene i minheap som blir kortere dersom jeg går via start
-         * Kaller buildHeap og og kaller så dijkstra på det nye treet
-         * elementært resultat dersom sizeOf er null om det funker
-         * eller så kan jeg sjekke om det er en nullpointer
-         * eller så kan jeg gi alle nodene en funnet bool, og returnerer dersom alle er true
-         * Men dette skal ikke være nødvendig ettersom at jeg sletter de fra heapen etter at jeg er ferdig
-         * sjekk om heapsize blir redusert automatisk fra deleteRoot()
-         * Hvis så kan dette være den elementære utveien
-         */
-        //alle kantene fra noden vi starter fra
-        std::cout << start << std::endl;
-        //TODO nullpointer her men vet ikke hvorfor
-        list<Edge> edgesFromNode = adj[0];
+        //sletter noden vi akkurat gikk inn i fra heapen og heapsize reduseres
+        deleteRoot(minHeap, heapSize);
+        //dersom vi er i første node i grafen så er ikke denne funnet enda, så da setter vi den lik 0
+        if(distTo[start] == INT32_MAX/2){
+            distTo[start] = 0;
+        }
+
+        //alle kantene fra noden vi er i nå
+        list<Edge> edgesFromNode = adj[start];
 
 
         //for hver kant fra startnoden
@@ -134,11 +124,22 @@ public:
                 distTo[edge.to] = distTo[start] + edge.weight;
             }
         }
-        //lager ny heap, skal så bruke denne til å finne den korteste som ikke er ferdig
+        //oppdaterer heapen med alle de nye distansene
+        for(int i = 0; i < noVertices; i++){
+            minHeap[i].distFromStart = distTo[minHeap[i].index];
+        }
+        //Dersom heapen er i uorden etter at distansene har blitt oppdatert
         buildHeap(minHeap,heapSize);
+        //Kaller dijkstra på nytt på elementet i heapen med minst distanse
+        return dijkstra(minHeap[0].index,distTo,minHeap);
     }
+    //brukes sånn at man skal slippe å lage heap i main
     int* outerDijkstra(int start, int *distTo){
         NodeResult minHeap[noVertices];
+        for(int i = 0; i < noVertices; i++){
+            distTo[i] = INT32_MAX/2;
+            minHeap[i] = NodeResult{i,INT32_MAX/2};
+        }
         return dijkstra(start,distTo,minHeap);
     }
     //TODO implementer printing av dijkstra
@@ -148,7 +149,11 @@ int main(int argc, char** argv){
 
     Graph *g = new Graph("Grafer/vg1.txt");
     int resultArray[g->getNoNodes()];
+
     g->outerDijkstra(0,resultArray);
+    for(int i = 0; i < g->getNoNodes(); i++){
+        std::cout << resultArray[i] << std::endl;
+    }
 }
 
 
