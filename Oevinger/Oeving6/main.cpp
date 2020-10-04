@@ -27,7 +27,6 @@ public:
         //leser inn kantene
         while (myfile >> from >> to >> weight)
         {
-            std::cout << to << std::endl;
             Edge next = {to, weight};
             addEdge(from, next);
         }
@@ -38,13 +37,30 @@ public:
     }
     //TODO usikker om denne skal ha returtype eller om det bare blir lettere dersom jeg deklarerer arrayet eller dataen inne i metoden og printer den der
     int* dijkstra(int start){
-        //TODO implementer dijkstra
+
+        //minimum heap som holder på avstandene til de andre noden
+        int minHeap[adj->size()];
+        list<Edge> startNode = adj[start];
+        for(int i = 0; i < adj->size(); i++){
+            //TODO vurder å bruke bool found for første sjekk av avstand istedenfor
+            minHeap[i] = INT32_MAX / 2;
+            std::cout << "max int " << minHeap[i] << std::endl;
+        }
+        minHeap[start] = 0;
+        //itererer over listen
+        for (auto const& i : startNode) {
+            //alle nodene som det går direkte vei til
+            minHeap[start] = i.weight;
+        }
+
+        adj[start];
     };
     //TODO implementer printing av dijkstra
 };
 
 int main(int argc, char** argv){
     Graph *g = new Graph(argv[1]);
+    g->dijkstra(9);
 }
 
 
