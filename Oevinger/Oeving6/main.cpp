@@ -8,45 +8,68 @@ using namespace std;
 struct Edge{
     int to;
     int weight;
+    bool ferdig = false;
+};
+struct NodeResult{
+    int index;
+    int distFromStart;
 };
 //brukes til å lage en min-heap av et sub-tre i arrayet
-void heapify(int arr[], int n, int i)
+void heapifySubTree(NodeResult *arr, int n, int i)
 {
     int smallest = i; // Initialize smallest as root
     int l = 2 * i + 1; // left = 2*i + 1
     int r = 2 * i + 2; // right = 2*i + 2
 
     // If left child is smaller than root
-    if (l < n && arr[l] < arr[smallest])
+    if (l < n && arr[l].distFromStart < arr[smallest].distFromStart)
         smallest = l;
 
     // If right child is smaller than smallest so far
-    if (r < n && arr[r] < arr[smallest])
+    if (r < n && arr[r].distFromStart < arr[smallest].distFromStart)
         smallest = r;
 
     // If smallest is not root
     if (smallest != i) {
         swap(arr[i], arr[smallest]);
 
-        // Recursively heapify the affected sub-tree
-        heapify(arr, n, smallest);
+        // Recursively heapifySubTree the affected sub-tree
+        heapifySubTree(arr, n, smallest);
     }
 }
 
-void buildHeap(int arr[], int n)
+void buildHeap(NodeResult arr[], int n)
 {
     // Index of last non-leaf node
     int startIdx = (n / 2) - 1;
 
     // Perform reverse level order traversal
-    // from last non-leaf node and heapify
+    // from last non-leaf node and heapifySubTree
     // each node
     for (int i = startIdx; i >= 0; i--) {
-        heapify(arr, n, i);
+        heapifySubTree(arr, n, i);
     }
 }
+
+// Function to delete the root from Heap
+void deleteRoot(NodeResult arr[], int& n)
+{
+    // Get the last element
+    NodeResult lastElement = arr[n - 1];
+
+    // Replace root with first element
+    arr[0] = lastElement;
+
+    // Decrease size of heap by 1
+    n = n - 1;
+
+    // heapify the root node
+    heapifySubTree(arr, n, 0);
+}
+
 class Graph
 {
+    int heapSize;
     //antall noder finnes via lengden av lista, så er viktigere å lagre antall kanter her
     int noEdges;    // No. of vertices
     list<Edge> *adj;    // An array of adjacency lists
@@ -60,6 +83,7 @@ public:
         myfile >> from >> to;
         this->noEdges = to;
         adj = new list<Edge>[from];
+        heapSize = adj->size();
         //leser inn kantene
         while (myfile >> from >> to >> weight)
         {
@@ -71,37 +95,38 @@ public:
     void addEdge(int from, Edge to){
         adj[from].push_back(to); // Add w to v’s list.
     }
-    //TODO usikker om denne skal ha returtype eller om det bare blir lettere dersom jeg deklarerer arrayet eller dataen inne i metoden og printer den der
-    int* dijkstra(int start){
-
-        //minimum heap som holder på avstandene til de andre noden
-        int minHeap[adj->size()];
+    int* dijkstra(int start, int *distTo, NodeResult* minHeap) {
+        /*
+         * Starter med å slette rota fra heapen - Det er den jeg jobber på nå
+         *sjekker så om det er noen av veiene i minheap som blir kortere dersom jeg går via start
+         * Kaller buildHeap og og kaller så dijkstra på det nye treet
+         * elementært resultat dersom sizeOf er null om det funker
+         * eller så kan jeg sjekke om det er en nullpointer
+         * eller så kan jeg gi alle nodene en funnet bool, og returnerer dersom alle er true
+         * Men dette skal ikke være nødvendig ettersom at jeg sletter de fra heapen etter at jeg er ferdig
+         * sjekk om heapsize blir redusert automatisk fra deleteRoot()
+         * Hvis så kan dette være den elementære utveien
+         */
+        //alle kantene fra noden vi starter fra
         list<Edge> startNode = adj[start];
-        for(int i = 0; i < adj->size(); i++){
-            //TODO vurder å bruke bool found for første sjekk av avstand istedenfor
-            minHeap[i] = INT32_MAX / 2;
-            std::cout << "max int " << minHeap[i] << std::endl;
-        }
-        minHeap[start] = 0;
-        //itererer over listen
-        for (auto const& i : startNode) {
-            //alle nodene som det går direkte vei til
-            minHeap[start] = i.weight;
-        }
 
-        adj[start];
-    };
+        //for hver kant fra startnoden
+        for (auto const &i : startNode) {
+            //dersom noden vi er i nå har en kortere vei til i
+            if(distTo[start] + i.weight < distTo[i.to]){
+                distTo[i.to] = distTo[start] + i.weight;
+            }
+        }
+        //lager ny heap, skal så bruke denne til å finne den korteste som ikke er ferdig
+        buildHeap(minHeap,heapSize);
+
+    }
     //TODO implementer printing av dijkstra
 };
 
 int main(int argc, char** argv){
-    int testHeap[] = {8,5,6,14,3, 231};
-    //Graph *g = new Graph(argv[1]);
-   // g->dijkstra(9);
-    buildHeap(testHeap,6);
-    for(int i = 0; i < 6; i++){
-        std::cout << testHeap[i] << " ";
-    }
+
+
 }
 
 
