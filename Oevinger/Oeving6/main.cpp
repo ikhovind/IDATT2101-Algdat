@@ -96,6 +96,10 @@ public:
         adj[from].push_back(to); // Add w to v’s list.
     }
     int* dijkstra(int start, int *distTo, NodeResult* minHeap) {
+        //TODO sjekk om heapSize blir redusert i delete root
+        if(heapSize = 0){
+            return distTo;
+        }
         /*
          * Starter med å slette rota fra heapen - Det er den jeg jobber på nå
          *sjekker så om det er noen av veiene i minheap som blir kortere dersom jeg går via start
