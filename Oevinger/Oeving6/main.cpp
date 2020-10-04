@@ -103,23 +103,17 @@ public:
         return noVertices;
     }
     int* dijkstra(int start, int *distTo, NodeResult* minHeap) {
+        //dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
         if(heapSize == 0){
             return distTo;
         }
         //sletter noden vi akkurat gikk inn i fra heapen og heapsize reduseres
         deleteRoot(minHeap, heapSize);
-        //dersom vi er i første node i grafen så er ikke denne funnet enda, så da setter vi den lik 0
-        if(distTo[start] == INT32_MAX/2){
-            distTo[start] = 0;
-        }
-
         //alle kantene fra noden vi er i nå
         list<Edge> edgesFromNode = adj[start];
-
-
         //for hver kant fra startnoden
         for (auto const &edge : edgesFromNode) {
-            //dersom noden vi er i nå har en kortere vei til i
+            //dersom noden vi er i nå har en kortere vei til edge.to
             if(distTo[start] + edge.weight < distTo[edge.to]){
                 distTo[edge.to] = distTo[start] + edge.weight;
             }
@@ -137,9 +131,13 @@ public:
     int* outerDijkstra(int start, int *distTo){
         NodeResult minHeap[noVertices];
         for(int i = 0; i < noVertices; i++){
+            //dette er det samme som ikke funnet
             distTo[i] = INT32_MAX/2;
+            //lager nodeResultObjekter i hver heap indeks
             minHeap[i] = NodeResult{i,INT32_MAX/2};
         }
+        //avstand til startnode er alltid 0
+        distTo[start] = 0;
         return dijkstra(start,distTo,minHeap);
     }
     //TODO implementer printing av dijkstra
