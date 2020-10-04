@@ -145,7 +145,7 @@ public:
 
 int main(int argc, char** argv){
 
-    Graph *g = new Graph("Grafer/vg1.txt");
+    Graph *g = new Graph("Grafer/vg2.txt");
     int resultArray[g->getNoNodes()];
 
     g->outerDijkstra(0,resultArray);
