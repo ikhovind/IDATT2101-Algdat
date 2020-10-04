@@ -9,6 +9,37 @@ struct Edge{
     int to;
     int weight;
 };
+//brukes til å lage en min-heap av et sub-tre i arrayet
+void heapify(int arr[], int subtreeRoot, int length){
+    int leftChild = (subtreeRoot * 2) + 1;
+    int rightChild = (subtreeRoot * 2) + 2;
+    int largest = subtreeRoot;
+    //dersom leftChild finnes og den er mindre enn roten
+    if(leftChild < length && arr[leftChild] < arr[largest]){
+        largest = leftChild;
+    }
+    //dersom rightChild finnes og den er mindre enn roten
+    if(rightChild < length && arr[rightChild] < arr[largest]){
+        largest = rightChild;
+    }
+    if(largest != subtreeRoot){
+        int temp = arr[largest];
+        arr[largest] = arr[subtreeRoot];
+        arr[subtreeRoot] = temp;
+    }
+}
+
+void buildHeap(int arr[], int length){
+    //teller ned fra siste node, og gjør om hvert sub-tre til en gyldig heap
+    for(int i = length; i >= 0; i--){
+        heapify(arr, i, length);
+    }
+    for(int i = 0; i < length; i++){
+        std::cout << arr[i] << " ";
+    }
+}
+
+
 class Graph
 {
     //antall noder finnes via lengden av lista, så er viktigere å lagre antall kanter her
@@ -59,8 +90,10 @@ public:
 };
 
 int main(int argc, char** argv){
-    Graph *g = new Graph(argv[1]);
-    g->dijkstra(9);
+    int testHeap[] = {8,5,6,14,3, 231};
+    //Graph *g = new Graph(argv[1]);
+   // g->dijkstra(9);
+    buildHeap(testHeap,6);
 }
 
 
