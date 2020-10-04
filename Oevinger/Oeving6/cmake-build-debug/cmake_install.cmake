@@ -1,4 +1,4 @@
-# Install script for directory: /home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving6
+# Install script for directory: /home/ingebrigt/Documents/uni-2/Algdat/Oevinger/Oeving6
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving6/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ingebrigt/Documents/uni-2/Algdat/Oevinger/Oeving6/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

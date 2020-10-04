@@ -70,9 +70,9 @@ void deleteRoot(NodeResult arr[], int& n)
 class Graph
 {
     int heapSize;
-    //antall noder finnes via lengden av lista, så er viktigere å lagre antall kanter her
     int noEdges;    // No. of vertices
     list<Edge> *adj;    // An array of adjacency lists
+    int noVertices;
 
 public:
     Graph(std::string inputFileLoc){
@@ -81,9 +81,14 @@ public:
         int from, to, weight;
         //leser inn antall noder og antall kanter
         myfile >> from >> to;
+        this->noVertices = from;
         this->noEdges = to;
-        adj = new list<Edge>[from];
-        heapSize = adj->size();
+        for(int i = 0; i < from; i++){
+            adj[i] = *(new list<Edge>);
+        }
+       // adj = new list<Edge>[from];
+        heapSize = noVertices;
+
         //leser inn kantene
         while (myfile >> from >> to >> weight)
         {
@@ -95,9 +100,14 @@ public:
     void addEdge(int from, Edge to){
         adj[from].push_back(to); // Add w to v’s list.
     }
+    int getNoNodes(){
+        return noVertices;
+    }
     int* dijkstra(int start, int *distTo, NodeResult* minHeap) {
+        //std::cout << "test\n";
+        deleteRoot(minHeap, heapSize);
         //TODO sjekk om heapSize blir redusert i delete root
-        if(heapSize = 0){
+        if(heapSize == 0){
             return distTo;
         }
         /*
@@ -112,25 +122,33 @@ public:
          * Hvis så kan dette være den elementære utveien
          */
         //alle kantene fra noden vi starter fra
-        list<Edge> startNode = adj[start];
+        std::cout << start << std::endl;
+        //TODO nullpointer her men vet ikke hvorfor
+        list<Edge> edgesFromNode = adj[0];
+
 
         //for hver kant fra startnoden
-        for (auto const &i : startNode) {
+        for (auto const &edge : edgesFromNode) {
             //dersom noden vi er i nå har en kortere vei til i
-            if(distTo[start] + i.weight < distTo[i.to]){
-                distTo[i.to] = distTo[start] + i.weight;
+            if(distTo[start] + edge.weight < distTo[edge.to]){
+                distTo[edge.to] = distTo[start] + edge.weight;
             }
         }
         //lager ny heap, skal så bruke denne til å finne den korteste som ikke er ferdig
         buildHeap(minHeap,heapSize);
-
+    }
+    int* outerDijkstra(int start, int *distTo){
+        NodeResult minHeap[noVertices];
+        return dijkstra(start,distTo,minHeap);
     }
     //TODO implementer printing av dijkstra
 };
 
 int main(int argc, char** argv){
 
-
+    Graph *g = new Graph("Grafer/vg1.txt");
+    int resultArray[g->getNoNodes()];
+    g->outerDijkstra(0,resultArray);
 }
 
 
