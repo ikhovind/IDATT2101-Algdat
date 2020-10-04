@@ -10,36 +10,41 @@ struct Edge{
     int weight;
 };
 //brukes til å lage en min-heap av et sub-tre i arrayet
-void heapify(int arr[], int subtreeRoot, int length){
-    int leftChild = (subtreeRoot * 2) + 1;
-    int rightChild = (subtreeRoot * 2) + 2;
-    int largest = subtreeRoot;
-    //dersom leftChild finnes og den er mindre enn roten
-    if(leftChild < length && arr[leftChild] < arr[largest]){
-        largest = leftChild;
-    }
-    //dersom rightChild finnes og den er mindre enn roten
-    if(rightChild < length && arr[rightChild] < arr[largest]){
-        largest = rightChild;
-    }
-    if(largest != subtreeRoot){
-        int temp = arr[largest];
-        arr[largest] = arr[subtreeRoot];
-        arr[subtreeRoot] = temp;
+void heapify(int arr[], int n, int i)
+{
+    int smallest = i; // Initialize smallest as root
+    int l = 2 * i + 1; // left = 2*i + 1
+    int r = 2 * i + 2; // right = 2*i + 2
+
+    // If left child is smaller than root
+    if (l < n && arr[l] < arr[smallest])
+        smallest = l;
+
+    // If right child is smaller than smallest so far
+    if (r < n && arr[r] < arr[smallest])
+        smallest = r;
+
+    // If smallest is not root
+    if (smallest != i) {
+        swap(arr[i], arr[smallest]);
+
+        // Recursively heapify the affected sub-tree
+        heapify(arr, n, smallest);
     }
 }
 
-void buildHeap(int arr[], int length){
-    //teller ned fra siste node, og gjør om hvert sub-tre til en gyldig heap
-    for(int i = length; i >= 0; i--){
-        heapify(arr, i, length);
-    }
-    for(int i = 0; i < length; i++){
-        std::cout << arr[i] << " ";
+void buildHeap(int arr[], int n)
+{
+    // Index of last non-leaf node
+    int startIdx = (n / 2) - 1;
+
+    // Perform reverse level order traversal
+    // from last non-leaf node and heapify
+    // each node
+    for (int i = startIdx; i >= 0; i--) {
+        heapify(arr, n, i);
     }
 }
-
-
 class Graph
 {
     //antall noder finnes via lengden av lista, så er viktigere å lagre antall kanter her
@@ -94,6 +99,9 @@ int main(int argc, char** argv){
     //Graph *g = new Graph(argv[1]);
    // g->dijkstra(9);
     buildHeap(testHeap,6);
+    for(int i = 0; i < 6; i++){
+        std::cout << testHeap[i] << " ";
+    }
 }
 
 
