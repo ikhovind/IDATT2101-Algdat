@@ -16,6 +16,10 @@ struct HeapOnNode{
     int index;
     int distFromStart;
 };
+struct TestPointerStruct{
+    int* dist;
+    int index;
+};
 //brukes til å lage en min-heap av et sub-tre i arrayet
 void heapifySubTree(HeapOnNode *arr, int n, int i)
 {
@@ -62,19 +66,6 @@ void deleteRoot(HeapOnNode arr[], int& n)
 
     // Endrer på heapSize
     n = n - 1;
-    //bygger heapen på nytt slik at den blir i orden igjen etter at vi har slettet rota
-    buildHeap(arr,n);
-}
-void insertNode(HeapOnNode arr[], int& n, HeapOnNode Key)
-{
-    // Increase the size of Heap by 1
-
-    // Insert the element at end of Heap
-    arr[n] = Key;
-
-    // Heapify the new node following a
-    // Bottom-up approach
-    heapifySubTree(arr, n+1, n - 1);
 }
 
 class Graph
@@ -96,7 +87,7 @@ public:
         //lager tabell med lister
         adj = new list<Edge>[from];
         //størrelsen på den første heapen
-        heapSize = -1;
+        heapSize = 0;
 
         //leser inn kantene
         while (myfile >> from >> to >> weight)
@@ -115,39 +106,35 @@ public:
     NodeResult* dijkstra(int start, NodeResult *distTo) {
         //TODO veldig tregt på skandinavia
         distTo[start].distFromStart = 0;
+        TestPointerStruct testPointerStruct[noVertices];
         HeapOnNode *minHeap = ((HeapOnNode *) malloc(sizeof(struct  NodeResult) * (noVertices)));
-        //dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
-        while(heapSize != 0){
-            if(heapSize == -1){
-                heapSize = 0;
-            }
-            std::cout <<"heapsize "<< heapSize <<"\n";
-            if(heapSize % 1000 == 0){
-                std::cout << heapSize << std::endl;
-            }
-            //sletter noden vi akkurat gikk inn i fra heapen, heapsize reduseres i metoden deleteRoot
-
+        //bryter dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
+        do{
             //går gjennom alle kantene og sjekker om det er noen kortere veier til noen av nodene
             for (auto const &edge : adj[start]) {
                 //dersom noden ikke er blitt funnet så legges den til i heapen og setter avstand
                 if (distTo[edge.to].distFromStart == INT32_MAX/2){
                     distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
-                    insertNode(minHeap,heapSize, HeapOnNode{edge.to + 0,distTo[edge.to].distFromStart + 0});
+                    minHeap[heapSize] = HeapOnNode{edge.to + 0,distTo[edge.to].distFromStart + 0};
                     heapSize++;
+                    distTo[edge.to].pastNode = start;
                 }
-                //dersom noden vi er i nå har en kortere vei til edge.to
+                    //dersom noden vi er i nå har en kortere vei til edge.to
                 else if(distTo[start].distFromStart + edge.weight < distTo[edge.to].distFromStart){
                     //oppdaterer avstanden i distTo
                     distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
+                    distTo[edge.to].pastNode = start;
                 }
             }
-
-            distTo[minHeap[0].index].pastNode = start;
-            deleteRoot(minHeap, heapSize);
+            //kunne ha sluppet denne sjekken hvis jeg hadde hatt pekere i minHeap, men fikk ikke det til
+            for(int i = 0; i < heapSize; i++){
+                minHeap[i].distFromStart = distTo[minHeap[i].index].distFromStart;
+            }
             buildHeap(minHeap,heapSize);
-
             start = minHeap[0].index;
-        }
+            deleteRoot(minHeap, heapSize);
+
+        }while (heapSize != 0);
         return distTo;
     }
     void printIndex(int i, NodeResult* resultArray){
@@ -171,14 +158,15 @@ public:
 };
 
 int main(int argc, char** argv){
-    Graph *g = new Graph("/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving6/Grafer/vg5.txt");
+    Graph *g = new Graph(argv[1]);
     NodeResult *resultArray;
     resultArray = ((NodeResult *) malloc(sizeof(struct  NodeResult) * ((g->getNoNodes()))));
     for(int i = 0; i < g->getNoNodes(); i++){
-        resultArray[i] = {i,INT32_MAX/2,-1};
+        //bruker max/2 for å ikke få integer overflow når jeg summerer avstander
+        resultArray[i] = {i ,INT32_MAX/2,-1};
     }
-    //int x = atoi(argv[1]);
-    g->dijkstra(1,resultArray);
+    int x = atoi(argv[1]);
+    g->dijkstra(x,resultArray);
     std::cout << "index | forgjenger | avstand\n";
     for(int i = 0; i < g->getNoNodes(); i++){
         g->printIndex(i,resultArray);
