@@ -12,8 +12,12 @@ struct NodeResult{
     int distFromStart;
     int pastNode;
 };
+struct HeapOnNode{
+    int index;
+    int distFromStart;
+};
 //brukes til å lage en min-heap av et sub-tre i arrayet
-void heapifySubTree(NodeResult *arr, int n, int i)
+void heapifySubTree(HeapOnNode *arr, int n, int i)
 {
     int smallest = i; //vi har oppgitt indeks til roten som vi skal sjekke om er minst
     int l = 2 * i + 1; // left = 2*i + 1
@@ -36,7 +40,7 @@ void heapifySubTree(NodeResult *arr, int n, int i)
     }
 }
 
-void buildHeap(NodeResult arr[], int n)
+void buildHeap(HeapOnNode arr[], int n)
 {
     // siste noden som ikke er et blad
     int startIdx = (n / 2) - 1;
@@ -49,10 +53,10 @@ void buildHeap(NodeResult arr[], int n)
 }
 
 // Brukes til å slette roten når vi er ferdig med den i heapen
-void deleteRoot(NodeResult arr[], int& n)
+void deleteRoot(HeapOnNode arr[], int& n)
 {
     // Siste element i heapen
-    NodeResult lastElement = arr[n - 1];
+    HeapOnNode lastElement = arr[n - 1];
 
     // Setter siste inn i første
     arr[0] = lastElement;
@@ -98,10 +102,10 @@ public:
     int getNoNodes(){
         return noVertices;
     }
-    NodeResult* dijkstra(int start, NodeResult *distTo, NodeResult* minHeap) {
+    NodeResult* dijkstra(int start, NodeResult *distTo, HeapOnNode* minHeap) {
         std::cout << heapSize << std::endl;
         //dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
-        if(heapSize == 0){
+        while(heapSize != 0){
             return distTo;
         }
 
@@ -132,12 +136,11 @@ public:
     NodeResult* outerDijkstra(int start, NodeResult *distTo){
         std::cout<< "outer\n";
         //TODO segmentation fault på skandinavia
-        NodeResult minHeap[noVertices];
+        HeapOnNode *minHeap = ((HeapOnNode *) malloc(sizeof(struct  NodeResult) * (noVertices)));
         std::cout << "innie\n";
         for(int i = 0; i < noVertices; i++){
-            std::cout << "kanskje her " << i << std::endl;
             //lager nodeResultObjekter i hver heap indeks
-            minHeap[i] = NodeResult{i,INT32_MAX/2,-1};
+            minHeap[i] = HeapOnNode{i,INT32_MAX/2};
         }
         //avstand til startnode er alltid 0
         distTo[start].distFromStart = 0;
