@@ -34,9 +34,8 @@ void heapifySubTree(HeapOnNode *arr, int n, int i)
     // Dersom vi har endret på smallest så betyr det at roten ikke er minst
     if (smallest != i) {
         swap(arr[i], arr[smallest]);
-
         // Recursively heapifySubTree the affected sub-tree
-        //heapifySubTree(arr, n, smallest);
+        heapifySubTree(arr, n, smallest);
     }
 }
 
@@ -66,6 +65,17 @@ void deleteRoot(HeapOnNode arr[], int& n)
     //bygger heapen på nytt slik at den blir i orden igjen etter at vi har slettet rota
     buildHeap(arr,n);
 }
+void insertNode(HeapOnNode arr[], int& n, HeapOnNode Key)
+{
+    // Increase the size of Heap by 1
+
+    // Insert the element at end of Heap
+    arr[n] = Key;
+
+    // Heapify the new node following a
+    // Bottom-up approach
+    heapifySubTree(arr, n+1, n - 1);
+}
 
 class Graph
 {
@@ -86,7 +96,7 @@ public:
         //lager tabell med lister
         adj = new list<Edge>[from];
         //størrelsen på den første heapen
-        heapSize = noVertices;
+        heapSize = -1;
 
         //leser inn kantene
         while (myfile >> from >> to >> weight)
@@ -102,51 +112,43 @@ public:
     int getNoNodes(){
         return noVertices;
     }
-    NodeResult* dijkstra(int start, NodeResult *distTo, HeapOnNode* minHeap) {
-        std::cout << heapSize << std::endl;
+    NodeResult* dijkstra(int start, NodeResult *distTo) {
+        //TODO veldig tregt på skandinavia
+        distTo[start].distFromStart = 0;
+        HeapOnNode *minHeap = ((HeapOnNode *) malloc(sizeof(struct  NodeResult) * (noVertices)));
         //dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
         while(heapSize != 0){
-            return distTo;
-        }
-
-        //sletter noden vi akkurat gikk inn i fra heapen, heapsize reduseres i metoden deleteRoot
-        deleteRoot(minHeap, heapSize);
-        //alle kantene fra noden vi er i nå
-        list<Edge> edgesFromNode = adj[start];
-        //går gjennom alle kantene og sjekker om det er noen kortere veier til noen av nodene
-        for (auto const &edge : edgesFromNode) {
-            //dersom noden vi er i nå har en kortere vei til edge.to
-            if(distTo[start].distFromStart + edge.weight < distTo[edge.to].distFromStart){
-                //oppdaterer avstanden i distTo
-                distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
+            if(heapSize == -1){
+                heapSize = 0;
             }
+            std::cout <<"heapsize "<< heapSize <<"\n";
+            if(heapSize % 1000 == 0){
+                std::cout << heapSize << std::endl;
+            }
+            //sletter noden vi akkurat gikk inn i fra heapen, heapsize reduseres i metoden deleteRoot
+
+            //går gjennom alle kantene og sjekker om det er noen kortere veier til noen av nodene
+            for (auto const &edge : adj[start]) {
+                //dersom noden ikke er blitt funnet så legges den til i heapen og setter avstand
+                if (distTo[edge.to].distFromStart == INT32_MAX/2){
+                    distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
+                    insertNode(minHeap,heapSize, HeapOnNode{edge.to + 0,distTo[edge.to].distFromStart + 0});
+                    heapSize++;
+                }
+                //dersom noden vi er i nå har en kortere vei til edge.to
+                else if(distTo[start].distFromStart + edge.weight < distTo[edge.to].distFromStart){
+                    //oppdaterer avstanden i distTo
+                    distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
+                }
+            }
+
+            distTo[minHeap[0].index].pastNode = start;
+            deleteRoot(minHeap, heapSize);
+            buildHeap(minHeap,heapSize);
+
+            start = minHeap[0].index;
         }
-        //oppdaterer heapen med alle de nye distansene
-        for(int i = 0; i < noVertices; i++){
-            minHeap[i].distFromStart = distTo[minHeap[i].index].distFromStart;
-        }
-        //Dersom heapen er i uorden etter at distansene har blitt oppdatert
-        buildHeap(minHeap,heapSize);
-        //setter forrige node, denne brukes kun til når output vises
-        distTo[minHeap[0].index].pastNode = start;
-        //Kaller dijkstra på nytt på elementet i heapen med minst distanse
-        return dijkstra(minHeap[0].index,distTo,minHeap);
-    }
-    //brukes sånn at man skal slippe å lage heap i main
-    NodeResult* outerDijkstra(int start, NodeResult *distTo){
-        std::cout<< "outer\n";
-        //TODO segmentation fault på skandinavia
-        HeapOnNode *minHeap = ((HeapOnNode *) malloc(sizeof(struct  NodeResult) * (noVertices)));
-        std::cout << "innie\n";
-        for(int i = 0; i < noVertices; i++){
-            //lager nodeResultObjekter i hver heap indeks
-            minHeap[i] = HeapOnNode{i,INT32_MAX/2};
-        }
-        //avstand til startnode er alltid 0
-        distTo[start].distFromStart = 0;
-        minHeap[start].distFromStart = 0;
-        buildHeap(minHeap,noVertices);
-        return dijkstra(start,distTo,minHeap);
+        return distTo;
     }
     void printIndex(int i, NodeResult* resultArray){
         std::cout << resultArray[i].index << "         ";
@@ -169,15 +171,14 @@ public:
 };
 
 int main(int argc, char** argv){
-    Graph *g = new Graph(argv[1]);
+    Graph *g = new Graph("/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving6/Grafer/vg5.txt");
     NodeResult *resultArray;
     resultArray = ((NodeResult *) malloc(sizeof(struct  NodeResult) * ((g->getNoNodes()))));
     for(int i = 0; i < g->getNoNodes(); i++){
         resultArray[i] = {i,INT32_MAX/2,-1};
     }
-    int x = atoi(argv[1]);
-    std::cout << "ferdig\n";
-    g->outerDijkstra(x,resultArray);
+    //int x = atoi(argv[1]);
+    g->dijkstra(1,resultArray);
     std::cout << "index | forgjenger | avstand\n";
     for(int i = 0; i < g->getNoNodes(); i++){
         g->printIndex(i,resultArray);
