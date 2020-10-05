@@ -99,6 +99,7 @@ public:
         return noVertices;
     }
     NodeResult* dijkstra(int start, NodeResult *distTo, NodeResult* minHeap) {
+        std::cout << heapSize << std::endl;
         //dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
         if(heapSize == 0){
             return distTo;
@@ -129,8 +130,12 @@ public:
     }
     //brukes sånn at man skal slippe å lage heap i main
     NodeResult* outerDijkstra(int start, NodeResult *distTo){
+        std::cout<< "outer\n";
+        //TODO segmentation fault på skandinavia
         NodeResult minHeap[noVertices];
+        std::cout << "innie\n";
         for(int i = 0; i < noVertices; i++){
+            std::cout << "kanskje her " << i << std::endl;
             //lager nodeResultObjekter i hver heap indeks
             minHeap[i] = NodeResult{i,INT32_MAX/2,-1};
         }
@@ -158,17 +163,18 @@ public:
             }
         }
     }
-    //TODO implementer printing av dijkstra
 };
 
 int main(int argc, char** argv){
-
-    Graph *g = new Graph("/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving6/Grafer/vg4.txt");
-    NodeResult resultArray[g->getNoNodes()];
+    Graph *g = new Graph(argv[1]);
+    NodeResult *resultArray;
+    resultArray = ((NodeResult *) malloc(sizeof(struct  NodeResult) * ((g->getNoNodes()))));
     for(int i = 0; i < g->getNoNodes(); i++){
         resultArray[i] = {i,INT32_MAX/2,-1};
     }
-    g->outerDijkstra(0,resultArray);
+    int x = atoi(argv[1]);
+    std::cout << "ferdig\n";
+    g->outerDijkstra(x,resultArray);
     std::cout << "index | forgjenger | avstand\n";
     for(int i = 0; i < g->getNoNodes(); i++){
         g->printIndex(i,resultArray);

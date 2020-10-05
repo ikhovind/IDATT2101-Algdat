@@ -8,9 +8,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import javax.swing.JOptionPane;
 
 public class Main {
     public static void main(String[] args) throws IOException {
+
+        String[] buttons = { "Yes", "Yes to all", "No", "Cancel" };
+
+        int rc = JOptionPane.showOptionDialog(null, "Question ?", "Confirmation",
+            JOptionPane.WARNING_MESSAGE, 0, null, buttons, buttons[2]);
 
         File graphFile = new File("/home/ingebrigt/Documents/uni - 2/Algoritmer og " +
             "datastrukturer/Oevinger/Oeving5/L7g6");
@@ -360,7 +366,7 @@ class LinkedListGraph {
                     tempList.add(n2);
                     allFound.add(n2);
                 }
-                
+
             }
             if(!tempList.isEmpty()){
                 testingHash.put(counter, tempList);
