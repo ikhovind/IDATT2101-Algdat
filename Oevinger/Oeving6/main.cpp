@@ -163,7 +163,7 @@ public:
 
 int main(int argc, char** argv){
 
-    Graph *g = new Graph("/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving6/Grafer/vg5.txt");
+    Graph *g = new Graph("/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving6/Grafer/vg4.txt");
     NodeResult resultArray[g->getNoNodes()];
     for(int i = 0; i < g->getNoNodes(); i++){
         resultArray[i] = {i,INT32_MAX/2,-1};
