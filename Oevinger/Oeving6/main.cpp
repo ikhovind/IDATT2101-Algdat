@@ -1,78 +1,74 @@
-// C++ Implementation of Kosaraju's algorithm to print all SCCs 
 #include <iostream>
 #include <list>
-#include <stack>
 #include <fstream>
 using namespace std;
 
 struct Edge{
     int to;
     int weight;
-    bool ferdig = false;
 };
 struct NodeResult{
     int index;
     int distFromStart;
+    int pastNode;
 };
 //brukes til å lage en min-heap av et sub-tre i arrayet
 void heapifySubTree(NodeResult *arr, int n, int i)
 {
-    int smallest = i; // Initialize smallest as root
+    int smallest = i; //vi har oppgitt indeks til roten som vi skal sjekke om er minst
     int l = 2 * i + 1; // left = 2*i + 1
     int r = 2 * i + 2; // right = 2*i + 2
 
-    // If left child is smaller than root
+    // Dersom venstre barn er mindre enn roten
     if (l < n && arr[l].distFromStart < arr[smallest].distFromStart)
         smallest = l;
 
-    // If right child is smaller than smallest so far
+    // Dersom høyre barn er mindre enn den minste indeksen så langt
     if (r < n && arr[r].distFromStart < arr[smallest].distFromStart)
         smallest = r;
 
-    // If smallest is not root
+    // Dersom vi har endret på smallest så betyr det at roten ikke er minst
     if (smallest != i) {
         swap(arr[i], arr[smallest]);
 
         // Recursively heapifySubTree the affected sub-tree
-        heapifySubTree(arr, n, smallest);
+        //heapifySubTree(arr, n, smallest);
     }
 }
 
 void buildHeap(NodeResult arr[], int n)
 {
-    // Index of last non-leaf node
+    // siste noden som ikke er et blad
     int startIdx = (n / 2) - 1;
 
-    // Perform reverse level order traversal
-    // from last non-leaf node and heapifySubTree
-    // each node
+    // går gjennom hvert sub-tre i arrayet og heapifyer dette, fra bunn til topp
+    //de minste nodene vil dermed flyte oppover
     for (int i = startIdx; i >= 0; i--) {
         heapifySubTree(arr, n, i);
     }
 }
 
-// Function to delete the root from Heap
+// Brukes til å slette roten når vi er ferdig med den i heapen
 void deleteRoot(NodeResult arr[], int& n)
 {
-    // Get the last element
+    // Siste element i heapen
     NodeResult lastElement = arr[n - 1];
 
-    // Replace root with first element
+    // Setter siste inn i første
     arr[0] = lastElement;
 
-    // Decrease size of heap by 1
+    // Endrer på heapSize
     n = n - 1;
-
-    // heapify the root node
-    heapifySubTree(arr, n, 0);
+    //bygger heapen på nytt slik at den blir i orden igjen etter at vi har slettet rota
+    buildHeap(arr,n);
 }
 
 class Graph
 {
     int heapSize;
-    int noEdges;    // No. of vertices
-    list<Edge> *adj;    // An array of adjacency lists
-    int noVertices;
+    int noEdges;    // ant. kanter
+    list<Edge> *adj;    // Array med linked list
+    int noVertices;     //antall noder
 
 public:
     Graph(std::string inputFileLoc){
@@ -97,60 +93,85 @@ public:
         myfile.close();
     }
     void addEdge(int from, Edge to){
-        adj[from].push_back(to); // Add w to v’s list.
+        adj[from].push_back(to); //legger til en kant fra from til to
     }
     int getNoNodes(){
         return noVertices;
     }
-    int* dijkstra(int start, int *distTo, NodeResult* minHeap) {
+    NodeResult* dijkstra(int start, NodeResult *distTo, NodeResult* minHeap) {
         //dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
         if(heapSize == 0){
             return distTo;
         }
-        //sletter noden vi akkurat gikk inn i fra heapen og heapsize reduseres
+
+        //sletter noden vi akkurat gikk inn i fra heapen, heapsize reduseres i metoden deleteRoot
         deleteRoot(minHeap, heapSize);
         //alle kantene fra noden vi er i nå
         list<Edge> edgesFromNode = adj[start];
-        //for hver kant fra startnoden
+        //går gjennom alle kantene og sjekker om det er noen kortere veier til noen av nodene
         for (auto const &edge : edgesFromNode) {
             //dersom noden vi er i nå har en kortere vei til edge.to
-            if(distTo[start] + edge.weight < distTo[edge.to]){
-                distTo[edge.to] = distTo[start] + edge.weight;
+            if(distTo[start].distFromStart + edge.weight < distTo[edge.to].distFromStart){
+                //oppdaterer avstanden i distTo
+                distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
             }
         }
         //oppdaterer heapen med alle de nye distansene
         for(int i = 0; i < noVertices; i++){
-            minHeap[i].distFromStart = distTo[minHeap[i].index];
+            minHeap[i].distFromStart = distTo[minHeap[i].index].distFromStart;
         }
         //Dersom heapen er i uorden etter at distansene har blitt oppdatert
         buildHeap(minHeap,heapSize);
+        //setter forrige node, denne brukes kun til når output vises
+        distTo[minHeap[0].index].pastNode = start;
         //Kaller dijkstra på nytt på elementet i heapen med minst distanse
         return dijkstra(minHeap[0].index,distTo,minHeap);
     }
     //brukes sånn at man skal slippe å lage heap i main
-    int* outerDijkstra(int start, int *distTo){
+    NodeResult* outerDijkstra(int start, NodeResult *distTo){
         NodeResult minHeap[noVertices];
         for(int i = 0; i < noVertices; i++){
-            //dette er det samme som ikke funnet
-            distTo[i] = INT32_MAX/2;
             //lager nodeResultObjekter i hver heap indeks
-            minHeap[i] = NodeResult{i,INT32_MAX/2};
+            minHeap[i] = NodeResult{i,INT32_MAX/2,-1};
         }
         //avstand til startnode er alltid 0
-        distTo[start] = 0;
+        distTo[start].distFromStart = 0;
+        minHeap[start].distFromStart = 0;
+        buildHeap(minHeap,noVertices);
         return dijkstra(start,distTo,minHeap);
+    }
+    void printIndex(int i, NodeResult* resultArray){
+        std::cout << resultArray[i].index << "         ";
+        if(resultArray[i].distFromStart == INT32_MAX/2){
+            std::cout << "N/A\n";
+        }
+        else {
+            //dersom noden ikke har noen forrige node så printes den ikke
+            if (resultArray[i].pastNode != -1) {
+                std::cout << resultArray[i].pastNode << "           ";
+            }
+
+            if (resultArray[i].distFromStart == 0) {
+                std::cout << "start       0\n";
+            } else {
+                std::cout << resultArray[i].distFromStart << std::endl;
+            }
+        }
     }
     //TODO implementer printing av dijkstra
 };
 
 int main(int argc, char** argv){
 
-    Graph *g = new Graph("Grafer/vg2.txt");
-    int resultArray[g->getNoNodes()];
-
-    g->outerDijkstra(0,resultArray);
+    Graph *g = new Graph("/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving6/Grafer/vg5.txt");
+    NodeResult resultArray[g->getNoNodes()];
     for(int i = 0; i < g->getNoNodes(); i++){
-        std::cout << resultArray[i] << std::endl;
+        resultArray[i] = {i,INT32_MAX/2,-1};
+    }
+    g->outerDijkstra(0,resultArray);
+    std::cout << "index | forgjenger | avstand\n";
+    for(int i = 0; i < g->getNoNodes(); i++){
+        g->printIndex(i,resultArray);
     }
 }
 
