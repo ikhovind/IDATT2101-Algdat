@@ -12,16 +12,13 @@ struct NodeResult{
     int distFromStart;
     int pastNode;
 };
-struct HeapOnNode{
+struct NodeOnHeap{
+    //denne sparer litt plass i forhold til å bruke NodeResult, da jeg ikke trenger pastNode på heapen
     int index;
     int distFromStart;
 };
-struct TestPointerStruct{
-    int* dist;
-    int index;
-};
 //brukes til å lage en min-heap av et sub-tre i arrayet
-void heapifySubTree(HeapOnNode *arr, int n, int i)
+void heapifySubTree(NodeOnHeap *arr, int n, int i)
 {
     int smallest = i; //vi har oppgitt indeks til roten som vi skal sjekke om er minst
     int l = 2 * i + 1; // left = 2*i + 1
@@ -38,12 +35,10 @@ void heapifySubTree(HeapOnNode *arr, int n, int i)
     // Dersom vi har endret på smallest så betyr det at roten ikke er minst
     if (smallest != i) {
         swap(arr[i], arr[smallest]);
-        // Recursively heapifySubTree the affected sub-tree
-        heapifySubTree(arr, n, smallest);
     }
 }
 
-void buildHeap(HeapOnNode arr[], int n)
+void buildHeap(NodeOnHeap arr[], int n)
 {
     // siste noden som ikke er et blad
     int startIdx = (n / 2) - 1;
@@ -56,10 +51,10 @@ void buildHeap(HeapOnNode arr[], int n)
 }
 
 // Brukes til å slette roten når vi er ferdig med den i heapen
-void deleteRoot(HeapOnNode arr[], int& n)
+void deleteRoot(NodeOnHeap arr[], int& n)
 {
     // Siste element i heapen
-    HeapOnNode lastElement = arr[n - 1];
+    NodeOnHeap lastElement = arr[n - 1];
 
     // Setter siste inn i første
     arr[0] = lastElement;
@@ -104,10 +99,10 @@ public:
         return noVertices;
     }
     NodeResult* dijkstra(int start, NodeResult *distTo) {
-        //TODO veldig tregt på skandinavia
         distTo[start].distFromStart = 0;
-        TestPointerStruct testPointerStruct[noVertices];
-        HeapOnNode *minHeap = ((HeapOnNode *) malloc(sizeof(struct  NodeResult) * (noVertices)));
+        //størst mulig heap er at alle nodene er i den samtidig
+        NodeOnHeap *minHeap = ((NodeOnHeap *) malloc(sizeof(struct  NodeResult) * (noVertices)));
+
         //bryter dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
         do{
             //går gjennom alle kantene og sjekker om det er noen kortere veier til noen av nodene
@@ -115,7 +110,7 @@ public:
                 //dersom noden ikke er blitt funnet så legges den til i heapen og setter avstand
                 if (distTo[edge.to].distFromStart == INT32_MAX/2){
                     distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
-                    minHeap[heapSize] = HeapOnNode{edge.to + 0,distTo[edge.to].distFromStart + 0};
+                    minHeap[heapSize] = NodeOnHeap{edge.to + 0, distTo[edge.to].distFromStart + 0};
                     heapSize++;
                     distTo[edge.to].pastNode = start;
                 }
@@ -133,11 +128,10 @@ public:
             buildHeap(minHeap,heapSize);
             start = minHeap[0].index;
             deleteRoot(minHeap, heapSize);
-
         }while (heapSize != 0);
         return distTo;
     }
-    void printIndex(int i, NodeResult* resultArray){
+    void printIndex(int i, NodeResult* resultArray, int start){
         std::cout << resultArray[i].index << "         ";
         if(resultArray[i].distFromStart == INT32_MAX/2){
             std::cout << "N/A\n";
@@ -148,7 +142,7 @@ public:
                 std::cout << resultArray[i].pastNode << "           ";
             }
 
-            if (resultArray[i].distFromStart == 0) {
+            if (resultArray[i].index == start) {
                 std::cout << "start       0\n";
             } else {
                 std::cout << resultArray[i].distFromStart << std::endl;
@@ -159,17 +153,16 @@ public:
 
 int main(int argc, char** argv){
     Graph *g = new Graph(argv[1]);
-    NodeResult *resultArray;
-    resultArray = ((NodeResult *) malloc(sizeof(struct  NodeResult) * ((g->getNoNodes()))));
+    NodeResult *resultArray = ((NodeResult *) malloc(sizeof(struct  NodeResult) * ((g->getNoNodes()))));
     for(int i = 0; i < g->getNoNodes(); i++){
         //bruker max/2 for å ikke få integer overflow når jeg summerer avstander
         resultArray[i] = {i ,INT32_MAX/2,-1};
     }
-    int x = atoi(argv[1]);
+    int x = atoi(argv[2]);
     g->dijkstra(x,resultArray);
     std::cout << "index | forgjenger | avstand\n";
     for(int i = 0; i < g->getNoNodes(); i++){
-        g->printIndex(i,resultArray);
+        g->printIndex(i,resultArray, x);
     }
 }
 
