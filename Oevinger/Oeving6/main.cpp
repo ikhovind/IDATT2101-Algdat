@@ -51,8 +51,10 @@ void buildHeap(NodeOnHeap arr[], int n)
 }
 
 // Brukes til å slette roten når vi er ferdig med den i heapen
-void deleteRoot(NodeOnHeap arr[], int& n)
+void removeRoot(NodeOnHeap *arr, int& n)
 {
+    buildHeap(arr,n);
+
     // Siste element i heapen
     NodeOnHeap lastElement = arr[n - 1];
 
@@ -61,6 +63,9 @@ void deleteRoot(NodeOnHeap arr[], int& n)
 
     // Endrer på heapSize
     n = n - 1;
+
+    buildHeap(arr,n);
+
 }
 
 class Graph
@@ -102,15 +107,17 @@ public:
         distTo[start].distFromStart = 0;
         //størst mulig heap er at alle nodene er i den samtidig
         NodeOnHeap *minHeap = ((NodeOnHeap *) malloc(sizeof(struct  NodeResult) * (noVertices)));
-
+        heapSize++;
         //bryter dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
         do{
+            //sletter den noden med kortest distanse og passer på at heapen er i riktig rekkefølge
+            removeRoot(minHeap, heapSize);
             //går gjennom alle kantene og sjekker om det er noen kortere veier til noen av nodene
             for (auto const &edge : adj[start]) {
                 //dersom noden ikke er blitt funnet så legges den til i heapen og setter avstand
                 if (distTo[edge.to].distFromStart == INT32_MAX/2){
                     distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
-                    minHeap[heapSize] = NodeOnHeap{edge.to + 0, distTo[edge.to].distFromStart + 0};
+                    minHeap[heapSize] = NodeOnHeap{edge.to, distTo[edge.to].distFromStart};
                     heapSize++;
                     distTo[edge.to].pastNode = start;
                 }
@@ -125,9 +132,9 @@ public:
             for(int i = 0; i < heapSize; i++){
                 minHeap[i].distFromStart = distTo[minHeap[i].index].distFromStart;
             }
+            //dersom det er uorden i heapen etter at man har oppdatert distansene
             buildHeap(minHeap,heapSize);
             start = minHeap[0].index;
-            deleteRoot(minHeap, heapSize);
         }while (heapSize != 0);
         return distTo;
     }
