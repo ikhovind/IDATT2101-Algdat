@@ -1,3 +1,0 @@
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Kapitler/Kapittel 9/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Kapitler/Kapittel 9/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Kapitler/Kapittel 9/cmake-build-debug/CMakeFiles/Kapittel_9.dir
