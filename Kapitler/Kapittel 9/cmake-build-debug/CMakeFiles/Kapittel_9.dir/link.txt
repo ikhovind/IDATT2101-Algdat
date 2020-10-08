@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Kapittel_9.dir/main.cpp.o  -o Kapittel_9 
