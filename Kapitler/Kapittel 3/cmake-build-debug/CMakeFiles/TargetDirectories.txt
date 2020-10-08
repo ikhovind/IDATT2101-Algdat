@@ -1,4 +1,0 @@
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Kapittel 3/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Kapittel 3/cmake-build-debug/CMakeFiles/quicksort.dir
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Kapittel 3/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Kapittel 3/cmake-build-debug/CMakeFiles/Kapittel_3.dir

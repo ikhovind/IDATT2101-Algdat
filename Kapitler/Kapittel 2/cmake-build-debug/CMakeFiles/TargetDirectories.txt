@@ -1,5 +1,0 @@
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Learning/Sortering/Kapittel 2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Learning/Sortering/Kapittel 2/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Learning/Sortering/Kapittel 2/cmake-build-debug/CMakeFiles/Kapittel_2.dir
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Learning/Sortering/Kapittel 2/cmake-build-debug/CMakeFiles/kapittel2veksle.dir
-/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Learning/Sortering/Kapittel 2/cmake-build-debug/CMakeFiles/kapittel23.dir
