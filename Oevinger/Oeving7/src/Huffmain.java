@@ -1,15 +1,19 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Huffmain {
     public static void main(String args[]) throws IOException {
-        File input = new File("/home/ingebrigt/Documents/uni - 2/Algoritmer og datastrukturer/Oevinger/Oeving7/files/diverse.txt");
-        File output = new File("/home/ingebrigt/Documents/uni - 2/Algoritmer og " +
-            "datastrukturer/Oevinger/Oeving7/files/output.txt");
+        //får problemer med •
+        //todo bytte til unicode?
+        File input = new File("files/diverse.txt");
+        File output = new File("files/output.txt");
         int[] frequencyArray = getFrequencyArray(input.getPath());
         for(int i = 0; i < frequencyArray.length; i++){
             if(frequencyArray[i] > 0){
@@ -28,19 +32,6 @@ public class Huffmain {
             myWriter.write(frequencyArray[i]);
         }
         myWriter.close();
-
-        FileInputStream f = new FileInputStream(output.getPath());
-        int i=0;
-        System.out.println();
-        int counter = 0;
-
-        while((i=f.read())!=-1){
-            if(i > 0){
-                System.out.println(((char) counter  + " " + counter + ": " + i));
-            }
-            counter++;
-        }
-        f.close();
     }
 
     public static int[] getHuffmanTree(){
@@ -49,8 +40,9 @@ public class Huffmain {
     private static int[] getFrequencyArray(String pathToFile) throws IOException {
         //todo trenger sikkert ikke å lese hele fila på en gang, kan lese i løkka lenger nede
         // gjetter jeg, kanskje bruke outputstream
+
         byte[] fileContent = Files.readAllBytes(Path.of(pathToFile));
-        int[] frequencyArray = new int[256];
+        int[] frequencyArray = new int[fileContent.length];
     /*
         char gir tall fra -128 - 127, men pga hvordan overflow funker så kan man ikke
          konvertere fra negative tall til char, trenger derimot ikke å bruke annen encoding, da
@@ -64,9 +56,11 @@ public class Huffmain {
          (x + 256) mod 256 gir naturligvis x dersom x er et positivt tall
 
      */
-        for(byte b : fileContent){
-            frequencyArray[(b + 128*2)%256]++;
+
+        for(int j = 0; j < fileContent.length; j++){
+            frequencyArray[j] = (fileContent[j] + 256)%256;
         }
+        writeToFile(new File("files/output.txt"), frequencyArray);
         return frequencyArray;
     }
 
