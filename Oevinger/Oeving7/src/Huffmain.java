@@ -10,6 +10,7 @@ import java.nio.file.Path;
 
 public class Huffmain {
     public static void main(String args[]) throws IOException {
+        //TODO SE PÅ KODEN HAN HAR LAGT UT PÅ OPPGAVEN OG SE OM DEN HJELPER
         //får problemer med •
         //todo bytte til unicode?
         File input = new File("files/diverse.txt");
