@@ -51,8 +51,10 @@ void buildHeap(NodeOnHeap arr[], int n)
 }
 
 // Brukes til å slette roten når vi er ferdig med den i heapen
-void deleteRoot(NodeOnHeap arr[], int& n)
+void removeRoot(NodeOnHeap *arr, int& n)
 {
+    buildHeap(arr,n);
+
     // Siste element i heapen
     NodeOnHeap lastElement = arr[n - 1];
 
@@ -61,6 +63,9 @@ void deleteRoot(NodeOnHeap arr[], int& n)
 
     // Endrer på heapSize
     n = n - 1;
+
+    buildHeap(arr,n);
+
 }
 
 class Graph
@@ -102,15 +107,17 @@ public:
         distTo[start].distFromStart = 0;
         //størst mulig heap er at alle nodene er i den samtidig
         NodeOnHeap *minHeap = ((NodeOnHeap *) malloc(sizeof(struct  NodeResult) * (noVertices)));
-
+        heapSize++;
         //bryter dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
         do{
+            //sletter den noden med kortest distanse og passer på at heapen er i riktig rekkefølge
+            removeRoot(minHeap, heapSize);
             //går gjennom alle kantene og sjekker om det er noen kortere veier til noen av nodene
             for (auto const &edge : adj[start]) {
                 //dersom noden ikke er blitt funnet så legges den til i heapen og setter avstand
                 if (distTo[edge.to].distFromStart == INT32_MAX/2){
                     distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
-                    minHeap[heapSize] = NodeOnHeap{edge.to + 0, distTo[edge.to].distFromStart + 0};
+                    minHeap[heapSize] = NodeOnHeap{edge.to, distTo[edge.to].distFromStart};
                     heapSize++;
                     distTo[edge.to].pastNode = start;
                 }
@@ -125,62 +132,13 @@ public:
             for(int i = 0; i < heapSize; i++){
                 minHeap[i].distFromStart = distTo[minHeap[i].index].distFromStart;
             }
+            //dersom det er uorden i heapen etter at man har oppdatert distansene
             buildHeap(minHeap,heapSize);
             start = minHeap[0].index;
-            deleteRoot(minHeap, heapSize);
         }while (heapSize != 0);
         return distTo;
     }
    
-
-    //Veldig inneffektiv, burde gjøre som jeg gjør med den ikke-rekursive og ikke legge til objekter i heapen før jeg trenger det
-    //Leverte kun inn den ikke-rekursive metoden, så optimaliserer ikke denne nå
-     NodeResult* innerDijkstra(int start, NodeResult *distTo, NodeOnHeap* minHeap) {
-        //dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
-        while(heapSize != 0){
-            return distTo;
-        }
-
-        //sletter noden vi akkurat gikk inn i fra heapen, heapsize reduseres i metoden deleteRoot
-        deleteRoot(minHeap, heapSize);
-        //alle kantene fra noden vi er i nå
-        list<Edge> edgesFromNode = adj[start];
-        //går gjennom alle kantene og sjekker om det er noen kortere veier til noen av nodene
-        for (auto const &edge : edgesFromNode) {
-            //dersom noden vi er i nå har en kortere vei til edge.to
-            if(distTo[start].distFromStart + edge.weight < distTo[edge.to].distFromStart){
-                //oppdaterer avstanden i distTo
-                distTo[edge.to].distFromStart = distTo[start].distFromStart + edge.weight;
-            }
-        }
-        //oppdaterer heapen med alle de nye distansene
-        for(int i = 0; i < noVertices; i++){
-            minHeap[i].distFromStart = distTo[minHeap[i].index].distFromStart;
-        }
-        //Dersom heapen er i uorden etter at distansene har blitt oppdatert
-        buildHeap(minHeap,heapSize);
-        //setter forrige node, denne brukes kun til når output vises
-        distTo[minHeap[0].index].pastNode = start;
-        //Kaller dijkstra på nytt på elementet i heapen med minst distanse
-        return innerDijkstra(minHeap[0].index,distTo,minHeap);
-    }
-    //brukes sånn at man skal slippe å lage heap i main
-    NodeResult* recursiveDijkstra(int start, NodeResult *distTo){
-        std::cout<< "outer\n";
-        //TODO segmentation fault på skandinavia
-        NodeOnHeap *minHeap = ((NodeOnHeap *) malloc(sizeof(struct  NodeResult) * (noVertices)));
-        std::cout << "innie\n";
-        for(int i = 0; i < noVertices; i++){
-            //lager nodeResultObjekter i hver heap indeks
-            minHeap[i] = NodeOnHeap{i,INT32_MAX/2};
-        }
-        //avstand til startnode er alltid 0
-        distTo[start].distFromStart = 0;
-        minHeap[start].distFromStart = 0;
-        buildHeap(minHeap,noVertices);
-        return innerDijkstra(start,distTo,minHeap);
-    } 
-    
     void printIndex(int i, NodeResult* resultArray, int start){
         std::cout << resultArray[i].index << "         ";
         if(resultArray[i].distFromStart == INT32_MAX/2){

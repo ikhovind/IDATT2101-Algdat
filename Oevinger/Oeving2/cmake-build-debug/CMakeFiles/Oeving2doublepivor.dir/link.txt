@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/Oeving2doublepivor.dir/DualPivotQuicksort.cpp.o  -o Oeving2doublepivor 

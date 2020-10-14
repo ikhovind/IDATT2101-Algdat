@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/kapittel23.dir/opg_2-3.cpp.o  -o kapittel23 
