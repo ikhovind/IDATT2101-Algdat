@@ -6,20 +6,34 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 
 public class Huffmain {
-    public static void main(String args[]) throws IOException {
-        File input = new File("files/input.txt");
+    public static void main(String args[]) throws IOException, InterruptedException {
+        File input = new File("files/diverse.pdf");
         File output = new File("files/output.txt");
         int[] frequencyArray = getFrequencyArray(input);
-        writeToFile(output.getPath(), frequencyArray);
+        writeFreqArray(output.getPath(), frequencyArray);
         //leser det vi akkurat skrev til fil
-        int[] readFrequencyArray = readFrequencyArray(output);
-        BinaryTreePrinter test = new BinaryTreePrinter(getHuffmanTree(frequencyArray));
-        test.print((System.out));
-        System.out.println();
-        //TODO kan hende at den sletter den forreste 0 når lager tall som begynner med 0, sjekk
-        // dette om man får en bug
-        System.out.println(Integer.toBinaryString(getEncodings(getHuffmanTree(frequencyArray),'r'
-            ,0)));
+
+        HuffmanTreeNode root = getHuffmanTree(frequencyArray);
+        byte[] inputFile = Files.readAllBytes(input.toPath());
+        String fileToString = "";
+        System.out.println(inputFile.length);
+        Thread.sleep(5000);
+        for(int i = 0; i < inputFile.length; i++){
+            if(i % 10000 == 0){
+                System.out.println(i);
+            }
+            fileToString += getEncodings(root, inputFile[i], "");
+        }
+        //TODO skriv frekvensarrayet til filen også og finn en måte og skille dette slik at man
+        // kan dekrompimere filen
+        System.out.println(fileToString.length()%8);
+        for(int i = 0; i < fileToString.length()%8; i++){
+            //må spare til 8 bits
+            //TODO finn en bedre måte, helst ikke bare legg til 0, fucker sikkert med tegnet
+            fileToString+="0";
+        }
+        byte[] data = decodeBinary(fileToString);
+        java.nio.file.Files.write(output.toPath(), data);
     }
 
     /**
@@ -34,26 +48,30 @@ public class Huffmain {
         return frequencyArray;
     }
 
-    public static byte getEncodings(HuffmanTreeNode root, int value, int counter){
-        byte answer = -1;
-        if(root.left != null && root.right != null){
-            if(root.left.value == value){
-                return (byte) (counter << 1);
-            }
-            if(root.right.value == value){
-                return (byte) ((counter << 1) +1);
-            }
+    /**
+     * finner verdien til en verdi value basert på huffmantreet med rot i root, counter skal være
+     * 0, brukes rekursivt
+     */
+    public static String getEncodings(HuffmanTreeNode root, int value, String counter){
+        String answer = "";
+        if(root.left != null && root.left.value == value){
+            return (counter + "0");
         }
+        if(root.right != null && root.right.value == value){
+            return (counter + "1");
+        }
+
         if(root.left != null){
-            answer = getEncodings(root.left, value, counter << 1);
+            answer = getEncodings(root.left, value, (counter +"0"));
         }
-        if(answer != -1) return answer;
+        if(!answer.equals("")) return answer;
         if(root.right != null){
-            answer = getEncodings(root.right, value, (counter << 1)+1 );
+            answer = getEncodings(root.right, value, (counter+"1") );
         }
         return answer;
     }
-    private static void writeToFile(String pathToFile, int[] frequencyArray) throws IOException {
+
+    private static void writeFreqArray(String pathToFile, int[] frequencyArray) throws IOException {
         FileWriter myWriter = new FileWriter(pathToFile);
         for (int i = 0; i < frequencyArray.length; i++) {
             myWriter.write(frequencyArray[i]);
@@ -136,7 +154,21 @@ public class Huffmain {
         }
         return frequencyArray;
     }
-}
+
+    static byte[] decodeBinary(String s) {
+        if (s.length() % 8 != 0) throw new IllegalArgumentException(
+            "Binary data length must be multiple of 8");
+        byte[] data = new byte[s.length() / 8];
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '1') {
+                data[i >> 3] |= 0x80 >> (i & 0x7);
+            } else if (c != '0') {
+                throw new IllegalArgumentException("Invalid char in binary string");
+            }
+        }
+        return data;
+    }}
 
 class HuffmanTreeNode{
     int value;
