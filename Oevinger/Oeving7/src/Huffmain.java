@@ -1,25 +1,21 @@
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
 
 public class Huffmain {
     public static void main(String args[]) throws IOException {
-        File input = new File("files/diverse.txt");
+        File input = new File("files/input.txt");
         File output = new File("files/output.txt");
         int[] frequencyArray = getFrequencyArray(input);
         writeToFile(output.getPath(), frequencyArray);
-        int[] readFrequencyArray = readFrequencyArray(input);
-
+        int[] readFrequencyArray = readFrequencyArray(output);
+        BinaryTreePrinter test = new BinaryTreePrinter(getHuffmanTree(frequencyArray));
+        test.print((System.out));
+        System.out.println();
+        System.out.println(getHuffmanTree(readFrequencyArray).left.left.left.value);
     }
 
     /**
@@ -41,18 +37,42 @@ public class Huffmain {
         myWriter.close();
     }
 
-    public static int[] getHuffmanTree(int[] frequencyArray){
-        HuffmanTreeNode[] huffmanTree = new HuffmanTreeNode[frequencyArray.length];
+    public static HuffmanTreeNode getHuffmanTree(int[] frequencyArray){
+        int noCharacters = 0;
         for(int i = 0; i < frequencyArray.length; i++){
-            huffmanTree[i] = new HuffmanTreeNode(i ,frequencyArray[i]);
-        }
-        Arrays.sort(huffmanTree, new Comparator<HuffmanTreeNode>() {
-            @Override
-            public int compare(HuffmanTreeNode o1, HuffmanTreeNode o2) {
-                return 0;
+            if(frequencyArray[i] != 0){
+                noCharacters++;
             }
-        });
 
+        }
+        int j = 0;
+        HuffmanTreeNode[] huffmanNodes = new HuffmanTreeNode[noCharacters];
+        for(int i = 0; i < frequencyArray.length; i++){
+            if(frequencyArray[i] != 0){
+                huffmanNodes[j] = new HuffmanTreeNode(i ,frequencyArray[i]);
+                j++;
+            }
+
+        }
+
+        int length = huffmanNodes.length;
+        Heap.buildHeap(huffmanNodes,length);
+        while(length > 0){
+
+            HuffmanTreeNode h = Heap.getMin(huffmanNodes, length);
+            Heap.buildHeap(huffmanNodes,length-1);
+            HuffmanTreeNode h2 = Heap.getMin(huffmanNodes, length-1);
+            Heap.buildHeap(huffmanNodes,length-2);
+            HuffmanTreeNode root = new HuffmanTreeNode(-1, h.weight + h2.weight);
+            root.left = h;
+            root.right = h2;
+            length -= 2;
+            Heap.insertOnto(huffmanNodes,root, length);
+            length++;
+            if(length == 1){
+                return root;
+            }
+        }
         return null;
     }
 
@@ -97,9 +117,112 @@ public class Huffmain {
 class HuffmanTreeNode{
     int value;
     int weight;
+    HuffmanTreeNode left;
+    HuffmanTreeNode right;
 
     public HuffmanTreeNode(int value, int weight) {
         this.value = value;
         this.weight = weight;
     }
+}
+
+class Heap{
+    static void heapify(HuffmanTreeNode arr[], int n, int i) {
+        int min = i;
+        int l = 2 * i + 1;
+        int r = 2 * i + 2;
+
+        if (l < n && arr[l].weight < arr[min].weight)
+            min = l;
+
+        if (r < n && arr[r].weight < arr[min].weight)
+            min = r;
+
+        if (min != i) {
+            HuffmanTreeNode swap = arr[i];
+            arr[i] = arr[min];
+            arr[min] = swap;
+
+            heapify(arr, n, min);
+        }
+    }
+    static HuffmanTreeNode getMin(HuffmanTreeNode heap[], int n){
+        HuffmanTreeNode temp = heap[0];
+        heap[0] = heap[n-1];
+
+        return temp;
+    }
+    static void buildHeap(HuffmanTreeNode arr[], int n)
+    {
+        int startIdx = (n / 2) - 1;
+
+        for (int i = startIdx; i >= 0; i--) {
+            heapify(arr, n, i);
+        }
+    }
+    static void insertOnto(HuffmanTreeNode arr[], HuffmanTreeNode h, int n){
+        arr[n] = h;
+        n++;
+        buildHeap(arr,n);
+    }
+}
+
+ class BinaryTreePrinter {
+
+    private HuffmanTreeNode tree;
+
+    public BinaryTreePrinter(HuffmanTreeNode tree) {
+        this.tree = tree;
+    }
+
+    private String traversePreOrder(HuffmanTreeNode root) {
+
+        if (root == null) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(root.weight +" " + (char) root.value);
+
+        String pointerRight = "└──";
+        String pointerLeft = (root.right != null) ? "├──" : "└──";
+
+        traverseNodes(sb, "", pointerLeft, root.left, root.right != null);
+        traverseNodes(sb, "", pointerRight, root.right, false);
+
+        return sb.toString();
+    }
+
+    private void traverseNodes(StringBuilder sb, String padding, String pointer, HuffmanTreeNode node,
+                               boolean hasRightSibling) {
+
+        if (node != null) {
+
+            sb.append("\n");
+            sb.append(padding);
+            sb.append(pointer);
+            sb.append(node.weight  +" " + (char) node.value);
+
+            StringBuilder paddingBuilder = new StringBuilder(padding);
+            if (hasRightSibling) {
+                paddingBuilder.append("│  ");
+            } else {
+                paddingBuilder.append("   ");
+            }
+
+            String paddingForBoth = paddingBuilder.toString();
+            String pointerRight = "└──";
+            String pointerLeft = (node.right != null) ? "├──" : "└──";
+
+            traverseNodes(sb, paddingForBoth, pointerLeft, node.left, node.right != null);
+            traverseNodes(sb, paddingForBoth, pointerRight, node.right, false);
+
+        }
+
+    }
+
+    public void print(PrintStream os) {
+        os.print(traversePreOrder(tree));
+    }
+
 }
