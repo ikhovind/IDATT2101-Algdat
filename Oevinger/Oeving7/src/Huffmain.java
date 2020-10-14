@@ -1,45 +1,53 @@
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Huffmain {
     public static void main(String args[]) throws IOException {
-        //TODO SE PÅ KODEN HAN HAR LAGT UT PÅ OPPGAVEN OG SE OM DEN HJELPER
-        //får problemer med •
-        //todo bytte til unicode?
-        File input = new File("files/output.txt");
+        File input = new File("files/diverse.txt");
         File output = new File("files/output.txt");
         int[] frequencyArray = getFrequencyArray(input.getPath());
-        for(int i = 0; i < frequencyArray.length; i++){
-            if(frequencyArray[i] > 0){
-                System.out.println(i + ": " + frequencyArray[i]);
-            }
-        }
+        writeToFile(output.getPath(), frequencyArray);
+        int[] readFrequencyArray = readFrequencyArray(input.getPath());
 
-        //writeToFile(output, frequencyArray);
-        //https://www.ascii-code.com/
     }
 
-    private static void writeToFile(File output, int[] frequencyArray) throws IOException {
-        FileWriter myWriter = new FileWriter(output.getPath());
+    /**
+     * Leser frequency array fra en gitt fil
+     */
+    private static int[] readFrequencyArray(String pathToFile) throws IOException {
+        FileReader myReader = new FileReader(pathToFile);
+        int[] frequencyArray = new int[256];
+        for(int i = 0; i < frequencyArray.length; i++){
+            frequencyArray[i] += myReader.read();
+        }
+        return frequencyArray;
+    }
+    private static void writeToFile(String pathToFile, int[] frequencyArray) throws IOException {
+        FileWriter myWriter = new FileWriter(pathToFile);
         for (int i = 0; i < frequencyArray.length; i++) {
             myWriter.write(frequencyArray[i]);
         }
         myWriter.close();
     }
 
-    public static int[] getHuffmanTree(){
+    public static int[] getHuffmanTree(int[] frequencyArray){
+        
+        int[] huffmanTree = new int[256];
         return null;
     }
 
     /**
+     * Generer et frequency array av bytes fra en gitt fil
+     *
      * Denne lagrer antall gitte bytes inn i et gitt array, tror det er derfor man får rare
      * karakterer fordi enkelte karakterer lagres som mer enn én byte
      * Har sjekket med https://stackoverflow.com/questions/13173223/huffman-coding-dealing-with-unicode
