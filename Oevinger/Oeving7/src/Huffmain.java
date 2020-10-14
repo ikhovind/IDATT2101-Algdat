@@ -9,22 +9,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class Huffmain {
     public static void main(String args[]) throws IOException {
         File input = new File("files/diverse.txt");
         File output = new File("files/output.txt");
-        int[] frequencyArray = getFrequencyArray(input.getPath());
+        int[] frequencyArray = getFrequencyArray(input);
         writeToFile(output.getPath(), frequencyArray);
-        int[] readFrequencyArray = readFrequencyArray(input.getPath());
+        int[] readFrequencyArray = readFrequencyArray(input);
 
     }
 
     /**
      * Leser frequency array fra en gitt fil
      */
-    private static int[] readFrequencyArray(String pathToFile) throws IOException {
-        FileReader myReader = new FileReader(pathToFile);
+    private static int[] readFrequencyArray(File file) throws IOException {
+        FileReader myReader = new FileReader(file.getPath());
         int[] frequencyArray = new int[256];
         for(int i = 0; i < frequencyArray.length; i++){
             frequencyArray[i] += myReader.read();
@@ -44,6 +46,12 @@ public class Huffmain {
         for(int i = 0; i < frequencyArray.length; i++){
             huffmanTree[i] = new HuffmanTreeNode(i ,frequencyArray[i]);
         }
+        Arrays.sort(huffmanTree, new Comparator<HuffmanTreeNode>() {
+            @Override
+            public int compare(HuffmanTreeNode o1, HuffmanTreeNode o2) {
+                return 0;
+            }
+        });
 
         return null;
     }
@@ -56,11 +64,11 @@ public class Huffmain {
      * Har sjekket med https://stackoverflow.com/questions/13173223/huffman-coding-dealing-with-unicode
      * og denne får akkurat samme svar for alle testfilene
      */
-    private static int[] getFrequencyArray(String pathToFile) throws IOException {
+    private static int[] getFrequencyArray(File file) throws IOException {
         //todo trenger sikkert ikke å lese hele fila på en gang, kan lese i løkka lenger nede
         // gjetter jeg, kanskje bruke outputstream
 
-        byte[] fileContent = Files.readAllBytes(Path.of(pathToFile));
+        byte[] fileContent = Files.readAllBytes(file.toPath());
         int[] frequencyArray = new int[256];
     /*
         char gir tall fra -128 - 127, men pga hvordan overflow funker så kan man ikke
