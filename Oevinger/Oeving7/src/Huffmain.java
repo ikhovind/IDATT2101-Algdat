@@ -40,8 +40,11 @@ public class Huffmain {
     }
 
     public static int[] getHuffmanTree(int[] frequencyArray){
-        
-        int[] huffmanTree = new int[256];
+        HuffmanTreeNode[] huffmanTree = new HuffmanTreeNode[frequencyArray.length];
+        for(int i = 0; i < frequencyArray.length; i++){
+            huffmanTree[i] = new HuffmanTreeNode(i ,frequencyArray[i]);
+        }
+
         return null;
     }
 
@@ -80,5 +83,15 @@ public class Huffmain {
             frequencyArray[(fileContent[j] + 256)%256]++;
         }
         return frequencyArray;
+    }
+}
+
+class HuffmanTreeNode{
+    int value;
+    int weight;
+
+    public HuffmanTreeNode(int value, int weight) {
+        this.value = value;
+        this.weight = weight;
     }
 }
