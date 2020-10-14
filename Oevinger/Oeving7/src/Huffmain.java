@@ -11,11 +11,15 @@ public class Huffmain {
         File output = new File("files/output.txt");
         int[] frequencyArray = getFrequencyArray(input);
         writeToFile(output.getPath(), frequencyArray);
+        //leser det vi akkurat skrev til fil
         int[] readFrequencyArray = readFrequencyArray(output);
         BinaryTreePrinter test = new BinaryTreePrinter(getHuffmanTree(frequencyArray));
         test.print((System.out));
         System.out.println();
-        System.out.println(getHuffmanTree(readFrequencyArray).left.left.left.value);
+        //TODO kan hende at den sletter den forreste 0 når lager tall som begynner med 0, sjekk
+        // dette om man får en bug
+        System.out.println(Integer.toBinaryString(getEncodings(getHuffmanTree(frequencyArray),'r'
+            ,0)));
     }
 
     /**
@@ -28,6 +32,26 @@ public class Huffmain {
             frequencyArray[i] += myReader.read();
         }
         return frequencyArray;
+    }
+
+    public static byte getEncodings(HuffmanTreeNode root, int value, int counter){
+        byte answer = -1;
+        if(root.left != null && root.right != null){
+            if(root.left.value == value){
+                return (byte) (counter << 1);
+            }
+            if(root.right.value == value){
+                return (byte) ((counter << 1) +1);
+            }
+        }
+        if(root.left != null){
+            answer = getEncodings(root.left, value, counter << 1);
+        }
+        if(answer != -1) return answer;
+        if(root.right != null){
+            answer = getEncodings(root.right, value, (counter << 1)+1 );
+        }
+        return answer;
     }
     private static void writeToFile(String pathToFile, int[] frequencyArray) throws IOException {
         FileWriter myWriter = new FileWriter(pathToFile);
@@ -166,7 +190,7 @@ class Heap{
         buildHeap(arr,n);
     }
 }
-
+//TODO slett denne når jeg er sikker på at det funker
  class BinaryTreePrinter {
 
     private HuffmanTreeNode tree;
