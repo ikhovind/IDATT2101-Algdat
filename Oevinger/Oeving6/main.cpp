@@ -135,7 +135,7 @@ public:
 
     //Veldig inneffektiv, burde gjøre som jeg gjør med den ikke-rekursive og ikke legge til objekter i heapen før jeg trenger det
     //Leverte kun inn den ikke-rekursive metoden, så optimaliserer ikke denne nå
-     NodeResult* innerDijkstra(int start, NodeResult *distTo, HeapOnNode* minHeap) {
+     NodeResult* innerDijkstra(int start, NodeResult *distTo, NodeOnHeap* minHeap) {
         //dersom man har kommet til siste node og det ikke er flere å sjekke avstand til
         while(heapSize != 0){
             return distTo;
@@ -168,11 +168,11 @@ public:
     NodeResult* recursiveDijkstra(int start, NodeResult *distTo){
         std::cout<< "outer\n";
         //TODO segmentation fault på skandinavia
-        HeapOnNode *minHeap = ((HeapOnNode *) malloc(sizeof(struct  NodeResult) * (noVertices)));
+        NodeOnHeap *minHeap = ((NodeOnHeap *) malloc(sizeof(struct  NodeResult) * (noVertices)));
         std::cout << "innie\n";
         for(int i = 0; i < noVertices; i++){
             //lager nodeResultObjekter i hver heap indeks
-            minHeap[i] = HeapOnNode{i,INT32_MAX/2};
+            minHeap[i] = NodeOnHeap{i,INT32_MAX/2};
         }
         //avstand til startnode er alltid 0
         distTo[start].distFromStart = 0;
