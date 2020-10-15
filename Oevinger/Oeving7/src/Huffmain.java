@@ -1,6 +1,7 @@
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 
@@ -24,19 +25,41 @@ public class Huffmain {
 
         byte[] inputFile = Files.readAllBytes(input.toPath());
         String fileToString = "";
+
         //todo lag tabell av alle mulige tegn istedenfor å kalle getEncodings på alle
         for (int i = 0; i < inputFile.length; i++) {
             fileToString += getEncodings(root, inputFile[i], "");
         }
+        //karakter som viser enden av fila
+        fileToString += getEncodings(root, 256, "");
+        //dersom fila vi skriver ut ikke er en hel byte så legger vi på trailing zeroes etter break-tegnet vårt
         for (int i = 0; i < fileToString.length() % 8; i++) {
             //må spare til 8 bits
-            //TODO finn en bedre måte, helst ikke bare legg til 0, fucker sikkert med tegnet
             fileToString += "0";
         }
+        //orker ikke å bruke array og utvide det hele tiden
+        ArrayList<Byte> data = new ArrayList<>();
+        //sjekker slik at alle nuller blir lagt til i byte-arrayet
+        for(int i = 0; i < fileToString.length(); i+=8){
+            String temp = fileToString.substring(i);
+            //hvis man legger til hele tall med null først så blir de første nullene slettet
+            if (temp.charAt(0) == '0'){
+                data.add((byte) 0);
+                i++;
+                //disse legges til slik at vi har bare fulle bytes, har ingenting å si siden vi legger til et break-tegn tidligere
+                fileToString += "0";
+                temp = fileToString.substring(i);
+            }
+            data.add(decodeBinary(temp.substring(0,8))[0]);
+        }
 
-        byte[] data = decodeBinary(fileToString);
         FileOutputStream outputStream = new FileOutputStream(output.getPath(), true);
-        outputStream.write(data);
+        //dårlig løsningn siden man ikke kan skrive arraylist, men idgaf
+        byte[] arrayListToByteArray = new byte[data.size()];
+        for(int i = 0; i < arrayListToByteArray.length; i++){
+            arrayListToByteArray[i] = data.get(i);
+        }
+        outputStream.write(arrayListToByteArray);
     }
 
     public static void deCompress() throws IOException {
@@ -45,11 +68,20 @@ public class Huffmain {
 
         byte[] decoded = Files.readAllBytes(input.toPath());
         int[] frequencyArray = readFrequencyArray(input);
-        byte[] witohoutFreqArray = new byte[decoded.length-frequencyArray.length];
-        for(int i = frequencyArray.length; i < decoded.length; i++){
-            witohoutFreqArray[i-frequencyArray.length] = decoded[i];
+        String kanskje = "";
+
+        FileReader myReader = new FileReader(input.getPath());
+        for (int i = 0; i < frequencyArray.length; i++) {
+            frequencyArray[i] += myReader.read();
         }
         HuffmanTreeNode root = getHuffmanTree(frequencyArray);
+        for(int i = frequencyArray.length; i < decoded.length; i++){
+            //jeg har satt inn encodingen til 256 som en break i den komprimerte fila
+            if(Integer.toBinaryString((decoded[i]+256)%256).contains(getEncodings(root,256,""))) break;
+            kanskje += (Integer.toBinaryString((decoded[i]+256)%256));
+        }
+        //BinaryTreePrinter binaryTreePrinter = new BinaryTreePrinter(root);
+        //binaryTreePrinter.print(System.out);
         //TODO helge underkjenner om vi bruker hashmap
         HashMap<String, Integer> encodedValues = new HashMap<>();
         for (int i = 0; i < frequencyArray.length; i++) {
@@ -57,28 +89,29 @@ public class Huffmain {
                 encodedValues.put(getEncodings(root,i,""),i);
             }
         }
-        for (int i = 0; i < witohoutFreqArray.length; i++) {
-            String test = Integer.toBinaryString((witohoutFreqArray[i]+256)%256);
-            System.out.println("test er: " + Integer.toBinaryString((witohoutFreqArray[i]+256)%256));
-            for(int j = 0; j < test.length() && i < witohoutFreqArray.length; j++){
-                System.out.println("subtest er: " + test.substring(0,j));
-                Integer tempbyte = encodedValues.get((test.substring(0,j)));
-                if(tempbyte != null){
-                    witohoutFreqArray[i] = tempbyte.byteValue();
-                    test.substring(j);
-                    if(witohoutFreqArray.length < i+1){
-                        test += Integer.toBinaryString((witohoutFreqArray[i+1]+256)%256);
-                        i++;
-                    }
-
-                    i++;
-                    j=0;
-                }
+        ArrayList<Byte> unknownSizeByteArray = new ArrayList<>();
+        //går gjennom hele stringen med tegn og finner de reelle verdiene
+        for(int i = 0; i < kanskje.length(); i++){
+            //dersom vi har kommet til en substring som har en assosiert verdi
+            if(encodedValues.get(kanskje.substring(0, i))!= null){
+                //legger det til det reelle tegnet i arrayet som vi senere skal skrive ut
+                unknownSizeByteArray.add(encodedValues.get(kanskje.substring(0, i)).byteValue());
+                //flytter punkt 0 fram
+                kanskje = kanskje.substring(i);
+                //restarter letingen siden vi fjernet tegnene vi brukte
+                i=0;
             }
         }
-
+        //legger til siste tegn som ikke blir lagt til i løkken
+        //todo kanskje while-løkke over stringen gjør at vi slipper dette
+        if(kanskje.length() != 0) unknownSizeByteArray.add(encodedValues.get(kanskje).byteValue());
+        //brukes til å skrive ut
+        byte[] test = new byte[unknownSizeByteArray.size()];
+        for(int i = 0; i < unknownSizeByteArray.size(); i++){
+            test[i] = unknownSizeByteArray.get(i);
+        }
         FileOutputStream outputStream = new FileOutputStream(output.getPath());
-        outputStream.write(witohoutFreqArray);
+        outputStream.write(test);
     }
 
     /**
@@ -299,7 +332,7 @@ class Heap{
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(root.weight +" " +  root.value);
+        sb.append(root.weight +" " +  (char)root.value);
 
         String pointerRight = "└──";
         String pointerLeft = (root.right != null) ? "├──" : "└──";
@@ -318,7 +351,7 @@ class Heap{
             sb.append("\n");
             sb.append(padding);
             sb.append(pointer);
-            sb.append(node.weight  +" " + node.value);
+            sb.append(node.weight  +" " + (char) node.value);
 
             StringBuilder paddingBuilder = new StringBuilder(padding);
             if (hasRightSibling) {
