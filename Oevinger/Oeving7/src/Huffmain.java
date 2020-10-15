@@ -1,50 +1,52 @@
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Files;
 
 public class Huffmain {
+    static final int ANT_TEGN = 256;
     public static void main(String args[]) throws IOException, InterruptedException {
-        File input = new File("files/diverse.pdf");
+        File input = new File("files/diverse.txt");
         File output = new File("files/output.txt");
+
         int[] frequencyArray = getFrequencyArray(input);
+
         writeFreqArray(output.getPath(), frequencyArray);
         //leser det vi akkurat skrev til fil
 
         HuffmanTreeNode root = getHuffmanTree(frequencyArray);
+
+        BinaryTreePrinter b = new BinaryTreePrinter(root);
+        b.print(System.out);
+
         byte[] inputFile = Files.readAllBytes(input.toPath());
         String fileToString = "";
-        System.out.println(inputFile.length);
-        Thread.sleep(5000);
+        //todo lag tabell av alle mulige tegn istedenfor å kalle getEncodings på alle
         for(int i = 0; i < inputFile.length; i++){
-            if(i % 10000 == 0){
-                System.out.println(i);
-            }
             fileToString += getEncodings(root, inputFile[i], "");
         }
         //TODO skriv frekvensarrayet til filen også og finn en måte og skille dette slik at man
         // kan dekrompimere filen
-        System.out.println(fileToString.length()%8);
         for(int i = 0; i < fileToString.length()%8; i++){
             //må spare til 8 bits
             //TODO finn en bedre måte, helst ikke bare legg til 0, fucker sikkert med tegnet
             fileToString+="0";
         }
+
         byte[] data = decodeBinary(fileToString);
-        java.nio.file.Files.write(output.toPath(), data);
+        FileOutputStream outputStream = new FileOutputStream(output.getPath(), true);
+        outputStream.write(data);
     }
+
 
     /**
      * Leser frequency array fra en gitt fil
      */
     private static int[] readFrequencyArray(File file) throws IOException {
         FileReader myReader = new FileReader(file.getPath());
-        int[] frequencyArray = new int[256];
+        int[] frequencyArray = new int[ANT_TEGN+1];
         for(int i = 0; i < frequencyArray.length; i++){
             frequencyArray[i] += myReader.read();
         }
+        //brukes som skilletegn
         return frequencyArray;
     }
 
@@ -131,7 +133,7 @@ public class Huffmain {
         // gjetter jeg, kanskje bruke outputstream
 
         byte[] fileContent = Files.readAllBytes(file.toPath());
-        int[] frequencyArray = new int[256];
+        int[] frequencyArray = new int[ANT_TEGN+1];
     /*
         char gir tall fra -128 - 127, men pga hvordan overflow funker så kan man ikke
          konvertere fra negative tall til char, trenger derimot ikke å bruke annen encoding, da
@@ -152,6 +154,7 @@ public class Huffmain {
         for(int j = 0; j < fileContent.length; j++){
             frequencyArray[(fileContent[j] + 256)%256]++;
         }
+        frequencyArray[frequencyArray.length-1] = 1;
         return frequencyArray;
     }
 
@@ -238,7 +241,7 @@ class Heap{
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(root.weight +" " + (char) root.value);
+        sb.append(root.weight +" " +  root.value);
 
         String pointerRight = "└──";
         String pointerLeft = (root.right != null) ? "├──" : "└──";
@@ -257,7 +260,7 @@ class Heap{
             sb.append("\n");
             sb.append(padding);
             sb.append(pointer);
-            sb.append(node.weight  +" " + (char) node.value);
+            sb.append(node.weight  +" " + node.value);
 
             StringBuilder paddingBuilder = new StringBuilder(padding);
             if (hasRightSibling) {
