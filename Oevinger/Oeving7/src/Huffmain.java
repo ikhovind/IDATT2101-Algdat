@@ -5,7 +5,8 @@ import java.util.HashMap;
 
 public class Huffmain {
     static final int ANT_TEGN = 256;
-    //TODO den legger inn 1 for mye på starten dersom det er 3 mellomrom på rad, men kun i diverse.txt
+    //TODO output blir større en input xoxox, tror det blir sånn når det er mange forskjellige
+    // tegn, kanskje huffmantreet mitt er litt mindre enn optimalt?
     public static void main(String[] args) throws IOException {
         compress();
         deCompress();
@@ -18,24 +19,26 @@ public class Huffmain {
 
         String[] encodings = getEndcodingArray(frequencyArray);
 
-        writeFreqArray(output.getPath(), frequencyArray);
 
         byte[] inputFile = Files.readAllBytes(input.toPath());
         String fileToString = "";
-        String test = "";
-        for (int i = 0; i < inputFile.length; i++) {
-            test += (Integer.toBinaryString((inputFile[i]+ANT_TEGN)%ANT_TEGN));
-            //konvertere negative tegn til positive, positive vil beholde verdien sin pga modulo
-            fileToString += encodings[(inputFile[i]+ANT_TEGN)%ANT_TEGN];
-        }
-        //karakter som viser enden av fila
         fileToString += encodings[ANT_TEGN];
-        //dersom fila vi skriver ut ikke er en hel byte så legger vi på trailing zeroes etter break-tegnet vårt
-        for (int i = 0; i < fileToString.length() % 8; i++) {
+        for(int i = 0; i < inputFile.length; i++){
+            fileToString += encodings[(inputFile[i] + ANT_TEGN)%ANT_TEGN];
+        }
+        fileToString += encodings[ANT_TEGN];
+        while ( fileToString.length() % 8 != 0) {
             //må spare til 8 bits
             fileToString += "0";
         }
+
+        FileWriter myWriter = new FileWriter(output.getPath());
+        for (int i = 0; i < frequencyArray.length; i++) {
+            myWriter.write(frequencyArray[i]);
+        }
+        myWriter.close();
         new FileOutputStream(output.getPath(), true).write(getEncodedByteArray(fileToString));
+        System.out.println("inputlengde " + input.length());
     }
 
     private static String[] getEndcodingArray(int[] frequencyArray){
@@ -47,41 +50,43 @@ public class Huffmain {
         return encodings;
     }
 
-    //todo problemet ligger i at man legger på 0 på temp kanskje?, blir lagt til for mange 0 på starten i enkelte filer
-    //den komprimerte fila er heller ikke noe mindre enn startfilen
     private static byte[] getEncodedByteArray(String fileToString) {
-        //orker ikke å bruke array og utvide det hele tiden
-        ArrayList<Byte> data = new ArrayList<>();
-        //sjekker slik at alle nuller blir lagt til i byte-arrayet
-        for(int i = 0; i < fileToString.length(); i+=8){
-            String temp = fileToString.substring(i);
-            //hvis man legger til hele tall med null først så blir de første nullene slettet
-            while (temp.length() > 0 && temp.charAt(0) == '0'){
-                data.add((byte) 0);
-                i++;
-                temp = fileToString.substring(i);
+        ArrayList<Byte> perhaps = new ArrayList<>();
+        String cnt = "";
+        for(int i = 0; i < fileToString.length(); i++){
+            if(fileToString.charAt(i) == '1'){
+                cnt += "1";
             }
-            //må være hele bytes, så legger til 0 på slutten, er derimot uviktig da man har en break-karakter
-            while(fileToString.substring(i).length()% 8 != 0){
-                fileToString += "0";
+            else if(fileToString.charAt(i) == '0'){
+                if(cnt.length() == 0) {
+                    perhaps.add((byte) 0);
+                }
+                else{
+                    cnt += "0";
+                }
             }
-            if(temp.length() != 0){
-                data.add(decodeBinary(temp.substring(0,8))[0]);
+            if(cnt.length() > 0 && cnt.length() % 8 == 0){
+                perhaps.add((byte) Integer.parseInt(cnt,2));
+                cnt = "";
             }
         }
+        while(cnt.length() % 8 != 0){
+            cnt+="0";
+        }
+        if(cnt.length() != 0) perhaps.add((byte) Integer.parseInt(cnt,2));
 
-        //dårlig løsningn siden man ikke kan skrive arraylist så man må ha ekstra løkke
-        byte[] arrayListToByteArray = new byte[data.size()];
-        for(int i = 0; i < arrayListToByteArray.length; i++){
-            arrayListToByteArray[i] = data.get(i);
+        byte[] answer = new byte[perhaps.size()];
+
+        for (int i = 0; i < perhaps.size(); i++) {
+            answer[i] =  perhaps.get(i);
         }
-        return arrayListToByteArray;
+        return answer;
     }
 
     public static void deCompress() throws IOException {
         File input = new File("files/encoded.txt");
         File output = new File("files/decoded.txt");
-
+        System.out.println("encoded lengde " + input.length());
         byte[] decoded = Files.readAllBytes(input.toPath());
         int[] frequencyArray = readFrequencyArray(input);
         String kanskje = "";
@@ -89,9 +94,13 @@ public class Huffmain {
         for(int i = frequencyArray.length; i < decoded.length; i++){
             kanskje += (Integer.toBinaryString((decoded[i]+ANT_TEGN)%ANT_TEGN));
         }
+        HuffmanTreeNode root = getHuffmanTree(frequencyArray);
+        String[] encodings = getEndcodingArray(frequencyArray);
         //jeg har satt inn encodingen til 256 som en break i den komprimerte fila, denne tar med alle tegn bortsett fra break-tegnet
-        kanskje = kanskje.substring(0,kanskje.lastIndexOf(getEncodings(getHuffmanTree(frequencyArray),ANT_TEGN,"")));
-        System.out.println(kanskje);
+        kanskje = kanskje.substring(0,kanskje.lastIndexOf(encodings[ANT_TEGN]));
+        kanskje = kanskje.substring(kanskje.indexOf(encodings[ANT_TEGN]) + encodings[ANT_TEGN].length());
+
+
         new FileOutputStream(output.getPath()).write(getDecodedByteArray(kanskje,frequencyArray));
     }
 
@@ -126,7 +135,7 @@ public class Huffmain {
     }
 
     /**
-     * Leser frequency array fra en gitt fil
+     * Leser frequency array fra en gitt komprimert fil
      */
     private static int[] readFrequencyArray(File file) throws IOException {
         FileReader myReader = new FileReader(file.getPath());
@@ -140,7 +149,7 @@ public class Huffmain {
 
     /**
      * finner verdien til en verdi value basert på huffmantreet med rot i root, counter skal være
-     * 0, brukes rekursivt
+     * "", brukes rekursivt
      */
     public static String getEncodings(HuffmanTreeNode root, int value, String counter) {
         String answer = "";
@@ -161,13 +170,6 @@ public class Huffmain {
         return answer;
     }
 
-    private static void writeFreqArray(String pathToFile, int[] frequencyArray) throws IOException {
-        FileWriter myWriter = new FileWriter(pathToFile);
-        for (int i = 0; i < frequencyArray.length; i++) {
-            myWriter.write(frequencyArray[i]);
-        }
-        myWriter.close();
-    }
 
     public static HuffmanTreeNode getHuffmanTree(int[] frequencyArray) {
         int noCharacters = 0;
@@ -239,26 +241,11 @@ public class Huffmain {
         det går jo bra
      */
 
-        for (int j = 0; j < fileContent.length; j++) {
+        for (int j = 0; j < file.length(); j++) {
             frequencyArray[(fileContent[j] + ANT_TEGN) % ANT_TEGN]++;
         }
         frequencyArray[frequencyArray.length - 1] = 1;
         return frequencyArray;
-    }
-
-    static byte[] decodeBinary(String s) {
-        if (s.length() % 8 != 0) throw new IllegalArgumentException(
-                "Binary data length must be multiple of 8");
-        byte[] data = new byte[s.length() / 8];
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c == '1') {
-                data[i >> 3] |= 0x80 >> (i & 0x7);
-            } else if (c != '0') {
-                throw new IllegalArgumentException("Invalid char in binary string");
-            }
-        }
-        return data;
     }
 }
 
