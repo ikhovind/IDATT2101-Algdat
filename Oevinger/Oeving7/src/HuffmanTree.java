@@ -2,6 +2,7 @@ import java.util.PriorityQueue;
 import java.util.stream.IntStream;
 
 public class HuffmanTree {
+
     private static HuffmanTreeNode getHuffmanTree(int[] frequencyArray) {
         PriorityQueue<HuffmanTreeNode> nodeQueue = new PriorityQueue<>();
         //legger til alle nodene i køa
@@ -18,6 +19,7 @@ public class HuffmanTree {
 
         return nodeQueue.poll();
     }
+
     public static String[] getEncodingArray(int[] frequencyArray){
         String[] encodings = new String[frequencyArray.length];
         HuffmanTreeNode root = getHuffmanTree(frequencyArray);

@@ -1,10 +1,6 @@
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class HuffmanDecode {
@@ -13,21 +9,23 @@ public class HuffmanDecode {
     public static void main(String[] args) throws IOException {
         deCompress("files/encoded.txt","files/decoded.txt");
     }
+
     private static void deCompress(String pathToCompressed, String pathToDecompressed) throws IOException {
+
         File input = new File(pathToCompressed);
         File output = new File(pathToDecompressed);
         byte[] decoded = Files.readAllBytes(input.toPath());
         int[] frequencyArray = readFrequencyArray(input);
         String kanskje = "";
+        String[] encodings = HuffmanTree.getEncodingArray(frequencyArray);
         //alle tegn i fila som ikke er del av frekvensarrayet
         for(int i = frequencyArray.length; i < decoded.length; i++){
             kanskje += (Integer.toBinaryString((decoded[i]+ANT_TEGN)%ANT_TEGN)).substring(1);
         }
 
-        String[] encodings = HuffmanTree.getEncodingArray(frequencyArray);
         //jeg har satt inn encodingen til 256 som en break i den komprimerte fila, denne fjerner break som er først og sist
-        kanskje = kanskje.substring(kanskje.indexOf(encodings[ANT_TEGN]) + encodings[ANT_TEGN].length(),kanskje.lastIndexOf(encodings[ANT_TEGN]));
-
+        kanskje = kanskje.substring(0,kanskje.lastIndexOf(encodings[ANT_TEGN]));
+        //TODO kan optimalisere ved å ikke skrive hele stringen på en gang, skriv litt og litt inne i for-løkka over
         new FileOutputStream(output.getPath()).write(getDecodedByteArray(kanskje,frequencyArray));
     }
 
@@ -46,7 +44,7 @@ public class HuffmanDecode {
 
     private static byte[] getDecodedByteArray(String kanskje, int[] frequencyArray) {
         String[] encodings = HuffmanTree.getEncodingArray(frequencyArray);
-        //TODO helge underkjenner om vi bruker hashmap
+        //TODO helge underkjenner om vi bruker hashmap, spør om det går greit
         HashMap<String, Integer> encodedValues = new HashMap<>();
         for (int i = 0; i < frequencyArray.length; i++) {
             if (!encodings[i].equals("")) {

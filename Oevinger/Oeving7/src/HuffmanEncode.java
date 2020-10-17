@@ -1,8 +1,6 @@
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.stream.IntStream;
 
 public class HuffmanEncode {
@@ -20,7 +18,6 @@ public class HuffmanEncode {
         byte[] inputFile = Files.readAllBytes(input.toPath());
 
         String fileToString = "";
-        fileToString += encodings[ANT_TEGN];
         FileWriter myWriter = new FileWriter(output.getPath());
         for (int i = 0; i < frequencyArray.length; i++) {
             myWriter.write(frequencyArray[i]);
