@@ -2,6 +2,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.IntStream;
 
 public class Huffmain {
     static final int ANT_TEGN = 256;
@@ -53,33 +54,17 @@ public class Huffmain {
     private static byte[] getEncodedByteArray(String fileToString) {
         ArrayList<Byte> perhaps = new ArrayList<>();
         String cnt = "";
-        for(int i = 0; i < fileToString.length(); i++){
-            if(fileToString.charAt(i) == '1'){
-                cnt += "1";
-            }
-            else if(fileToString.charAt(i) == '0'){
-                if(cnt.length() == 0) {
-                    perhaps.add((byte) 0);
-                }
-                else{
-                    cnt += "0";
-                }
-            }
-            if(cnt.length() > 0 && cnt.length() % 8 == 0){
-                perhaps.add((byte) Integer.parseInt(cnt,2));
-                cnt = "";
-            }
+
+        while(fileToString.length() > 0){
+            //når man decoder så må man simpelthen ignorerer det første sifferet i hver byte som man leser
+            perhaps.add((byte) Integer.parseInt((fileToString.length() >= 7 ? '1' + fileToString.substring(0,7) : '1' + fileToString),2));
+            //dersom lengden er over 6 så lages det ny substring der, hvis lengden er under 6 så har vi lagt til hele og stringen blir tom
+            fileToString = fileToString.substring(Math.min(fileToString.length(), 7));
         }
-        while(cnt.length() % 8 != 0){
-            cnt+="0";
-        }
-        if(cnt.length() != 0) perhaps.add((byte) Integer.parseInt(cnt,2));
 
         byte[] answer = new byte[perhaps.size()];
+        IntStream.range(0,perhaps.size()).forEach(i->answer[i] = perhaps.get(i));
 
-        for (int i = 0; i < perhaps.size(); i++) {
-            answer[i] =  perhaps.get(i);
-        }
         return answer;
     }
 
@@ -92,7 +77,7 @@ public class Huffmain {
         String kanskje = "";
 
         for(int i = frequencyArray.length; i < decoded.length; i++){
-            kanskje += (Integer.toBinaryString((decoded[i]+ANT_TEGN)%ANT_TEGN));
+            kanskje += (Integer.toBinaryString((decoded[i]+ANT_TEGN)%ANT_TEGN)).substring(1);
         }
         HuffmanTreeNode root = getHuffmanTree(frequencyArray);
         String[] encodings = getEndcodingArray(frequencyArray);
