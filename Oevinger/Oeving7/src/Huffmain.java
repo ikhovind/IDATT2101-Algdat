@@ -2,27 +2,30 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.util.stream.IntStream;
 
 public class Huffmain {
     static final int ANT_TEGN = 256;
     //TODO output blir større en input xoxox, tror det blir sånn når det er mange forskjellige
     // tegn, kanskje huffmantreet mitt er litt mindre enn optimalt?
     public static void main(String[] args) throws IOException {
-        compress();
-        deCompress();
+        compress("files/diverse.txt", "files/encoded.txt");
+        deCompress("files/encoded.txt","files/decoded.txt");
     }
 
-    public static void compress() throws IOException {
-        File input = new File("files/diverse.txt");
-        File output = new File("files/encoded.txt");
+    public static void compress(String pathToFile, String pathToCompressedFile) throws IOException {
+        File input = new File(pathToFile);
+        File output = new File(pathToCompressedFile);
         int[] frequencyArray = getFrequencyArray(input);
 
-        String[] encodings = getEndcodingArray(frequencyArray);
+        String[] encodings = getEncodingArray(frequencyArray);
+
 
 
         byte[] inputFile = Files.readAllBytes(input.toPath());
         String fileToString = "";
-        fileToString += encodings[ANT_TEGN];
+      //  fileToString += encodings[ANT_TEGN];
         for(int i = 0; i < inputFile.length; i++){
             fileToString += encodings[(inputFile[i] + ANT_TEGN)%ANT_TEGN];
         }
@@ -31,17 +34,28 @@ public class Huffmain {
             //må spare til 8 bits
             fileToString += "0";
         }
+        System.out.println(fileToString);
 
-        FileWriter myWriter = new FileWriter(output.getPath());
+/*
+        FileWriter clearFile = new FileWriter(output.getPath());
         for (int i = 0; i < frequencyArray.length; i++) {
-            myWriter.write(frequencyArray[i]);
+            clearFile.write(frequencyArray[i]);
         }
-        myWriter.close();
-        new FileOutputStream(output.getPath(), true).write(getEncodedByteArray(fileToString));
-        System.out.println("inputlengde " + input.length());
+        clearFile.close();
+*/
+
+
+        FileWriter appendFile = new FileWriter(output.getPath());
+        int[] encodedIntArray = getEncodedByteArray(fileToString);
+        for (int i = 0; i < encodedIntArray.length; i++) {
+            appendFile.write(encodedIntArray[i]);
+            System.out.print(Integer.toBinaryString(encodedIntArray[i]).substring(1));
+        }
+        System.out.println();
+        appendFile.close();
     }
 
-    private static String[] getEndcodingArray(int[] frequencyArray){
+    private static String[] getEncodingArray(int[] frequencyArray){
         String[] encodings = new String[frequencyArray.length];
         HuffmanTreeNode root = getHuffmanTree(frequencyArray);
         for(int i = 0; i < frequencyArray.length; i++){
@@ -50,62 +64,63 @@ public class Huffmain {
         return encodings;
     }
 
-    private static byte[] getEncodedByteArray(String fileToString) {
-        ArrayList<Byte> perhaps = new ArrayList<>();
-        String cnt = "";
-        for(int i = 0; i < fileToString.length(); i++){
-            if(fileToString.charAt(i) == '1'){
-                cnt += "1";
-            }
-            else if(fileToString.charAt(i) == '0'){
-                if(cnt.length() == 0) {
-                    perhaps.add((byte) 0);
-                }
-                else{
-                    cnt += "0";
-                }
-            }
-            if(cnt.length() > 0 && cnt.length() % 8 == 0){
-                perhaps.add((byte) Integer.parseInt(cnt,2));
-                cnt = "";
-            }
-        }
-        while(cnt.length() % 8 != 0){
-            cnt+="0";
-        }
-        if(cnt.length() != 0) perhaps.add((byte) Integer.parseInt(cnt,2));
+    private static int[] getEncodedByteArray(String fileToString) {
+        ArrayList<Integer> encodedIntegers = new ArrayList<>();
 
-        byte[] answer = new byte[perhaps.size()];
-
-        for (int i = 0; i < perhaps.size(); i++) {
-            answer[i] =  perhaps.get(i);
+        //31 bits i hver byte
+        while(fileToString.length() > 0){
+            //når man decoder så må man simpelthen ignorerer det første sifferet i hver int som man leser
+            encodedIntegers.add(Integer.parseInt((fileToString.length() >= 30 ? '1' + fileToString.substring(0,30) : '1' + fileToString),2));
+            //dersom lengden er over 31 så lages det ny substring der, hvis lengden er under 31 så har vi lagt til hele og stringen blir tom
+            fileToString = fileToString.substring(Math.min(fileToString.length(), 30));
         }
+
+        int[] answer = new int[encodedIntegers.size()];
+        IntStream.range(0,encodedIntegers.size()).forEach(i->answer[i] = encodedIntegers.get(i));
+
         return answer;
     }
 
-    public static void deCompress() throws IOException {
-        File input = new File("files/encoded.txt");
-        File output = new File("files/decoded.txt");
-        System.out.println("encoded lengde " + input.length());
-        byte[] decoded = Files.readAllBytes(input.toPath());
-        int[] frequencyArray = readFrequencyArray(input);
-        String kanskje = "";
-
-        for(int i = frequencyArray.length; i < decoded.length; i++){
-            kanskje += (Integer.toBinaryString((decoded[i]+ANT_TEGN)%ANT_TEGN));
+    public static void deCompress(String pathToCompressedFile, String pathToDecompressed) throws IOException {
+        File input = new File(pathToCompressedFile);
+        File output = new File(pathToDecompressed);
+        byte[] temparr = Files.readAllBytes(input.toPath());
+        int counter = 0;
+        for (int i = 0; i < temparr.length; i++) {
+            byte b = temparr[i];
+            if(i % 8 == 0){
+                System.out.print(Integer.toBinaryString((((int) b)+256) %256).substring(1));
+            }
+            else{
+                System.out.print(Integer.toBinaryString((((int) b)+256) %256));
+            }
         }
-        HuffmanTreeNode root = getHuffmanTree(frequencyArray);
-        String[] encodings = getEndcodingArray(frequencyArray);
-        //jeg har satt inn encodingen til 256 som en break i den komprimerte fila, denne tar med alle tegn bortsett fra break-tegnet
-        kanskje = kanskje.substring(0,kanskje.lastIndexOf(encodings[ANT_TEGN]));
-        kanskje = kanskje.substring(kanskje.indexOf(encodings[ANT_TEGN]) + encodings[ANT_TEGN].length());
+        System.out.println();
+        // int[] frequencyArray = readFrequencyArray(input);
+        //String[] encodings = getEncodingArray(frequencyArray);
 
-
-        new FileOutputStream(output.getPath()).write(getDecodedByteArray(kanskje,frequencyArray));
+        String kanskje = "";
+        FileReader test = new FileReader(input);
+        int readInt;
+        while((readInt = test.read()) != -1){
+            kanskje += Integer.toBinaryString(readInt).substring(1);
+        }
+        System.out.println( kanskje);
+        // new FileOutputStream(output.getPath()).write(getDecodedByteArray(kanskje,frequencyArray));
     }
 
-    private static byte[] getDecodedByteArray(String kanskje, int[] frequencyArray) {
-        String[] encodings = getEndcodingArray(frequencyArray);
+    private static int[] readFrequencyArray(File file) throws IOException {
+        FileReader myReader = new FileReader(file.getPath());
+        int[] frequencyArray = new int[ANT_TEGN + 1];
+        for (int i = 0; i < frequencyArray.length; i++) {
+            frequencyArray[i] += myReader.read();
+        }
+        myReader.close();
+        return frequencyArray;
+    }
+
+    private static byte[] getDecodedByteArray(String encodedInputString, int[] frequencyArray) {
+        String[] encodings = getEncodingArray(frequencyArray);
         //TODO helge underkjenner om vi bruker hashmap
         HashMap<String, Integer> encodedValues = new HashMap<>();
         for (int i = 0; i < frequencyArray.length; i++) {
@@ -116,13 +131,13 @@ public class Huffmain {
 
         ArrayList<Byte> unknownSizeByteArray = new ArrayList<>();
         //går gjennom hele stringen med tegn og finner de reelle verdiene
-        for(int i = 0; i < kanskje.length()+1; i++){
+        for(int i = 0; i < encodedInputString.length()+1; i++){
             //dersom vi har kommet til en substring som har en assosiert verdi
-            if(encodedValues.get(kanskje.substring(0, i))!= null){
+            if(encodedValues.get(encodedInputString.substring(0, i))!= null){
                 //legger det til det reelle tegnet i arrayet som vi senere skal skrive ut
-                unknownSizeByteArray.add(encodedValues.get(kanskje.substring(0, i)).byteValue());
+                unknownSizeByteArray.add(encodedValues.get(encodedInputString.substring(0, i)).byteValue());
                 //flytter punkt 0 fram
-                kanskje = kanskje.substring(i);
+                encodedInputString = encodedInputString.substring(i);
                 //restarter letingen siden vi fjernet tegnene vi brukte
                 i=0;
             }
@@ -134,18 +149,6 @@ public class Huffmain {
         return test;
     }
 
-    /**
-     * Leser frequency array fra en gitt komprimert fil
-     */
-    private static int[] readFrequencyArray(File file) throws IOException {
-        FileReader myReader = new FileReader(file.getPath());
-        int[] frequencyArray = new int[ANT_TEGN + 1];
-        for (int i = 0; i < frequencyArray.length; i++) {
-            frequencyArray[i] += myReader.read();
-        }
-        myReader.close();
-        return frequencyArray;
-    }
 
     /**
      * finner verdien til en verdi value basert på huffmantreet med rot i root, counter skal være
@@ -177,16 +180,14 @@ public class Huffmain {
             if (frequencyArray[i] != 0) {
                 noCharacters++;
             }
-
         }
-        int j = 0;
+        int noOfNodes = 0;
         HuffmanTreeNode[] huffmanNodes = new HuffmanTreeNode[noCharacters];
         for (int i = 0; i < frequencyArray.length; i++) {
             if (frequencyArray[i] != 0) {
-                huffmanNodes[j] = new HuffmanTreeNode(i, frequencyArray[i]);
-                j++;
+                huffmanNodes[noOfNodes] = new HuffmanTreeNode(i, frequencyArray[i]);
+                noOfNodes++;
             }
-
         }
 
         int length = huffmanNodes.length;
@@ -219,8 +220,6 @@ public class Huffmain {
      * og denne får akkurat samme svar for alle testfilene
      */
     private static int[] getFrequencyArray(File file) throws IOException {
-        //todo trenger sikkert ikke å lese hele fila på en gang, kan lese i løkka lenger nede
-        // gjetter jeg, kanskje bruke inputstrea
 
         byte[] fileContent = Files.readAllBytes(file.toPath());
         int[] frequencyArray = new int[ANT_TEGN + 1];
