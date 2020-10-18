@@ -7,7 +7,7 @@ public class HuffmanDecode {
     private static final int ANT_TEGN = 256;
 
     public static void main(String[] args) throws IOException {
-        deCompress("files/encoded.txt","files/decoded.txt");
+        deCompress("files/huffmanCompressed.txt","files/huffmanDecompressed.txt");
     }
 
     private static void deCompress(String pathToCompressed, String pathToDecompressed) throws IOException {
@@ -16,17 +16,17 @@ public class HuffmanDecode {
         File output = new File(pathToDecompressed);
         byte[] decoded = Files.readAllBytes(input.toPath());
         int[] frequencyArray = readFrequencyArray(input);
-        String kanskje = "";
+        String encodedBits = "";
         String[] encodings = HuffmanTree.getEncodingArray(frequencyArray);
         //alle tegn i fila som ikke er del av frekvensarrayet
         for(int i = frequencyArray.length; i < decoded.length; i++){
-            kanskje += (Integer.toBinaryString((decoded[i]+ANT_TEGN)%ANT_TEGN)).substring(1);
+            encodedBits += (Integer.toBinaryString((decoded[i]+ANT_TEGN)%ANT_TEGN)).substring(1);
         }
-
         //jeg har satt inn encodingen til 256 som en break i den komprimerte fila, denne fjerner break som er først og sist
-        kanskje = kanskje.substring(0,kanskje.lastIndexOf(encodings[ANT_TEGN]));
-        //TODO kan optimalisere ved å ikke skrive hele stringen på en gang, skriv litt og litt inne i for-løkka over
-        new FileOutputStream(output.getPath()).write(getDecodedByteArray(kanskje,frequencyArray));
+        encodedBits = encodedBits.substring(encodedBits.indexOf(encodings[ANT_TEGN]) + encodings[ANT_TEGN].length(),encodedBits.lastIndexOf(encodings[ANT_TEGN]));
+
+
+        new FileOutputStream(output.getPath()).write(getDecodedByteArray(encodedBits,frequencyArray));
     }
 
     /**
@@ -42,34 +42,37 @@ public class HuffmanDecode {
         return frequencyArray;
     }
 
-    private static byte[] getDecodedByteArray(String kanskje, int[] frequencyArray) {
+    /**
+     * dekoder-bytene i string-parameteren ved å bruke frekvensarrayet som føres inn
+     */
+    private static byte[] getDecodedByteArray(String encodedBits, int[] frequencyArray) {
         String[] encodings = HuffmanTree.getEncodingArray(frequencyArray);
-        //TODO helge underkjenner om vi bruker hashmap, spør om det går greit
-        HashMap<String, Integer> encodedValues = new HashMap<>();
+
+        HashMap<String, Integer> encodingsMappedToRealValue = new HashMap<>();
         for (int i = 0; i < frequencyArray.length; i++) {
             if (!encodings[i].equals("")) {
-                encodedValues.put(encodings[i],i);
+                encodingsMappedToRealValue.put(encodings[i],i);
             }
         }
 
         ArrayList<Byte> unknownSizeByteArray = new ArrayList<>();
         //går gjennom hele stringen med tegn og finner de reelle verdiene
-        for(int i = 0; i < kanskje.length()+1; i++){
+        for(int i = 0; i < encodedBits.length()+1; i++){
             //dersom vi har kommet til en substring som har en assosiert verdi
-            if(encodedValues.get(kanskje.substring(0, i))!= null){
+            if(encodingsMappedToRealValue.get(encodedBits.substring(0, i))!= null){
                 //legger det til det reelle tegnet i arrayet som vi senere skal skrive ut
-                unknownSizeByteArray.add(encodedValues.get(kanskje.substring(0, i)).byteValue());
+                unknownSizeByteArray.add(encodingsMappedToRealValue.get(encodedBits.substring(0, i)).byteValue());
                 //flytter punkt 0 fram
-                kanskje = kanskje.substring(i);
+                encodedBits = encodedBits.substring(i);
                 //restarter letingen siden vi fjernet tegnene vi brukte
                 i=0;
             }
         }
-        byte[] test = new byte[unknownSizeByteArray.size()];
+        byte[] primitiveByteArray = new byte[unknownSizeByteArray.size()];
         for(int i = 0; i < unknownSizeByteArray.size(); i++){
-            test[i] = unknownSizeByteArray.get(i);
+            primitiveByteArray[i] = unknownSizeByteArray.get(i);
         }
-        return test;
+        return primitiveByteArray;
     }
 
 }

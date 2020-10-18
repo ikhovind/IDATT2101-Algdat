@@ -6,7 +6,7 @@ import java.util.stream.IntStream;
 public class HuffmanEncode {
     static final int ANT_TEGN = 256;
     public static void main(String[] args) throws IOException {
-        compress("files/diverse.txt","files/encoded.txt");
+        compress("files/lempelZivCompressed.txt","files/huffmanCompressed.txt");
     }
 
     private static void compress(String pathToFile, String pathToCompressed) throws IOException {
@@ -25,18 +25,18 @@ public class HuffmanEncode {
 
         myWriter.close();
         FileOutputStream fileOutputStream = new FileOutputStream(output.getPath(), true);
+        fileToString += encodings[256];
         for (byte b : inputFile) {
             fileToString += encodings[(b + ANT_TEGN) % ANT_TEGN];
+            //slipper å behandle hele filen som en string, tenkt som et forsøk på å håndtere store filer
             if (fileToString.length() % 64 == 0 && fileToString.length() > 0){
                 fileOutputStream.write(getEncodedByteArray(fileToString));
                 fileToString = "";
             }
         }
-
         fileToString += encodings[ANT_TEGN];
         //sparer til 8 bits
-        while((fileToString += "0").length() % 8 != 0);
-
+        while((fileToString).length() % 8 != 0) fileToString += "0";
         fileOutputStream.write(getEncodedByteArray(fileToString));
         fileOutputStream.close();
     }

@@ -15,7 +15,7 @@ public class HuffmanTree {
             HuffmanTreeNode root = new HuffmanTreeNode(-1, h.weight + h2.weight);
             root.left = h;
             root.right = h2;
-            //legger til rota i dette treet i køa
+            //legger til rota i det treet som vi akkurat satt sammen i køa
             nodeQueue.add(root);
         }
         //returnerer rota
@@ -63,7 +63,7 @@ class HuffmanTreeNode implements Comparable{
         this.weight = weight;
     }
 
-    @Override
+    //brukes av priorityqueue
     public int compareTo(Object o) {
         return weight - ((HuffmanTreeNode) o).weight;
     }

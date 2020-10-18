@@ -3,7 +3,7 @@ import java.io.IOException;
 
 public class LempelZivDecompressMain {
     public static void main(String[] args) throws IOException {
-        File inputFile = new File("files/lempelZivCompressed.txt");
+        File inputFile = new File("files/huffmanDecompressed.txt");
         String outFile = "files/lempelZivDecompressed.txt";
         File outputFile = new File(outFile);
         if(outputFile.exists()){
