@@ -2,44 +2,26 @@ import java.util.PriorityQueue;
 import java.util.stream.IntStream;
 
 public class HuffmanTree {
-    public static HuffmanTreeNode getHuffmanTree(int[] frequencyArray) {
-        int noCharacters = 0;
-        for (int i = 0; i < frequencyArray.length; i++) {
-            if (frequencyArray[i] != 0) {
-                noCharacters++;
-            }
+    private static HuffmanTreeNode getHuffmanTree(int[] frequencyArray) {
+        PriorityQueue<HuffmanTreeNode> nodeQueue = new PriorityQueue<>();
+        //legger til alle nodene i køa
+        IntStream.range(0,frequencyArray.length).filter(s->frequencyArray[s] != 0).forEach(i->nodeQueue.add(new HuffmanTreeNode(i,frequencyArray[i])));
 
-        }
-        int j = 0;
-        HuffmanTreeNode[] huffmanNodes = new HuffmanTreeNode[noCharacters];
-        for (int i = 0; i < frequencyArray.length; i++) {
-            if (frequencyArray[i] != 0) {
-                huffmanNodes[j] = new HuffmanTreeNode(i, frequencyArray[i]);
-                j++;
-            }
-
-        }
-        //TODO priorityqueue
-        int length = huffmanNodes.length;
-        Heap.buildHeap(huffmanNodes, length);
-        while (length > 0) {
-
-            HuffmanTreeNode h = Heap.getMin(huffmanNodes, length);
-            Heap.buildHeap(huffmanNodes, length - 1);
-            HuffmanTreeNode h2 = Heap.getMin(huffmanNodes, length - 1);
-            Heap.buildHeap(huffmanNodes, length - 2);
+        while (nodeQueue.size() > 1) {
+            //finner de to minste nodene
+            HuffmanTreeNode h = nodeQueue.poll();
+            HuffmanTreeNode h2 = nodeQueue.poll();
+            //setter de sammen i felles tre
             HuffmanTreeNode root = new HuffmanTreeNode(-1, h.weight + h2.weight);
             root.left = h;
             root.right = h2;
-            length -= 2;
-            Heap.insertOnto(huffmanNodes, root, length);
-            length++;
-            if (length == 1) {
-                return root;
-            }
+            //legger til rota i dette treet i køa
+            nodeQueue.add(root);
         }
-        return null;
+        //returnerer rota
+        return nodeQueue.poll();
     }
+
     public static String[] getEncodingArray(int[] frequencyArray){
         String[] encodings = new String[frequencyArray.length];
         HuffmanTreeNode root = getHuffmanTree(frequencyArray);
@@ -48,7 +30,8 @@ public class HuffmanTree {
         }
         return encodings;
     }
-    public static String getEncodings(HuffmanTreeNode root, int value, String counter) {
+
+    private static String getEncodings(HuffmanTreeNode root, int value, String counter) {
         String answer = "";
         if (root.left != null && root.left.value == value) {
             return (counter + "0");
@@ -66,9 +49,10 @@ public class HuffmanTree {
         }
         return answer;
     }
+
 }
 
-class HuffmanTreeNode{
+class HuffmanTreeNode implements Comparable{
     int value;
     int weight;
     HuffmanTreeNode left;
@@ -78,45 +62,9 @@ class HuffmanTreeNode{
         this.value = value;
         this.weight = weight;
     }
-}
 
-class Heap{
-    static void heapify(HuffmanTreeNode arr[], int n, int i) {
-        int min = i;
-        int l = 2 * i + 1;
-        int r = 2 * i + 2;
-
-        if (l < n && arr[l].weight < arr[min].weight)
-            min = l;
-
-        if (r < n && arr[r].weight < arr[min].weight)
-            min = r;
-
-        if (min != i) {
-            HuffmanTreeNode swap = arr[i];
-            arr[i] = arr[min];
-            arr[min] = swap;
-
-            heapify(arr, n, min);
-        }
-    }
-    static HuffmanTreeNode getMin(HuffmanTreeNode heap[], int n){
-        HuffmanTreeNode temp = heap[0];
-        heap[0] = heap[n-1];
-
-        return temp;
-    }
-    static void buildHeap(HuffmanTreeNode arr[], int n)
-    {
-        int startIdx = (n / 2) - 1;
-
-        for (int i = startIdx; i >= 0; i--) {
-            heapify(arr, n, i);
-        }
-    }
-    static void insertOnto(HuffmanTreeNode arr[], HuffmanTreeNode h, int n){
-        arr[n] = h;
-        n++;
-        buildHeap(arr,n);
+    @Override
+    public int compareTo(Object o) {
+        return weight - ((HuffmanTreeNode) o).weight;
     }
 }
