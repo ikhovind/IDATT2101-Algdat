@@ -1,5 +1,8 @@
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class LempelZiv {
@@ -7,6 +10,7 @@ public class LempelZiv {
     private File inputFile;
     //Filen som det komprimerte innholdet skal sendes tilbake til
     private File outputFile;
+    private File outputFileTest;
 
     //Bytes som ligger i filen som blir sendt inn
     private byte[] bytesFromInputFile;
@@ -51,9 +55,9 @@ public class LempelZiv {
         int indexCompressedList = 0;
 
         //Kjører loopen helt til antall bytes som er igjen er 0, altså at alle bytene er analysert
-        while (!(bytesLeft == 0)){
+        //while (!(bytesLeft <= 0)){
             //Henter en ny blokk for analyse
-            getNewByteBlock();
+            //getNewByteBlock();
 
             //En teller for hvor mange bytes som er ferdiganalysert
             int bytesDone = 0;
@@ -122,11 +126,11 @@ public class LempelZiv {
                     }
 
                     //finner indexen til det stedet komprimeringen skal hente data fra
-                    int back = indexCompress - indexCompressMatch;
+                    //int back = indexCompress - indexCompressMatch;
 
                     //Legger så til dette i den komprimerte lista i tillegg til lengden av det som skal hentes
                     if(!(compressed.length <= indexCompressedList)){
-                        compressed[indexCompressedList] = (byte) back;
+                        compressed[indexCompressedList] = (byte) (indexCompress - indexCompressMatch);
                         indexCompressedList++;
                         compressed[indexCompressedList] = (byte) compressLength;
                         indexCompressedList++;
@@ -156,7 +160,7 @@ public class LempelZiv {
                 compressed[indexCompressedList] = bytesFromInputFile[j];
                 indexCompressedList ++;
             }
-        }
+        //}
 
         //lager en liste som skal sendes videre til fixEmptyBufferBytes slik at de tomme plassene fjernes
         byte[] buffer = compressed;
@@ -193,7 +197,7 @@ public class LempelZiv {
 
     private int findBestMatch(ArrayList<Byte> currentBytes, int indexStart){
         //Finner indexen til det elementet det er mulig å gå lengst tilbake for å hente
-        int indexFurthestBack = start - MAX_DISTANCE_BACK;
+        int indexFurthestBack = indexStart - MAX_DISTANCE_BACK;
         int distanceBack = MAX_DISTANCE_BACK;
 
         //Om indexen blir negativ, setter vi den lik null og distansen man kan gå tilbake lik startindexen
@@ -202,30 +206,73 @@ public class LempelZiv {
             distanceBack = indexStart;
         }
 
-        //Går gjennom alle elementene som ligger mellom indexstarten og opp til distansen man kan gå minus den ordlengden man må være over
-        for(int i = indexFurthestBack; i < distanceBack - MIN_WORD_LENGTH; i ++){
-            //Setter at en match er funnet
-            boolean found = true;
+        int returnIndex = 0;
+        boolean found = false;
 
-            //Setter indexen lik i
-            int index = i;
+        byte[] bytes = new byte[currentBytes.size()];
+        for(int b = 0; b < currentBytes.size(); b ++){
+            bytes[b] = currentBytes.get(b);
+        }
+        String s = new String(bytes, StandardCharsets.UTF_8);
+        System.out.println("Start search CurrentBytes: '" + s + "'");
+
+        //Går gjennom alle elementene som ligger mellom indexstarten og opp til distansen man kan gå minus den ordlengden man må være over
+        for(int i = indexFurthestBack; i < indexFurthestBack + distanceBack - MIN_WORD_LENGTH; i ++){
+
+
+            //System.out.println("i: " + i + " " + (distanceBack - MIN_WORD_LENGTH));
             //går gjennom lista over bytene som skal analyseres
-            for(int j = 0; j < currentBytes.size(); j ++){
-                if(block.length <= j || currentBytes.size() <= index){
+            for(int k = indexFurthestBack; k < distanceBack + indexFurthestBack; k++) {
+                //Setter at en match er funnet
+                found = true;
+                //Setter indexen lik i
+                int index = 0;
+
+                //System.out.println("k: " + k);
+                int j;
+                for (j = 0; j < currentBytes.size(); j++) {
+                    if(index + indexFurthestBack == indexStart){
+                        found = false;
+                        break;
+                    }
+                    if (currentBytes.size() <= index) {
+                        break;
+                    }
+                    if (bytesFromInputFile.length <= j) {
+                        break;
+                    }
+                    //om den finner noe som ikke er likt, vil den gå ut av loopen og sette funnet til false siden hele ordet ikke matcher
+                    if (bytesFromInputFile[k + j] != currentBytes.get(index)) {
+                        found = false;
+                        break;
+                    }
+                    //System.out.println("Treff: '" + s.charAt(index) + "' med: '" + (char)bytesFromInputFile[k + j]);
+                    if(j == 0){
+                        returnIndex = j + k;
+                    }
+                    index++;
+
+                    //System.out.println(s);
+                }
+                if(index == currentBytes.size()){
                     break;
                 }
-                //om den finner noe som ikke er likt, vil den gå ut av loopen og sette funnet til false siden hele ordet ikke matcher
-                if(block[j] != currentBytes.get(index)){
-                    found = false;
-                    break;
-                }
-                index ++;
             }
+
+            if(found){
+                System.out.println("Hit i: " + returnIndex + "  for '" + s + "'");
+                return returnIndex;
+                //returnIndex = i;
+            }
+
 
             //hvis funnet er sant, vil den sende tilbake startindexen på hvor matchen finnes
-            if(found){
-                return i;
-            }
+
+        }
+
+        if(found){
+            //System.out.println("Hit i: " + returnIndex + "  CurrentBytes: '" + s + "'");
+            return returnIndex;
         }
 
         //Retunerer negativt om den ikke finner en match
@@ -234,18 +281,36 @@ public class LempelZiv {
 
     private void fixEmptyBufferBytes(byte[] buffer, int bufferLength){
         //Gjør om compressed til en ny liste med lengden på antall bytes som lå i den gamle
-        compressed = new byte[bufferLength];
+        compressed = new byte[bufferLength - 1];
 
         //Kopierer over
-        for(int i = 0; i < bufferLength; i ++){
+        for(int i = 0; i < bufferLength - 1; i ++){
             compressed[i] = buffer[i];
         }
     }
 
     private void writeFile() throws IOException {
         //Skriver til fil
-        DataOutputStream dataOutputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile.getPath())));
+        /*Path path = Paths.get("D:\\samplefile.txt");
+        //Creating a BufferedWriter object
+        BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8);
+        //Appending the UTF-8 String to the file
+        writer.write((char[])compressed);
+        //Flushing data to the file
+        writer.flush();*/
+
+        Files.write(Paths.get(outputFile.getPath()), compressed);
+        /*DataOutputStream dataOutputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile.getPath())));
         dataOutputStream.write(compressed);
+        dataOutputStream.close();*/
+
+        File outputFileTest = new File("files/oddvar.txt");
+        DataOutputStream dataOutputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFileTest.getPath())));
+        for(int i = 0; i < compressed.length; i++)
+        {
+            String s = "" + compressed[i] + "\t" + (char)compressed[i] + "\n";
+            dataOutputStream.writeBytes(s);
+        }
         dataOutputStream.close();
     }
 }

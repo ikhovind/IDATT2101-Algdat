@@ -2,6 +2,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 public class LempelZivDecompress {
@@ -43,6 +44,7 @@ public class LempelZivDecompress {
     }
 
     public void decompress() throws IOException {
+        boolean notCompressedAdded = false;
         //Kjører mens det fortsatt finnes bytes som ikke er analysert
         while (bytesLeft != 0){
             //Henter første tallet som står i lista
@@ -51,24 +53,13 @@ public class LempelZivDecompress {
             //Øker indexen for dr vi leser i inputlista
             inputIndex ++;
 
-            //Om det tallet som ble lest er negativt, betyr det at det kommer bokstaver som ikke er komprimert
-            if(counter < 0){
-                //lager en variabel som brukes i loopen slik at i ikke blir større enn antalltegn som ikke er komprimert pluss indexen vi har kommet til i outputlista
-                int outputStart = outputIndex;
-
-                //Utvider lista om den er for liten
-                if(bytesOutputFile.length <= outputIndex + (-counter)){
-                    expandOutputList();
-                }
-
-                //kopierer over fra inputlista over til outputlista
-                for(int i = outputIndex; i < -counter + outputStart; i ++, outputIndex ++, inputIndex ++){
-                    bytesOutputFile[outputIndex] = bytesInputFile[inputIndex];
-                }
-
-
-            } else { //Om tallet ikke er negativt, betyr det at det har skjedd en kompresjon
+            if(notCompressedAdded){
                 //Henter lengden på det som skal hentes
+                if(bytesInputFile.length <= inputIndex){
+                    break;
+                }
+
+                counter = (counter + 256)%256;
                 int compressedContentLength = bytesInputFile[inputIndex];
                 inputIndex++;
 
@@ -77,11 +68,69 @@ public class LempelZivDecompress {
                     expandOutputList();
                 }
 
+                int startIndex = outputIndex;
                 //henter så dataen fra det stedet i lista det er referert til og legger det inn i outputlista
-                for (int i = counter; i < compressedContentLength + counter; i++, outputIndex++) {
-                    bytesOutputFile[outputIndex] = bytesInputFile[i];
+                for (int i = startIndex - counter; i < compressedContentLength + (startIndex - counter); i++, outputIndex++) {
+                    if(bytesOutputFile.length <= outputIndex || bytesOutputFile.length <= i){
+                        break;
+                    }
+                    bytesOutputFile[outputIndex] = bytesOutputFile[i];
+                }
+                notCompressedAdded = false;
+            }else{
+                //Om det tallet som ble lest er negativt, betyr det at det kommer bokstaver som ikke er komprimert
+                if(counter < 0){
+                    //lager en variabel som brukes i loopen slik at i ikke blir større enn antalltegn som ikke er komprimert pluss indexen vi har kommet til i outputlista
+                    int outputStart = outputIndex;
+
+                    //Utvider lista om den er for liten
+                    if(bytesOutputFile.length <= outputIndex + (-counter)){
+                        expandOutputList();
+                    }
+
+                    //kopierer over fra inputlista over til outputlista
+                    for(int i = outputIndex; i < -counter + outputStart; i ++, outputIndex ++, inputIndex ++){
+                        if(bytesInputFile.length <= inputIndex){
+                            break;
+                        }
+                        bytesOutputFile[outputIndex] = bytesInputFile[inputIndex];
+                    }
+
+                    notCompressedAdded = true;
+
+
+                } else { //Om tallet ikke er negativt, betyr det at det har skjedd en kompresjon
+                /*if(counter == 81){
+                    int teller = 81;
+                    String tekst = "";
+                    for(int i = teller; i < teller + 26; i++){
+                        tekst += (char)bytesOutputFile[i];
+                    }
+                    System.out.println(tekst);
+                }*/
+                    //Henter lengden på det som skal hentes
+                    if(bytesInputFile.length <= inputIndex){
+                        break;
+                    }
+                    int compressedContentLength = bytesInputFile[inputIndex];
+                    inputIndex++;
+
+                    //Utvider lista om den er for liten
+                    if(bytesOutputFile.length <= outputIndex + compressedContentLength){
+                        expandOutputList();
+                    }
+
+                    int startIndex = outputIndex;
+                    //henter så dataen fra det stedet i lista det er referert til og legger det inn i outputlista
+                    for (int i = startIndex - counter; i < compressedContentLength + (startIndex - counter); i++, outputIndex++) {
+                        if(bytesOutputFile.length <= outputIndex || bytesOutputFile.length <= i){
+                            break;
+                        }
+                        bytesOutputFile[outputIndex] = bytesOutputFile[i];
+                    }
                 }
             }
+
             //Oppdaterer hvor mange bytes som er igjen
             updateBytesLeft();
         }
@@ -120,10 +169,9 @@ public class LempelZivDecompress {
         }
 
         BufferedWriter outputWriter = new BufferedWriter(new FileWriter(outputFile.getPath()));
-        for (int i = 0; i < words.length; i++) {
-            outputWriter.write(words[i]);
-            //outputWriter.newLine();
-        }
+        String s = new String(bytesOutputFile, StandardCharsets.UTF_8);
+        //System.out.println(s);
+        outputWriter.write(s);
         outputWriter.flush();
         outputWriter.close();
     }
