@@ -7,7 +7,7 @@ public class HuffmanDecode {
     private static final int ANT_TEGN = 256;
 
     public static void main(String[] args) throws IOException {
-        deCompress("files/encoded.txt","files/output.txt");
+        deCompress("files/huffmanCompressed.txt","files/huffmanDecompressed.txt");
     }
 
     private static void deCompress(String pathToCompressed, String pathToDecompressed) throws IOException {
