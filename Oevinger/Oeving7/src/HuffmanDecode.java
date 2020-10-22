@@ -1,32 +1,35 @@
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class HuffmanDecode {
+    private static HuffmanTree huffmanTree;
     private static final int ANT_TEGN = 256;
 
     public static void main(String[] args) throws IOException {
-        deCompress("files/huffmanCompressed.txt","files/huffmanDecompressed.txt");
+        deCompress("files/encoded.txt","files/output.txt");
     }
 
     private static void deCompress(String pathToCompressed, String pathToDecompressed) throws IOException {
-
         File input = new File(pathToCompressed);
         File output = new File(pathToDecompressed);
         byte[] decoded = Files.readAllBytes(input.toPath());
         int[] frequencyArray = readFrequencyArray(input);
         String encodedBits = "";
-        String[] encodings = HuffmanTree.getEncodingArray(frequencyArray);
+        huffmanTree = new HuffmanTree(frequencyArray);
+
+
+        String[] encodings = huffmanTree.getEncodingArray();
         //alle tegn i fila som ikke er del av frekvensarrayet
         for(int i = frequencyArray.length; i < decoded.length; i++){
+            //blir tatt substring fordi det legges inn 1 foran alle byte for å beholde leading
+            // zeroes
             encodedBits += (Integer.toBinaryString((decoded[i]+ANT_TEGN)%ANT_TEGN)).substring(1);
         }
         //jeg har satt inn encodingen til 256 som en break i den komprimerte fila, denne fjerner break som er først og sist
         encodedBits = encodedBits.substring(encodedBits.indexOf(encodings[ANT_TEGN]) + encodings[ANT_TEGN].length(),encodedBits.lastIndexOf(encodings[ANT_TEGN]));
 
-
-        new FileOutputStream(output.getPath()).write(getDecodedByteArray(encodedBits,frequencyArray));
+        new FileOutputStream(output.getPath()).write(getDecodedByteArray(encodedBits));
     }
 
     /**
@@ -45,26 +48,18 @@ public class HuffmanDecode {
     /**
      * dekoder-bytene i string-parameteren ved å bruke frekvensarrayet som føres inn
      */
-    private static byte[] getDecodedByteArray(String encodedBits, int[] frequencyArray) {
-        String[] encodings = HuffmanTree.getEncodingArray(frequencyArray);
-
-        HashMap<String, Integer> encodingsMappedToRealValue = new HashMap<>();
-        for (int i = 0; i < frequencyArray.length; i++) {
-            if (!encodings[i].equals("")) {
-                encodingsMappedToRealValue.put(encodings[i],i);
-            }
-        }
-
+    private static byte[] getDecodedByteArray(String encodedBits) {
         ArrayList<Byte> unknownSizeByteArray = new ArrayList<>();
         //går gjennom hele stringen med tegn og finner de reelle verdiene
         for(int i = 0; i < encodedBits.length()+1; i++){
             //dersom vi har kommet til en substring som har en assosiert verdi
-            if(encodingsMappedToRealValue.get(encodedBits.substring(0, i))!= null){
+            if(huffmanTree.decodeHuffmanCode(encodedBits.substring(0, i))!= null){
                 //legger det til det reelle tegnet i arrayet som vi senere skal skrive ut
-                unknownSizeByteArray.add(encodingsMappedToRealValue.get(encodedBits.substring(0, i)).byteValue());
-                //flytter punkt 0 fram
+                unknownSizeByteArray.add(huffmanTree.decodeHuffmanCode(encodedBits.substring(0,
+                    i)).byteValue());
+                //sletter den koden som vi akkurat la til i arrayet
                 encodedBits = encodedBits.substring(i);
-                //restarter letingen siden vi fjernet tegnene vi brukte
+                //restarter letingen siden vi endret på stringen vi leter i
                 i=0;
             }
         }
