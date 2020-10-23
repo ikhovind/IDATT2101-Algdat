@@ -8,7 +8,7 @@ public class HuffmanEncode {
     private static HuffmanTree huffmanTree;
 
     public static void main(String[] args) throws IOException {
-        compress("files/lempelZivCompressed.txt","files/huffmanCompressed.txt");
+        compress("files/diverse.txt","files/huffmanCompressed.txt");
     }
 
     private static void compress(String pathToFile, String pathToCompressed) throws IOException {

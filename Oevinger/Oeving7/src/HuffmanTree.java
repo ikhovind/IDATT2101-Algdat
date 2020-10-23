@@ -54,22 +54,13 @@ public class HuffmanTree {
      * Finner huffman-enkoding til en gitt verdi
      */
     private String encodeValue(HuffmanTreeNode current, int value, String counter) {
-        String answer = "";
-        if (current.left != null && current.left.value == value) {
-            return (counter + "0");
-        }
-        if (current.right != null && current.right.value == value) {
-            return (counter + "1");
-        }
+        if(current == null) return "";
+        if(current.value == value) return counter;
 
-        if (current.left != null) {
-            answer = encodeValue(current.left, value, (counter + "0"));
-        }
+        String answer = encodeValue(current.left, value, (counter + "0"));
+
         if (!answer.equals("")) return answer;
-        if (current.right != null) {
-            answer = encodeValue(current.right, value, (counter + "1"));
-        }
-        return answer;
+        return encodeValue(current.right, value, (counter + "1"));
     }
 
     public Integer decodeHuffmanCode(String huffManCode){
@@ -78,10 +69,9 @@ public class HuffmanTree {
             //0 eller 1 er de eneste mulighetene
             current = (c == '0') ? current.left : current.right;
         }
-        if(current == null) return null;
 
         //hvis vi ikke er i en løvnode så returnerer vi null
-        if(current.left != null || current.right != null) return null;
+        if(current == null || current.left != null || current.right != null) return null;
         return current.value;
     }
 
