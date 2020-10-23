@@ -46,7 +46,7 @@ public class HuffmanDecode {
     }
 
     /**
-     * dekoder-bytene i string-parameteren ved å bruke frekvensarrayet som føres inn
+     * dekoder-bytene i string-parameteren
      */
     private static byte[] getDecodedByteArray(String encodedBits) {
         ArrayList<Byte> unknownSizeByteArray = new ArrayList<>();
