@@ -4,16 +4,19 @@ import java.util.ArrayList;
 import java.util.stream.IntStream;
 
 public class HuffmanEncode {
-    static final int ANT_TEGN = 256;
+    private static final int ANT_TEGN = 256;
+    private static HuffmanTree huffmanTree;
+
     public static void main(String[] args) throws IOException {
-        compress("files/lempelZivCompressed.txt","files/huffmanCompressed.txt");
+        compress("files/diverse.txt","files/huffmanCompressed.txt");
     }
 
     private static void compress(String pathToFile, String pathToCompressed) throws IOException {
         File input = new File(pathToFile);
         File output = new File(pathToCompressed);
         int[] frequencyArray = getFrequencyArray(input);
-        String[] encodings = HuffmanTree.getEncodingArray(frequencyArray);
+        huffmanTree = new HuffmanTree(frequencyArray);
+        String[] encodings = huffmanTree.getEncodingArray();
 
         byte[] inputFile = Files.readAllBytes(input.toPath());
 
@@ -41,6 +44,10 @@ public class HuffmanEncode {
         fileOutputStream.close();
     }
 
+    /**
+     * Encoder en string som består av bits til et byte-array som inneholder 1 foran hver byte
+     * for å beholde leading zeroes
+     */
     private static byte[] getEncodedByteArray(String fileToString) {
         ArrayList<Byte> encodedBytes = new ArrayList<>();
 
@@ -57,8 +64,10 @@ public class HuffmanEncode {
         return answer;
     }
 
+    /**
+     * leser en gitt fil og returnerer et frekvensarray med antall forekomster av hver byte
+     */
     private static int[] getFrequencyArray(File file) throws IOException {
-
         byte[] fileContent = Files.readAllBytes(file.toPath());
         int[] frequencyArray = new int[ANT_TEGN + 1];
 
