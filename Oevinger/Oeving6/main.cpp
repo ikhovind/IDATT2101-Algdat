@@ -173,7 +173,3 @@ int main(int argc, char** argv){
         g->printIndex(i,resultArray, x);
     }
 }
-
-
-
-ntre
