@@ -6,10 +6,9 @@ Oevinger/Oeving6/Grafer/vgSkandinavia
 Oevinger/Oeving6/cmake-build-debug/
 *.odt#
 Kapitler/Kapittel\ 9/cmake-build-debug/
-Oevinger/Oeving7/files/
 Oevinger/Oeving7/Oeving7.iml
 Oevinger/Oeving7/.idea/
-
+**/files/*
 ### C++ ###
 # Prerequisites
 *.d
