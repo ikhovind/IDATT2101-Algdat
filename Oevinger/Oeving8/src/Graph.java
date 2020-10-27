@@ -33,52 +33,64 @@ public class Graph {
 
         //leser nodene fra fil
         while((line = nodeReader.readLine()) != null){
-            String[] edgeTokens = line.split(" ");
+            String[] edgeTokens = line.split(" +");
             nodes[Integer.parseInt(edgeTokens[0])] = new Node(Integer.parseInt(edgeTokens[0]),
-                Double.parseDouble(edgeTokens[1]),
-                Double.parseDouble(edgeTokens[2]));
+            Double.parseDouble(edgeTokens[1]),
+            Double.parseDouble(edgeTokens[2]));
+
         }
         nodeReader.close();
 
         System.out.println("Innlesing av fil ferdig...");
-        dijkstra(142, nodes);
-    }
 
-    public LinkedList<Edge> dijkstra(int start, Node[] results){
-        PriorityQueue<Edge> pq = new PriorityQueue<>();
-        Edge current = edges.getEdges()[start];
-        do {
-            for (Edge edge : current) {
-                if (results[edge.getTo()].distTo == -1) {
-                    System.out.println(":)");
+    }
+    //todo få dijkstra til å slutte når den har finnet målet
+    //todo mål tiden og antall noder behandlet
+    //todo endre returtypen fra et node-array til en lenket liste eller noe annet som egner seg
+    // for å presentere det grafisk senere
+    public Node[] dijkstra(int start){
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        nodes[start].distTo = 0;
+        pq.add(nodes[start]);
+        Node current;
+        //mens det finnes kanter fra den nåværende noden til andre noder
+        while(edges.hasEdges((current = pq.poll()).index)) {
+            for (Edge edge : edges.getEdges()[current.index]) {
+                //dersom noden ikke har blitt funnet før
+                if (nodes[edge.getTo()].distTo == Integer.MAX_VALUE/2) {
+                    nodes[edge.getTo()].distTo =
+                        nodes[edge.getFrom()].distTo + edge.getWeight();
+                    pq.add(nodes[edge.getTo()]);
+                    nodes[edge.getTo()].pastNode = current.index;
+                }
+                //dersom noden vi er i nå har en kortere vei til noden som kanten peker på
+                else if(nodes[current.index].distTo + edge.getWeight() < nodes[edge.getTo()].distTo){
+                    //oppdaterer avstanden i distTo
+                    nodes[edge.getTo()].distTo = nodes[current.index].distTo + edge.getWeight();
+                    nodes[edge.getTo()].pastNode = current.index;
                 }
             }
-            current = pq.poll();
-        } while(!pq.isEmpty());
-        return  null;
+        }
+        return nodes;
     }
     public void aStar(){
 
     }
 
     public static void main(String[] args) throws IOException {
-        Graph g = new Graph(new File("files/island/kanter.txt"), new File("files/island/noder" +
+        Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia" +
+            "/noder" +
             ".txt"));
+        Node[] result = g.dijkstra(30695);
+        for (int i = 0; i < result.length; i++) {
+            Node node = result[i];
+            if (node.distTo != Integer.MAX_VALUE / 2) {
+                System.out.println(node.index + "  " + node.pastNode + "  " + node.distTo);
+            }
+        }
     }
 }
 
-class Node{
-    int pastNode;
-    int index;
-    int distTo = -1;
-    double lat;
-    double longitude;
 
-    public Node(int index, double lat, double longitude) {
-        this.index = index;
-        this.lat = lat;
-        this.longitude = longitude;
-    }
-}
 
 

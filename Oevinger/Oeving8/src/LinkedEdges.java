@@ -10,7 +10,9 @@ public class LinkedEdges {
     public Edge[] getEdges() {
         return edges;
     }
-
+    public boolean hasEdges(int index){
+        return edges[index] != null;
+    }
     /**
      * legger til en node bakerst i den lenka lista
      */
