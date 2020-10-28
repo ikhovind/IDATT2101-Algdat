@@ -10,7 +10,6 @@ public class LinkedEdges {
     public Edge[] getEdges() {
         return edges;
     }
-
     /**
      * legger til en node bakerst i den lenka lista
      */
@@ -26,5 +25,7 @@ public class LinkedEdges {
         current.setNext(edge);
     }
 
-
+    public Edge getHead(int index){
+        return edges[index];
+    }
 }

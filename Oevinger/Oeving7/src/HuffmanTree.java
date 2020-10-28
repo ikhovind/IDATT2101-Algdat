@@ -2,7 +2,19 @@ import java.util.PriorityQueue;
 import java.util.stream.IntStream;
 
 public class HuffmanTree {
-    private static HuffmanTreeNode getHuffmanTree(int[] frequencyArray) {
+    private HuffmanTreeNode root;
+    private int freqLength;
+
+    public HuffmanTree(int[] frequencyArray) {
+        this.freqLength = frequencyArray.length;
+        this.root = getHuffmanTree(frequencyArray);
+    }
+
+    public HuffmanTreeNode getRoot() {
+        return root;
+    }
+
+    private HuffmanTreeNode getHuffmanTree(int[] frequencyArray) {
         PriorityQueue<HuffmanTreeNode> nodeQueue = new PriorityQueue<>();
         //legger til alle nodene i køa
         IntStream.range(0,frequencyArray.length).filter(s->frequencyArray[s] != 0).forEach(i->nodeQueue.add(new HuffmanTreeNode(i,frequencyArray[i])));
@@ -22,32 +34,45 @@ public class HuffmanTree {
         return nodeQueue.poll();
     }
 
-    public static String[] getEncodingArray(int[] frequencyArray){
-        String[] encodings = new String[frequencyArray.length];
-        HuffmanTreeNode root = getHuffmanTree(frequencyArray);
-        for(int i = 0; i < frequencyArray.length; i++){
-            encodings[i] = getEncodings(root,i, "");
+    /**
+     * Returnerer et array med encodings
+     * indeks 0 er encoding til byte med verdi 0
+     * indeks 1 er encoding til byte med verdi 1
+     * indeks 128 er encoding til byte med verdi 128
+     *
+     */
+    public String[] getEncodingArray(){
+        String[] encodings = new String[freqLength];
+        HuffmanTreeNode root = getRoot();
+        for(int i = 0; i < freqLength; i++){
+            encodings[i] = encodeValue(root, i, "");
         }
         return encodings;
     }
 
-    private static String getEncodings(HuffmanTreeNode root, int value, String counter) {
-        String answer = "";
-        if (root.left != null && root.left.value == value) {
-            return (counter + "0");
-        }
-        if (root.right != null && root.right.value == value) {
-            return (counter + "1");
+    /**
+     * Finner huffman-enkoding til en gitt verdi
+     */
+    private String encodeValue(HuffmanTreeNode current, int value, String counter) {
+        if(current == null) return "";
+        if(current.value == value) return counter;
+
+        String answer = encodeValue(current.left, value, (counter + "0"));
+
+        if (!answer.equals("")) return answer;
+        return encodeValue(current.right, value, (counter + "1"));
+    }
+
+    public Integer decodeHuffmanCode(String huffManCode){
+        HuffmanTreeNode current = getRoot();
+        for(char c : huffManCode.toCharArray()){
+            //0 eller 1 er de eneste mulighetene
+            current = (c == '0') ? current.left : current.right;
         }
 
-        if (root.left != null) {
-            answer = getEncodings(root.left, value, (counter + "0"));
-        }
-        if (!answer.equals("")) return answer;
-        if (root.right != null) {
-            answer = getEncodings(root.right, value, (counter + "1"));
-        }
-        return answer;
+        //hvis vi ikke er i en løvnode så returnerer vi null
+        if(current == null || current.left != null || current.right != null) return null;
+        return current.value;
     }
 
 }

@@ -9,6 +9,12 @@ Kapitler/Kapittel\ 9/cmake-build-debug/
 Oevinger/Oeving7/Oeving7.iml
 Oevinger/Oeving7/.idea/
 **/files/*
+**/classes/*
+**/target/*
+**/.idea/*
+Oevinger/Oeving8/target/*
+**.iml
+Oevinger/Oeving8/.idea/*
 ### C++ ###
 # Prerequisites
 *.d

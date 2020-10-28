@@ -31,20 +31,24 @@ class Edge implements Iterable<Edge> {
         this.next = next;
     }
 
+    public int getFrom() {
+        return from;
+    }
+
     @Override
     public Iterator<Edge> iterator() {
         return new EdgeIterator(this);
     }
 
 
-    class EdgeIterator implements Iterator<Edge>{
+    static class EdgeIterator implements Iterator<Edge>{
         Edge current;
         public EdgeIterator(Edge edge) {
             current = edge;
         }
         @Override
         public boolean hasNext() {
-            return current.getNext() != null;
+            return current != null;
         }
 
         @Override
