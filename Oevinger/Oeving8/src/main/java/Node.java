@@ -4,7 +4,8 @@ public class Node implements Comparable{
     int distTo = Integer.MAX_VALUE/2;
     double lat;
     double longitude;
-
+    int type;
+    boolean found = false;
     public Node(int index, double lat, double longitude) {
         this.index = index;
         this.lat = lat;

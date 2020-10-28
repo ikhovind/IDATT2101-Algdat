@@ -8,8 +8,10 @@ Oevinger/Oeving6/cmake-build-debug/
 Kapitler/Kapittel\ 9/cmake-build-debug/
 Oevinger/Oeving7/Oeving7.iml
 Oevinger/Oeving7/.idea/
-**/files/*
+Oevinger/Oeving7/files/
 **/classes/*
+Oevinger/Oeving8/files/skandinavia/
+Oevinger/Oeving8/files/island/
 **/target/*
 **/.idea/*
 Oevinger/Oeving8/target/*
