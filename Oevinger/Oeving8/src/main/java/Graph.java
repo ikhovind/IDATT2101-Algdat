@@ -1,3 +1,4 @@
+import com.sothawo.mapjfx.Coordinate;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -6,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
@@ -14,6 +16,7 @@ public class Graph {
     private int noNodes;
     private int noEdges;
     private Node[] nodes;
+    static ArrayList<Coordinate> result;
     public Graph(File edgeFile, File nodeFile) throws IOException {
         System.out.println("Innlesing av fil starter...");
         BufferedReader nodeReader = new BufferedReader(new FileReader(nodeFile.getPath()));
@@ -124,22 +127,17 @@ public class Graph {
     }
 
     public static void main(String[] args) throws IOException {
-
+        //todo dette er feil helsinki :)
         int helsinki = 4142089;
         int trondheim = 2399829;
         int oslo =  2353304;
         Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia" +
             "/noder.txt"));
-
-        FileWriter writer = new FileWriter("files/shortestPath.csv");
-        //sletter innhold
-        System.out.println("skriver csv nå");
-        writer.write("");
-        for(Node n : g.dijkstraShortestPath(oslo,helsinki)){
-            writer.append(String.valueOf(n.lat)).append(";").append(String.valueOf(n.longitude)).append("\n");
+        result = new ArrayList<>();
+        for(Node n : g.dijkstraShortestPath(trondheim,helsinki)){
+            Coordinate coord = new Coordinate(n.lat,n.longitude);
+            result.add(coord);
         }
-        writer.flush();
-        writer.close();
         DemoApp.main(args);
     }
 
