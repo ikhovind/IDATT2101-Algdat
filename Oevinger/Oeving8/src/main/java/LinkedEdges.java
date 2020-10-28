@@ -10,6 +10,12 @@ public class LinkedEdges {
     public Edge[] getEdges() {
         return edges;
     }
+<<<<<<< HEAD:Oevinger/Oeving8/src/main/java/LinkedEdges.java
+=======
+    public boolean hasEdges(int index){
+        return edges[index] != null;
+    }
+>>>>>>> 1c18d0a4f77bf7bf7c1ddad513d5541816e01b0f:Oevinger/Oeving8/src/LinkedEdges.java
     /**
      * legger til en node bakerst i den lenka lista
      */
