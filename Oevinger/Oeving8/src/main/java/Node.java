@@ -6,6 +6,7 @@ public class Node implements Comparable{
     double longitude;
     int type;
     boolean found = false;
+
     public Node(int index, double lat, double longitude) {
         this.index = index;
         this.lat = lat;

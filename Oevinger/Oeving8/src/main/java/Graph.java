@@ -12,6 +12,7 @@ public class Graph {
     private Node[] nodes;
     static ArrayList<Coordinate> result;
     static LinkedList<Coordinate>[] pathsToCodes;
+
     public Graph(File edgeFile, File nodeFile, File typeFile) throws IOException {
         System.out.println("Innlesing av fil starter...");
         BufferedReader nodeReader = new BufferedReader(new FileReader(nodeFile.getPath()));
@@ -133,6 +134,7 @@ public class Graph {
             nodes[i].distTo = Integer.MAX_VALUE/2;
         }
     }
+
     public LinkedList<Node> dijkstraShortestPath(int start, int goal){
         System.out.println("Dijkstra leter etter korteste vei ");
         long startTime = System.currentTimeMillis();
@@ -172,7 +174,7 @@ public class Graph {
     }
 
     public void aStar(){
-
+        resetNodes();
     }
 
     public static void main(String[] args) throws IOException {
@@ -220,6 +222,7 @@ public class Graph {
                 pathsToCodes[i].add(coordinate);
             }
         }
+
         DemoApp.main(args);
     }
 
