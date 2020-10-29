@@ -126,6 +126,9 @@ public class Graph {
                     nodes[edge.getTo()].pastNode = current.index;
                 }
             }
+            //oppdaterer nodene
+            Node top = pq.poll();
+            pq.add(top);
         }
     }
 
