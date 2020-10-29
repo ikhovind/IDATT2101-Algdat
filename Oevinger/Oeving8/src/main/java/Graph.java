@@ -10,6 +10,7 @@ public class Graph {
     private int noNodes;
     private int noEdges;
     private Node[] nodes;
+    private NodeForAStar[] nodesForAStars;
     static ArrayList<Coordinate> result;
     static LinkedList<Coordinate>[] pathsToCodes;
 
@@ -23,6 +24,7 @@ public class Graph {
         noEdges = Integer.parseInt(edgeReader.readLine().trim());
 
         nodes = new Node[noNodes];
+        nodesForAStars = new NodeForAStar[noNodes];
         edges = new LinkedEdges(noNodes);
 
         String[] edgeTokens = new String[10];
@@ -56,6 +58,11 @@ public class Graph {
             nodes[Integer.parseInt(edgeTokens[0])].type = Integer.parseInt(edgeTokens[1]);
         }
         nodeReader.close();
+
+        /*for(int i = 0; i < nodes.length; i ++){
+            nodesForAStars[i] = (NodeForAStar)nodes[i];
+        }*/
+
         System.out.println("Innlesing av fil ferdig...");
     }
 
@@ -176,8 +183,76 @@ public class Graph {
         return result;
     }
 
-    public void aStar(){
-        resetNodes();
+    public LinkedList<Node> aStar(int start, int goal){
+        System.out.println("A* starter med å finne korteste vei...");
+        long startTime = System.currentTimeMillis();
+        PriorityQueue<Node> pQueue = new PriorityQueue<>();
+        nodesForAStars[start].distTo = 0;
+        nodesForAStars[start].timeWithAirDistance = 0;
+        pQueue.add(nodesForAStars[start]);
+        Node currentNode;
+        int counter = 0;
+
+        while (!pQueue.isEmpty()){
+            currentNode = pQueue.poll();
+            counter++;
+            if(currentNode.index == goal){
+                System.out.println("A* fant korteste vei, behandlet " + counter + " noder");
+                System.out.println("A* brukte: " + (System.currentTimeMillis() - startTime) + " milliseksunder");
+                return shortestPathLinkedList(start, goal);
+            }
+            updateNodesAStar(pQueue, currentNode, nodesForAStars[goal]);
+        }
+        System.out.println("A* fant ingen veier :(");
+        return null;
+    }
+
+    private void updateNodesAStar(PriorityQueue<Node> pQueue, Node currentNode, Node goal) {
+        //lengdegrader: currentNode.lat
+        //breddegrader: currentNode.longitude
+        double distance = findDistance(currentNode, goal);
+        double time = distance / (130 * 360000);
+
+        //Sjekker at kanten ikke er null først
+        if(edges.getHead(currentNode.index) != null){
+            //Går gjennom alle kantene som går ut fra noden
+            for(Edge edge : edges.getHead(currentNode.index)){
+                //Sjekker om kanten er funnet før ved å sjekke om distansen er "uendelig"
+                if(nodesForAStars[edge.getTo()].distTo == Integer.MAX_VALUE / 2){
+                    //Setter distansen lik tiden forrige node har pluss vekten til den noden vi undersøker
+                    nodesForAStars[edge.getTo()].distTo = nodesForAStars[edge.getFrom()].distTo + edge.getWeight();
+                    //Setter tidsforbruk med luftlinje lik tiden forrige node har pluss vekten kanten til den noden vi undersøker
+                    //har pluss tiden vi har regnet ut at det skal ta å kjøre luftlinje til målnoden
+                    nodesForAStars[edge.getTo()].timeWithAirDistance = nodesForAStars[edge.getFrom()].distTo + edge.getWeight() + time;
+
+                    //Legger den så inn i prioritetskøen
+                    pQueue.add(nodes[edge.getTo()]);
+                    nodesForAStars[edge.getTo()].pastNode = currentNode.index;
+                }
+                //Om noden allerede er funnet, sjekker vi om denne veien er kortere
+                else if(nodesForAStars[currentNode.index].distTo + edge.getWeight() < nodesForAStars[edge.getTo()].distTo){
+                    nodesForAStars[edge.getTo()].distTo = nodesForAStars[currentNode.index].distTo + edge.getWeight();
+                    nodesForAStars[edge.getTo()].timeWithAirDistance = nodesForAStars[currentNode.index].distTo + edge.getWeight() + time;
+                    nodesForAStars[edge.getTo()].pastNode = currentNode.index;
+                }
+            }
+            Node top = pQueue.poll();
+            pQueue.add(top);
+        }
+    }
+
+    private double findDistance(Node currentNode, Node goal){
+        double currentLatRad = currentNode.lat * Math.PI / 180;
+        double currentLongitudeRad = currentNode.longitude * Math.PI / 180;
+
+        double goalLatRad = goal.lat * Math.PI / 180;
+        double goalLongitudeRad = goal.longitude * Math.PI / 180;
+
+        int EARTH_RADIUS = 6371;
+
+        double distance = 2 * EARTH_RADIUS * Math.asin( Math.sqrt( ( Math.sin( (currentLongitudeRad - goalLongitudeRad) / 2 ) * Math.sin( (currentLongitudeRad - goalLongitudeRad) / 2 ) ) + ( Math.cos(currentLongitudeRad) * Math.cos(goalLongitudeRad) * ( Math.sin( (currentLatRad - goalLatRad) / 2 ) * Math.sin( (currentLatRad - goalLatRad) / 2 ) )) ) );
+
+        return distance;
     }
 
     public static void main(String[] args) throws IOException {
@@ -225,6 +300,8 @@ public class Graph {
                 pathsToCodes[i].add(coordinate);
             }
         }
+
+        LinkedList<Node> pathAStar = g.aStar(trondheim, helsinki2);
 
         DemoApp.main(args);
     }
