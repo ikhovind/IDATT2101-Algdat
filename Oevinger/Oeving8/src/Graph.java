@@ -10,6 +10,15 @@ public class Graph {
     private int noNodes;
     private int noEdges;
     private Node[] nodes;
+    /**
+     * Fordi at man regner med hele kilometer når man bruker haversine-formelen så må man bruke
+     * desimaltall siden dette er en stor avstand
+     * Haversine-formelen gir svar i kilometer, men man sorterer basert på estimert reisetid
+     * Så etter at man har fått svaret fra haversine-formelen så kan man regne om dette i
+     * reisetid ved å bruke 130-km som fartsgrense
+     * denne reisetiden kan man gjerne lagre som en int
+     */
+
     private NodeForAStar[] nodesForAStars;
     static ArrayList<Coordinate> result;
     static LinkedList<Coordinate>[] pathsToCodes;
@@ -42,7 +51,7 @@ public class Graph {
 
         //leser nodene fra fil
         while((line = nodeReader.readLine()) != null){
-            //Hopp over innledende blanke, finn starten på ordetwhile
+            //Hopp over innledende blanke, finn starten på ordet while
             splitLine(line, 3 , edgeTokens);
             nodes[Integer.parseInt(edgeTokens[0])] = new Node(Integer.parseInt(edgeTokens[0]),
             Double.parseDouble(edgeTokens[1]),
@@ -93,7 +102,7 @@ public class Graph {
             counter++;
             current = pq.poll();
             //sjekker om det er noen nye noder/kortere veier og oppdaterer distansene
-            updateNodesDijkstra(pq, current);
+            checkConnectedNodes(pq, current, 0);
             //sjekker om noden vi er i nå er passende type
             if((current.type == typeGoal || 6 - current.type == otherType) && !current.found){
                 current.found = true;
@@ -115,14 +124,17 @@ public class Graph {
      * denne brukes i begge dijkstrametodene
      * sjekker om en gitt node har kanter til noder som ikke er funnet, eller om de har kortere
      * veier til noen kortere noder
+     *
+     * @param estToGoal er den estimerte verdien fra noden current til målet, i dijkstra settes
+     *                  0, i A* så brukes denne verdien
      */
-    private void updateNodesDijkstra(PriorityQueue<Node> pq, Node current) {
+    private void checkConnectedNodes(PriorityQueue<Node> pq, Node current, int estToGoal) {
         if(edges.getHead(current.index) != null)  {
             for (Edge edge : edges.getHead(current.index)) {
                 //dersom noden ikke har blitt funnet før
                 if (nodes[edge.getTo()].distTo == Integer.MAX_VALUE / 2) {
                     nodes[edge.getTo()].distTo =
-                        nodes[edge.getFrom()].distTo + edge.getWeight();
+                        nodes[edge.getFrom()].distTo + edge.getWeight() + estToGoal;
                     pq.add(nodes[edge.getTo()]);
                     nodes[edge.getTo()].pastNode = current.index;
                 }
@@ -163,7 +175,7 @@ public class Graph {
                 System.out.println("dijkstra brukte: " + (System.currentTimeMillis() - startTime) + " millisekunder" );
                 return shortestPathLinkedList(start,goal);
             }
-            updateNodesDijkstra(pq, current);
+            checkConnectedNodes(pq, current,0);
         }
         System.out.println("Dijkstra fant ingen vei :(");
         return null;
@@ -207,6 +219,13 @@ public class Graph {
         return null;
     }
 
+    /**
+     * her så kan du bare bruke min checkConnectedNodes som jeg bruker i dijkstra. vi inn en
+     * variabel som
+     * en ekstra reisetid fra denne noden til mål, i vanlig dijkstra så kan man bare føre
+     * inn 0 som ekstra reisetid
+     * Jeg har allerede ordnet på checkConnectedNodes, så den skal funke nå
+     */
     private void updateNodesAStar(PriorityQueue<Node> pQueue, Node currentNode, Node goal) {
         //lengdegrader: currentNode.lat
         //breddegrader: currentNode.longitude
@@ -250,7 +269,20 @@ public class Graph {
 
         int EARTH_RADIUS = 6371;
 
-        double distance = 2 * EARTH_RADIUS * Math.asin( Math.sqrt( ( Math.sin( (currentLongitudeRad - goalLongitudeRad) / 2 ) * Math.sin( (currentLongitudeRad - goalLongitudeRad) / 2 ) ) + ( Math.cos(currentLongitudeRad) * Math.cos(goalLongitudeRad) * ( Math.sin( (currentLatRad - goalLatRad) / 2 ) * Math.sin( (currentLatRad - goalLatRad) / 2 ) )) ) );
+        double distance = 2 * EARTH_RADIUS *
+            Math.asin(
+                Math.sqrt(
+                    (Math.sin( (currentLongitudeRad - goalLongitudeRad) / 2 )
+                    * Math.sin( (currentLongitudeRad - goalLongitudeRad) / 2 ))
+
+                    + ( Math.cos(currentLongitudeRad)
+                    * Math.cos(goalLongitudeRad)
+                    * ( Math.sin( (currentLatRad - goalLatRad) / 2 )
+                    * Math.sin( (currentLatRad - goalLatRad) / 2 )
+                    )
+                    )
+                )
+            );
 
         return distance;
     }
@@ -292,7 +324,7 @@ public class Graph {
             pathsToCodes[i] = new LinkedList<Coordinate>();
             //korteste vei til én enkelt stasjon
             LinkedList<Node> nodesToSingleStation = arrayOfNodesToStations[i];
-            //Går gjennom veien til denne stasjoneon
+            //Går gjennom veien til denne stasjonen
             for (int j = 0; j < nodesToSingleStation.size(); j++) {
                 Node node = nodesToSingleStation.get(j);
                 Coordinate coordinate = new Coordinate(node.lat,node.longitude);
