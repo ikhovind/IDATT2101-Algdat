@@ -45,5 +45,7 @@ oppg211.cpp & oppg223.cpp are my finished task
 [My answer - Lempel-Ziv & Huffman compression](https://github.com/ikhovind/IDATT2101-Algdat/tree/master/Oevinger/Oeving7/src)
 
 ### Task 8 - Navigation
+[Task](https://github.com/ikhovind/IDATT2101-Algdat/blob/master/Oevinger/Oeving8/opg8.pdf)
+
 [My answer - Dijkstras algorithm and A*](https://github.com/ikhovind/IDATT2101-Algdat/tree/master/Oevinger/Oeving8/src/main/java)
 
