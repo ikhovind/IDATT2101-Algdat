@@ -333,7 +333,7 @@ public class Graph {
             }
         }
 
-        LinkedList<Node> pathAStar = g.aStar(trondheim, helsinki2);
+        //LinkedList<Node> pathAStar = g.aStar(trondheim, helsinki2);
 
         DemoApp.main(args);
     }
