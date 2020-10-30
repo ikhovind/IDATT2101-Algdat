@@ -19,7 +19,6 @@ public class Graph {
      * denne reisetiden kan man gjerne lagre som en int
      */
 
-    private NodeForAStar[] nodesForAStars;
     static ArrayList<Coordinate> result;
     static LinkedList<Coordinate>[] pathsToCodes;
 
@@ -33,7 +32,6 @@ public class Graph {
         noEdges = Integer.parseInt(edgeReader.readLine().trim());
 
         nodes = new Node[noNodes];
-        nodesForAStars = new NodeForAStar[noNodes];
         edges = new LinkedEdges(noNodes);
 
         String[] edgeTokens = new String[10];
@@ -102,7 +100,7 @@ public class Graph {
             counter++;
             current = pq.poll();
             //sjekker om det er noen nye noder/kortere veier og oppdaterer distansene
-            checkConnectedNodes(pq, current, 0);
+            checkConnectedNodes(pq, current, null);
             //sjekker om noden vi er i nå er passende type
             if((current.type == typeGoal || 6 - current.type == otherType) && !current.found){
                 current.found = true;
@@ -125,16 +123,24 @@ public class Graph {
      * sjekker om en gitt node har kanter til noder som ikke er funnet, eller om de har kortere
      * veier til noen kortere noder
      *
-     * @param estToGoal er den estimerte verdien fra noden current til målet, i dijkstra settes
+     * @param goal er den estimerte verdien fra noden current til målet, i dijkstra settes
      *                  0, i A* så brukes denne verdien
      */
-    private void checkConnectedNodes(PriorityQueue<Node> pq, Node current, int estToGoal) {
+    private void checkConnectedNodes(PriorityQueue<Node> pq, Node current, Node goal) {
         if(edges.getHead(current.index) != null)  {
             for (Edge edge : edges.getHead(current.index)) {
                 //dersom noden ikke har blitt funnet før
                 if (nodes[edge.getTo()].distTo == Integer.MAX_VALUE / 2) {
-                    nodes[edge.getTo()].distTo =
-                        nodes[edge.getFrom()].distTo + edge.getWeight() + estToGoal;
+                    if(goal != null){
+                        nodes[edge.getTo()].distTo = current.distToTime + edge.getWeight(); // + (int)((findDistance(nodes[edge.getTo()], goal)/130)*360000);
+                        nodes[edge.getTo()].distToTime = current.distToTime + edge.getWeight();
+                        /*nodes[edge.getTo()].distTo =
+                                current.distTo + edge.getWeight() /*- (int)((findDistance(current, goal)/130)*360000) + (int)((findDistance(nodes[edge.getTo()], goal)/130)*360000)*/;
+                    }else{
+                        nodes[edge.getTo()].distTo =
+                                current.distTo + edge.getWeight();
+                    }
+
                     pq.add(nodes[edge.getTo()]);
                     nodes[edge.getTo()].pastNode = current.index;
                 }
@@ -175,7 +181,7 @@ public class Graph {
                 System.out.println("dijkstra brukte: " + (System.currentTimeMillis() - startTime) + " millisekunder" );
                 return shortestPathLinkedList(start,goal);
             }
-            checkConnectedNodes(pq, current,0);
+            checkConnectedNodes(pq, current,null);
         }
         System.out.println("Dijkstra fant ingen vei :(");
         return null;
@@ -199,9 +205,8 @@ public class Graph {
         System.out.println("A* starter med å finne korteste vei...");
         long startTime = System.currentTimeMillis();
         PriorityQueue<Node> pQueue = new PriorityQueue<>();
-        nodesForAStars[start].distTo = 0;
-        nodesForAStars[start].timeWithAirDistance = 0;
-        pQueue.add(nodesForAStars[start]);
+        nodes[start].distTo = (int)(findDistance(nodes[start], nodes[goal]));
+        pQueue.add(nodes[start]);
         Node currentNode;
         int counter = 0;
 
@@ -213,76 +218,34 @@ public class Graph {
                 System.out.println("A* brukte: " + (System.currentTimeMillis() - startTime) + " milliseksunder");
                 return shortestPathLinkedList(start, goal);
             }
-            updateNodesAStar(pQueue, currentNode, nodesForAStars[goal]);
+            checkConnectedNodes(pQueue, currentNode, nodes[goal]);
         }
         System.out.println("A* fant ingen veier :(");
         return null;
     }
 
-    /**
-     * her så kan du bare bruke min checkConnectedNodes som jeg bruker i dijkstra. vi inn en
-     * variabel som
-     * en ekstra reisetid fra denne noden til mål, i vanlig dijkstra så kan man bare føre
-     * inn 0 som ekstra reisetid
-     * Jeg har allerede ordnet på checkConnectedNodes, så den skal funke nå
-     */
-    private void updateNodesAStar(PriorityQueue<Node> pQueue, Node currentNode, Node goal) {
-        //lengdegrader: currentNode.lat
-        //breddegrader: currentNode.longitude
-        double distance = findDistance(currentNode, goal);
-        double time = distance / (130 * 360000);
-
-        //Sjekker at kanten ikke er null først
-        if(edges.getHead(currentNode.index) != null){
-            //Går gjennom alle kantene som går ut fra noden
-            for(Edge edge : edges.getHead(currentNode.index)){
-                //Sjekker om kanten er funnet før ved å sjekke om distansen er "uendelig"
-                if(nodesForAStars[edge.getTo()].distTo == Integer.MAX_VALUE / 2){
-                    //Setter distansen lik tiden forrige node har pluss vekten til den noden vi undersøker
-                    nodesForAStars[edge.getTo()].distTo = nodesForAStars[edge.getFrom()].distTo + edge.getWeight();
-                    //Setter tidsforbruk med luftlinje lik tiden forrige node har pluss vekten kanten til den noden vi undersøker
-                    //har pluss tiden vi har regnet ut at det skal ta å kjøre luftlinje til målnoden
-                    nodesForAStars[edge.getTo()].timeWithAirDistance = nodesForAStars[edge.getFrom()].distTo + edge.getWeight() + time;
-
-                    //Legger den så inn i prioritetskøen
-                    pQueue.add(nodes[edge.getTo()]);
-                    nodesForAStars[edge.getTo()].pastNode = currentNode.index;
-                }
-                //Om noden allerede er funnet, sjekker vi om denne veien er kortere
-                else if(nodesForAStars[currentNode.index].distTo + edge.getWeight() < nodesForAStars[edge.getTo()].distTo){
-                    nodesForAStars[edge.getTo()].distTo = nodesForAStars[currentNode.index].distTo + edge.getWeight();
-                    nodesForAStars[edge.getTo()].timeWithAirDistance = nodesForAStars[currentNode.index].distTo + edge.getWeight() + time;
-                    nodesForAStars[edge.getTo()].pastNode = currentNode.index;
-                }
-            }
-            Node top = pQueue.poll();
-            pQueue.add(top);
-        }
-    }
-
     private double findDistance(Node currentNode, Node goal){
-        double currentLatRad = currentNode.lat * Math.PI / 180;
-        double currentLongitudeRad = currentNode.longitude * Math.PI / 180;
+        double currentBreddegrad = currentNode.lat * Math.PI / 180;
+        double currentLengdegrad = currentNode.longitude * Math.PI / 180;
 
-        double goalLatRad = goal.lat * Math.PI / 180;
-        double goalLongitudeRad = goal.longitude * Math.PI / 180;
+        double goalBreddegrad = goal.lat * Math.PI / 180;
+        double goalLengdegrad = goal.longitude * Math.PI / 180;
 
         int EARTH_RADIUS = 6371;
 
         double distance = 2 * EARTH_RADIUS *
             Math.asin(
                 Math.sqrt(
-                    (Math.sin( (currentLongitudeRad - goalLongitudeRad) / 2 )
-                    * Math.sin( (currentLongitudeRad - goalLongitudeRad) / 2 ))
+                    (Math.sin( ((currentBreddegrad - goalBreddegrad) / 2 )
+                    * Math.sin( (currentBreddegrad - goalBreddegrad) / 2 ))
 
-                    + ( Math.cos(currentLongitudeRad)
-                    * Math.cos(goalLongitudeRad)
-                    * ( Math.sin( (currentLatRad - goalLatRad) / 2 )
-                    * Math.sin( (currentLatRad - goalLatRad) / 2 )
-                    )
+                    + ( ( Math.cos(currentBreddegrad) )
+                    * ( Math.cos(goalBreddegrad) )
+                    * ( Math.sin( (currentLengdegrad - goalLengdegrad) / 2 ) )
+                    * ( Math.sin( (currentLengdegrad - goalLengdegrad) / 2 ) )
                     )
                 )
-            );
+            ));
 
         return distance;
     }
@@ -300,9 +263,13 @@ public class Graph {
         Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia" +
             "/noder.txt"), new File("files/skandinavia/interessepkt.txt"));
         result = new ArrayList<>();
+        System.out.println("avstand " + g.findDistance(g.nodes[trondheim],g.nodes[helsinki2]));
+        //LinkedList<Node> path = g.dijkstraShortestPath(trondheim, helsinki2);
+        LinkedList<Node> path = g.aStar(trondheim, oslo);
+        System.out.println("Total reisetid med A* er " + ((float)path.getLast().distTo)/360000 + " timer");
 
-
-        LinkedList<Node> path = g.dijkstraShortestPath(trondheim, helsinki2);
+        g.resetNodes();
+        g.dijkstraShortestPath(trondheim,helsinki2);
 
 
         for(Node n : path){
@@ -310,7 +277,6 @@ public class Graph {
             result.add(coord);
         }
 
-        System.out.println("Total reisetid er " + ((float)path.getLast().distTo)/360000 + " timer");
 
         g.resetNodes();
 
@@ -333,7 +299,7 @@ public class Graph {
             }
         }
 
-        //LinkedList<Node> pathAStar = g.aStar(trondheim, helsinki2);
+
 
         DemoApp.main(args);
     }
