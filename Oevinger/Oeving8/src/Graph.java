@@ -132,10 +132,9 @@ public class Graph {
                 //dersom noden ikke har blitt funnet før
                 if (nodes[edge.getTo()].distTo == Integer.MAX_VALUE / 2) {
                     if(goal != null){
-                        nodes[edge.getTo()].distTo = current.distToTime + edge.getWeight(); // + (int)((findDistance(nodes[edge.getTo()], goal)/130)*360000);
+                        nodes[edge.getTo()].distTo =
+                            current.distToTime + edge.getWeight() + (int)((findDistance(nodes[edge.getTo()], goal)*360000/130));
                         nodes[edge.getTo()].distToTime = current.distToTime + edge.getWeight();
-                        /*nodes[edge.getTo()].distTo =
-                                current.distTo + edge.getWeight() /*- (int)((findDistance(current, goal)/130)*360000) + (int)((findDistance(nodes[edge.getTo()], goal)/130)*360000)*/;
                     }else{
                         nodes[edge.getTo()].distTo =
                                 current.distTo + edge.getWeight();
@@ -148,7 +147,10 @@ public class Graph {
                 else if (nodes[current.index].distTo + edge.getWeight() < nodes[edge.getTo()].distTo) {
                     //oppdaterer avstanden i distTo
                     nodes[edge.getTo()].distTo = nodes[current.index].distTo + edge.getWeight();
-                    nodes[edge.getTo()].pastNode = current.index;
+                    if(current.pastNode != edge.getTo()){
+                        nodes[edge.getTo()].pastNode = current.index;
+
+                    }
                 }
             }
             //oppdaterer nodene
@@ -263,22 +265,16 @@ public class Graph {
         Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia" +
             "/noder.txt"), new File("files/skandinavia/interessepkt.txt"));
         result = new ArrayList<>();
-        System.out.println("avstand " + g.findDistance(g.nodes[trondheim],g.nodes[helsinki2]));
-        //LinkedList<Node> path = g.dijkstraShortestPath(trondheim, helsinki2);
-        LinkedList<Node> path = g.aStar(trondheim, oslo);
+
+        LinkedList<Node> path = g.aStar(trondheim, helsinki2);
         System.out.println("Total reisetid med A* er " + ((float)path.getLast().distTo)/360000 + " timer");
 
         g.resetNodes();
-        g.dijkstraShortestPath(trondheim,helsinki2);
-
 
         for(Node n : path){
             Coordinate coord = new Coordinate(n.lat,n.longitude);
             result.add(coord);
         }
-
-
-        g.resetNodes();
 
         LinkedList<Node>[] arrayOfNodesToStations = g.dijkstraToStation(rorosHotell,4,10);
 
