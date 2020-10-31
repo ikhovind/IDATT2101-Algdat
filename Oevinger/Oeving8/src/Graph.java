@@ -8,16 +8,7 @@ import java.util.PriorityQueue;
 public class Graph {
     private LinkedEdges edges;
     private int noNodes;
-    private int noEdges;
     private Node[] nodes;
-    /**
-     * Fordi at man regner med hele kilometer når man bruker haversine-formelen så må man bruke
-     * desimaltall siden dette er en stor avstand
-     * Haversine-formelen gir svar i kilometer, men man sorterer basert på estimert reisetid
-     * Så etter at man har fått svaret fra haversine-formelen så kan man regne om dette i
-     * reisetid ved å bruke 130-km som fartsgrense
-     * denne reisetiden kan man gjerne lagre som en int
-     */
 
     static ArrayList<Coordinate> result;
     static LinkedList<Coordinate>[] pathsToCodes;
@@ -29,7 +20,7 @@ public class Graph {
         BufferedReader typeReader = new BufferedReader(new FileReader(typeFile.getPath()));
 
         noNodes = Integer.parseInt(nodeReader.readLine().trim());
-        noEdges = Integer.parseInt(edgeReader.readLine().trim());
+        edgeReader.readLine();
 
         nodes = new Node[noNodes];
         edges = new LinkedEdges(noNodes);
@@ -65,10 +56,6 @@ public class Graph {
             nodes[Integer.parseInt(edgeTokens[0])].type = Integer.parseInt(edgeTokens[1]);
         }
         nodeReader.close();
-
-        /*for(int i = 0; i < nodes.length; i ++){
-            nodesForAStars[i] = (NodeForAStar)nodes[i];
-        }*/
 
         System.out.println("Innlesing av fil ferdig...");
     }
@@ -139,7 +126,6 @@ public class Graph {
                         nodes[edge.getTo()].distTo =
                                 current.distTo + edge.getWeight();
                     }
-
                     pq.add(nodes[edge.getTo()]);
                     nodes[edge.getTo()].pastNode = current.index;
                 }
@@ -149,7 +135,6 @@ public class Graph {
                     nodes[edge.getTo()].distTo = nodes[current.index].distTo + edge.getWeight();
                     if(current.pastNode != edge.getTo()){
                         nodes[edge.getTo()].pastNode = current.index;
-
                     }
                 }
             }
@@ -160,8 +145,8 @@ public class Graph {
     }
 
     public void resetNodes(){
-        for (int i = 0; i < nodes.length; i++) {
-            nodes[i].distTo = Integer.MAX_VALUE/2;
+        for (Node node : nodes) {
+            node.distTo = Integer.MAX_VALUE / 2;
         }
     }
 
@@ -294,9 +279,6 @@ public class Graph {
                 pathsToCodes[i].add(coordinate);
             }
         }
-
-
-
         DemoApp.main(args);
     }
 
