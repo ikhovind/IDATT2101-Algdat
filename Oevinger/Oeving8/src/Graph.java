@@ -250,9 +250,10 @@ public class Graph {
         Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia" +
             "/noder.txt"), new File("files/skandinavia/interessepkt.txt"));
         result = new ArrayList<>();
-
+        //TODO A* og dijkstra returnerer ikke samme tid :(
         LinkedList<Node> path = g.aStar(trondheim, helsinki2);
-        System.out.println("Total reisetid med A* er " + ((float)path.getLast().distTo)/360000 + " timer");
+        System.out.println("Total reisetid med A* er " + (path.getLast().distTo/100)/3600 + " " +
+            "Timer, " + ((((path.getLast().distTo)/100)%3600)/60) + " Minutter og " + ((path.getLast().distTo/100)%60) + " sekunder");
 
         g.resetNodes();
 
