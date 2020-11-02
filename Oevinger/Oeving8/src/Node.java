@@ -6,7 +6,7 @@ public class Node implements Comparable{
     double longitude;
     int type;
     boolean found = false;
-    int distToTime = 0;
+    int distToTime = Integer.MAX_VALUE/2;
 
     public Node(int index, double lat, double longitude) {
         this.index = index;

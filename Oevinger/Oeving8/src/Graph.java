@@ -2,7 +2,6 @@ import com.sothawo.mapjfx.Coordinate;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
@@ -74,6 +73,7 @@ public class Graph {
     }
 
     public LinkedList<Node>[] dijkstraToStation(int start, int typeGoal, int numToFind){
+        resetNodes();
         System.out.println("Dijkstra begynner søk etter nærmeste bensin/ladestasjoner");
         long startTime = System.currentTimeMillis();
         int otherType = 6-typeGoal;
@@ -118,26 +118,22 @@ public class Graph {
     private void checkConnectedNodes(PriorityQueue<Node> pq, Node current, Node goal) {
         if(edges.getHead(current.index) != null)  {
             for (Edge edge : edges.getHead(current.index)) {
+                Node nextNode = nodes[edge.getTo()];
                 //dersom noden ikke har blitt funnet før
-                if (nodes[edge.getTo()].distTo == Integer.MAX_VALUE / 2) {
-                    if(goal != null){
-                        nodes[edge.getTo()].distTo =
-                            current.distToTime + edge.getWeight() + ((findDistance(nodes[edge.getTo()], goal)));
-                        nodes[edge.getTo()].distToTime = current.distToTime + edge.getWeight();
-                    }else{
-                        nodes[edge.getTo()].distTo =
-                                current.distTo + edge.getWeight();
-                    }
-                    pq.add(nodes[edge.getTo()]);
-                    nodes[edge.getTo()].pastNode = current.index;
+                if (nextNode.distTo == Integer.MAX_VALUE / 2) {
+                    //find distance returnerer 0 dersom goal er null
+                    nextNode.distTo = current.distToTime + edge.getWeight() + findDistance(nextNode, goal);
+                    nextNode.distToTime = current.distToTime + edge.getWeight();
+                    pq.add(nextNode);
+                    nextNode.pastNode = current.index;
                 }
                 //dersom noden vi er i nå har en kortere vei til noden som kanten peker på
-                else if ((goal != null && current.distToTime + edge.getWeight() < nodes[edge.getTo()].distToTime)
-                    || (goal == null && current.distTo + edge.getWeight() < nodes[edge.getTo()].distTo)) {
-                    nodes[edge.getTo()].distTo = current.distTo + edge.getWeight();
-                    nodes[edge.getTo()].distToTime = current.distToTime + edge.getWeight();
+                else if (current.distToTime + edge.getWeight() < nextNode.distToTime) {
+                    nextNode.distTo = current.distTo + edge.getWeight();
+                    nextNode.distToTime = current.distToTime + edge.getWeight();
+                    //sjekker at det ikke blir loop
                     if(current.pastNode != edge.getTo()){
-                        nodes[edge.getTo()].pastNode = current.index;
+                        nextNode.pastNode = current.index;
                     }
                 }
                 //oppdaterer nodene
@@ -153,11 +149,18 @@ public class Graph {
         }
     }
 
-    public LinkedList<Node> dijkstraShortestPath(int start, int goal){
-        System.out.println("Dijkstra leter etter korteste vei ");
+    public LinkedList<Node> shortestPath(int start, int goal, boolean useAStar){
+        resetNodes();
+        //noden som vi bruker til å estimere reisetid, med null så blir ikke denne estimert
+        Node goalEstimator = (useAStar) ? nodes[goal] : null;
+
+        System.out.println(((useAStar) ? "A*" : "Dijkstra") +" leter etter korteste vei ");
+
         long startTime = System.currentTimeMillis();
+
         PriorityQueue<Node> pq = new PriorityQueue<>();
         nodes[start].distTo = 0;
+        nodes[start].distToTime = 0;
         pq.add(nodes[start]);
         Node current;
         //mens det finnes kanter fra den nåværende noden til andre noder
@@ -166,14 +169,16 @@ public class Graph {
             current = pq.poll();
             counter++;
             if(current.index == goal){
-                System.out.println("Dijkstra fant korteste vei, behandlet "+ counter + " noder");
+                System.out.println(((useAStar) ? "A*" : "Dijkstra") + " fant korteste vei " +
+                    "behandlet " + counter + " noder");
                 //gjør om nanosekunder til millisekunder
-                System.out.println("dijkstra brukte: " + (System.currentTimeMillis() - startTime) + " millisekunder" );
+                System.out.println("Brukte: " + (System.currentTimeMillis() - startTime) + " " +
+                    "millisekunder" );
                 return shortestPathLinkedList(start,goal);
             }
-            checkConnectedNodes(pq, current,null);
+            checkConnectedNodes(pq, current, goalEstimator);
         }
-        System.out.println("Dijkstra fant ingen vei :(");
+        System.out.println("Fant ingen vei :(");
         return null;
     }
 
@@ -191,31 +196,8 @@ public class Graph {
         return result;
     }
 
-    public LinkedList<Node> aStar(int start, int goal){
-        System.out.println("A* starter med å finne korteste vei...");
-        long startTime = System.currentTimeMillis();
-        PriorityQueue<Node> pQueue = new PriorityQueue<>();
-        nodes[start].distTo = (int)((findDistance(nodes[start], nodes[goal])));
-
-        pQueue.add(nodes[start]);
-        Node currentNode;
-        int counter = 0;
-
-        while (!pQueue.isEmpty()){
-            currentNode = pQueue.poll();
-            counter++;
-            if(currentNode.index == goal){
-                System.out.println("A* fant korteste vei, behandlet " + counter + " noder");
-                System.out.println("A* brukte: " + (System.currentTimeMillis() - startTime) + " milliseksunder");
-                return shortestPathLinkedList(start, goal);
-            }
-            checkConnectedNodes(pQueue, currentNode, nodes[goal]);
-        }
-        System.out.println("A* fant ingen veier :(");
-        return null;
-    }
-
     private int findDistance(Node currentNode, Node goal){
+        if(goal == null) return 0;
         double currentBreddegrad = currentNode.lat * Math.PI / 180;
         double currentLengdegrad = currentNode.longitude * Math.PI / 180;
 
@@ -256,17 +238,17 @@ public class Graph {
         Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia" +
             "/noder.txt"), new File("files/skandinavia/interessepkt.txt"));
 
-        LinkedList<Node> dijkstraShortestPath = g.dijkstraShortestPath(trondheim, oslo);
-        System.out.println("Total reisetid med dijkstra er " + (dijkstraShortestPath.getLast().distTo/100)/3600 + " " +
-            "Timer, " + ((((dijkstraShortestPath.getLast().distTo)/100)%3600)/60) + " Minutter og" +
-            " " + ((dijkstraShortestPath.getLast().distTo/100)%60) + " sekunder");
+        LinkedList<Node> dijkstraShortestPath = g.shortestPath(trondheim, helsinki2, false);
+        System.out.println("Total reisetid med dijkstra er " + (dijkstraShortestPath.getLast().distToTime/100)/3600 + " " +
+            "Timer, " + ((((dijkstraShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter og" +
+            " " + ((dijkstraShortestPath.getLast().distToTime/100)%60) + " sekunder");
+        System.out.println(dijkstraShortestPath.getLast().distToTime);
 
-        g.resetNodes();
-        LinkedList<Node> aStarShortestPath = g.aStar(trondheim, oslo);
+        LinkedList<Node> aStarShortestPath = g.shortestPath(trondheim, helsinki2, true);
         System.out.println("Total reisetid med A* er " + (aStarShortestPath.getLast().distToTime/100)/3600 + " " +
             "Timer, " + ((((aStarShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter " +
             "og " + ((aStarShortestPath.getLast().distToTime/100)%60) + " sekunder");
-        g.resetNodes();
+        System.out.println(aStarShortestPath.getLast().distToTime);
         for (Node node : aStarShortestPath) {
             shortestAStar.add(new Coordinate(node.lat,node.longitude));
         }
@@ -292,7 +274,7 @@ public class Graph {
                 pathsToCodes[i].add(coordinate);
             }
         }
-        DemoApp.main(args);
+        //DemoApp.main(args);
     }
 
 }
