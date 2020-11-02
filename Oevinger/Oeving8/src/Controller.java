@@ -66,7 +66,7 @@ public class Controller {
         mapView.addCoordinateLine(plottedDijkstra);
         mapView.addCoordinateLine(plottedAStar);
 
-        plottedAStar.visibleProperty().set(false);
+        plottedAStar.visibleProperty().set(true);
         plottedDijkstra.visibleProperty().set(true);
     }
 }
