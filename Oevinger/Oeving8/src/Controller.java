@@ -1,18 +1,14 @@
 import com.sothawo.mapjfx.*;
 import com.sothawo.mapjfx.event.MapViewEvent;
-import com.sothawo.mapjfx.event.MarkerEvent;
-import java.util.EventListener;
 import java.util.LinkedList;
 import javafx.fxml.FXML;
 import javafx.scene.paint.Color;
 
-import java.io.IOException;
-import javax.sound.sampled.LineEvent;
-
 public class Controller {
     @FXML
     private MapView mapView;
-    private CoordinateLine shortestPath;
+    private CoordinateLine plottedDijkstra;
+    private CoordinateLine plottedAStar;
     private CoordinateLine[] pathToStations;
     private boolean allHidden = false;
     public Controller() {
@@ -57,12 +53,20 @@ public class Controller {
                 }
             }
             );
-        shortestPath = new CoordinateLine(Graph.result);
-        shortestPath.setColor(Color.CHOCOLATE);
+        plottedDijkstra = new CoordinateLine(Graph.shortestDijkstra);
+        plottedAStar = new CoordinateLine(Graph.shortestAStar);
+
+        plottedDijkstra.setColor(Color.CHOCOLATE);
+        plottedAStar.setColor(Color.CRIMSON);
+
         //ca midten av kartet ish
         mapView.setCenter(new Coordinate(62.016667, 14.533333));
         mapView.setZoom(5.0);
-        mapView.addCoordinateLine(shortestPath);
-        shortestPath.visibleProperty().set(true);
+
+        mapView.addCoordinateLine(plottedDijkstra);
+        mapView.addCoordinateLine(plottedAStar);
+
+        plottedAStar.visibleProperty().set(false);
+        plottedDijkstra.visibleProperty().set(true);
     }
 }

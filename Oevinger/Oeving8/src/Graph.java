@@ -10,7 +10,8 @@ public class Graph {
     private int noNodes;
     private Node[] nodes;
 
-    static ArrayList<Coordinate> result;
+    static ArrayList<Coordinate> shortestDijkstra;
+    static ArrayList<Coordinate> shortestAStar;
     static LinkedList<Coordinate>[] pathsToCodes;
 
     public Graph(File edgeFile, File nodeFile, File typeFile) throws IOException {
@@ -40,7 +41,7 @@ public class Graph {
 
         //leser nodene fra fil
         while((line = nodeReader.readLine()) != null){
-            //Hopp over innledende blanke, finn starten på ordet while
+            //Hopp over innledende blanke, finn starten på ordet
             splitLine(line, 3 , edgeTokens);
             nodes[Integer.parseInt(edgeTokens[0])] = new Node(Integer.parseInt(edgeTokens[0]),
             Double.parseDouble(edgeTokens[1]),
@@ -120,7 +121,7 @@ public class Graph {
                 if (nodes[edge.getTo()].distTo == Integer.MAX_VALUE / 2) {
                     if(goal != null){
                         nodes[edge.getTo()].distTo =
-                            current.distToTime + edge.getWeight() + (int)((findDistance(nodes[edge.getTo()], goal)*360000/130));
+                            current.distToTime + edge.getWeight() + (int)((findDistance(nodes[edge.getTo()], goal)));
                         nodes[edge.getTo()].distToTime = current.distToTime + edge.getWeight();
                     }else{
                         nodes[edge.getTo()].distTo =
@@ -192,7 +193,8 @@ public class Graph {
         System.out.println("A* starter med å finne korteste vei...");
         long startTime = System.currentTimeMillis();
         PriorityQueue<Node> pQueue = new PriorityQueue<>();
-        nodes[start].distTo = (int)(findDistance(nodes[start], nodes[goal]));
+        nodes[start].distTo = (int)((findDistance(nodes[start], nodes[goal])));
+
         pQueue.add(nodes[start]);
         Node currentNode;
         int counter = 0;
@@ -211,7 +213,7 @@ public class Graph {
         return null;
     }
 
-    private double findDistance(Node currentNode, Node goal){
+    private int findDistance(Node currentNode, Node goal){
         double currentBreddegrad = currentNode.lat * Math.PI / 180;
         double currentLengdegrad = currentNode.longitude * Math.PI / 180;
 
@@ -234,7 +236,7 @@ public class Graph {
                 )
             ));
 
-        return distance;
+        return (int) (distance * 360000/130);
     }
 
     public static void main(String[] args) throws IOException {
@@ -246,22 +248,47 @@ public class Graph {
         int kaarvaag = 6013683;
         int gjemnes = 6225195;
         int helsinki2 = 1221382;
+        shortestDijkstra = new ArrayList<>();
+        shortestAStar = new ArrayList<>();
 
         Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia" +
             "/noder.txt"), new File("files/skandinavia/interessepkt.txt"));
-        result = new ArrayList<>();
+
         //TODO A* og dijkstra returnerer ikke samme tid :(
-        LinkedList<Node> path = g.aStar(trondheim, helsinki2);
-        System.out.println("Total reisetid med A* er " + (path.getLast().distTo/100)/3600 + " " +
-            "Timer, " + ((((path.getLast().distTo)/100)%3600)/60) + " Minutter og " + ((path.getLast().distTo/100)%60) + " sekunder");
+        LinkedList<Node> dijkstraShortestPath = g.dijkstraShortestPath(trondheim, helsinki2);
+        System.out.println("Total reisetid med dijkstra er " + (dijkstraShortestPath.getLast().distTo/100)/3600 + " " +
+            "Timer, " + ((((dijkstraShortestPath.getLast().distTo)/100)%3600)/60) + " Minutter og" +
+            " " + ((dijkstraShortestPath.getLast().distTo/100)%60) + " sekunder");
 
         g.resetNodes();
-
-        for(Node n : path){
-            Coordinate coord = new Coordinate(n.lat,n.longitude);
-            result.add(coord);
+        LinkedList<Node> aStarShortestPath = g.aStar(trondheim, helsinki2);
+        System.out.println("Total reisetid med A* er " + (aStarShortestPath.getLast().distToTime/100)/3600 + " " +
+            "Timer, " + ((((aStarShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter " +
+            "og " + ((aStarShortestPath.getLast().distToTime/100)%60) + " sekunder");
+        g.resetNodes();
+        System.out.println("avstand");
+        System.out.println("850145 - helsinki: " + g.findDistance(g.nodes[850145],
+            g.nodes[helsinki2]));
+        System.out.println("850184 - helsinki: " + g.findDistance(g.nodes[850184],
+            g.nodes[helsinki2]));
+        for (Node node : aStarShortestPath) {
+            shortestAStar.add(new Coordinate(node.lat,node.longitude));
         }
-
+        for(Node n : dijkstraShortestPath){
+            Coordinate coord = new Coordinate(n.lat,n.longitude);
+            shortestDijkstra.add(coord);
+        }
+        System.out.println("ulike veier ");
+        int counter = 0;
+        for (int i = 0; i < aStarShortestPath.size(); i++) {
+            Node node = aStarShortestPath.get(i);
+            if(node.index != dijkstraShortestPath.get(i).index){
+                System.out.println(counter++);
+                System.out.println(aStarShortestPath.get(i).index);
+                System.out.println(dijkstraShortestPath.get(i).index);
+            }
+        }
+        System.out.println("antall ulike noder " + counter);
         LinkedList<Node>[] arrayOfNodesToStations = g.dijkstraToStation(rorosHotell,4,10);
 
         //konverterer fra Noder til et array med lenkede lister av koordinater
