@@ -121,9 +121,21 @@ public class Graph {
                 Node nextNode = nodes[edge.getTo()];
                 //dersom noden ikke har blitt funnet før
                 if (nextNode.distTo == Integer.MAX_VALUE / 2) {
+                    if (current.index == 363572){
+                        System.out.println("test-----------------");
+                        System.out.println(current.pastNode);
+                        System.out.println(current.distToTime);
+                        System.out.println("+");
+                        System.out.println(edge.getWeight());
+                    }
                     //find distance returnerer 0 dersom goal er null
                     nextNode.distTo = current.distToTime + edge.getWeight() + findDistance(nextNode, goal);
                     nextNode.distToTime = current.distToTime + edge.getWeight();
+                    if(current.index == 363572){
+                        System.out.println("=");
+                        System.out.println(nextNode.distToTime);
+                        System.out.println("-----------");
+                    }
                     pq.add(nextNode);
                     nextNode.pastNode = current.index;
                 }
@@ -191,7 +203,10 @@ public class Graph {
         result.addFirst(current);
         while(current.index != start){
             current = nodes[current.pastNode];
-            result.addFirst(current);
+            Node newNode = new Node(current.index,current.lat,current.longitude);
+            newNode.distTo = current.distTo;
+            newNode.distToTime = current.distToTime;
+            result.addFirst(newNode);
         }
         return result;
     }
@@ -242,13 +257,12 @@ public class Graph {
         System.out.println("Total reisetid med dijkstra er " + (dijkstraShortestPath.getLast().distToTime/100)/3600 + " " +
             "Timer, " + ((((dijkstraShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter og" +
             " " + ((dijkstraShortestPath.getLast().distToTime/100)%60) + " sekunder");
-        System.out.println(dijkstraShortestPath.getLast().distToTime);
 
+        g.resetNodes();
         LinkedList<Node> aStarShortestPath = g.shortestPath(trondheim, helsinki2, true);
         System.out.println("Total reisetid med A* er " + (aStarShortestPath.getLast().distToTime/100)/3600 + " " +
             "Timer, " + ((((aStarShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter " +
             "og " + ((aStarShortestPath.getLast().distToTime/100)%60) + " sekunder");
-        System.out.println(aStarShortestPath.getLast().distToTime);
         for (Node node : aStarShortestPath) {
             shortestAStar.add(new Coordinate(node.lat,node.longitude));
         }
@@ -256,7 +270,23 @@ public class Graph {
             Coordinate coord = new Coordinate(n.lat,n.longitude);
             shortestDijkstra.add(coord);
         }
-
+        int counter = 0;
+        int currentDiff = 0;
+        System.out.println("ulike avstander");
+        for (int i = 0; i < aStarShortestPath.size(); i++) {
+            Node node = aStarShortestPath.get(i);
+            Node dijkstraNode = dijkstraShortestPath.get(i);
+            if(Math.abs(node.distToTime - dijkstraNode.distToTime) > currentDiff){
+                System.out.println("ulik i indeks: ");
+                System.out.println(node.index);
+                System.out.println("forrige indeks");
+                System.out.println(node.pastNode);
+                currentDiff = currentDiff + Math.abs(node.distToTime - dijkstraNode.distToTime);
+                System.out.println("total avstand");
+                System.out.println(currentDiff);
+            }
+        }
+        g.resetNodes();
         LinkedList<Node>[] arrayOfNodesToStations = g.dijkstraToStation(rorosHotell,4,10);
         //konverterer fra Noder til et array med lenkede lister av koordinater
         pathsToCodes = new LinkedList[arrayOfNodesToStations.length];

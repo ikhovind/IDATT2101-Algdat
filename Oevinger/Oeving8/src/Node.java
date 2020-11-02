@@ -16,6 +16,6 @@ public class Node implements Comparable{
 
     @Override
     public int compareTo(Object o) {
-       return this.distTo - ((Node) o).distTo;
+        return Integer.compare(distTo, ((Node)o).distTo);
     }
 }
