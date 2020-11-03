@@ -233,12 +233,13 @@ public class Graph {
         int kaarvaag = 6013683;
         int gjemnes = 6225195;
         int helsinki2 = 1221382;
+        int stockholm = 5916504;
         shortestDijkstra = new ArrayList<>();
         shortestAStar = new ArrayList<>();
 
         Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia" +
             "/noder.txt"), new File("files/skandinavia/interessepkt.txt"));
-
+        //TODO nullpointer på oslo-stockholm
         LinkedList<Node> dijkstraShortestPath = g.shortestPath(trondheim, helsinki2, false);
         System.out.println("Total reisetid med dijkstra er " + (dijkstraShortestPath.getLast().distToTime/100)/3600 + " " +
             "Timer, " + ((((dijkstraShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter og" +
