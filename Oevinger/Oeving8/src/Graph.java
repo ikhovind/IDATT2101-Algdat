@@ -121,32 +121,18 @@ public class Graph {
                 Node nextNode = nodes[edge.getTo()];
                 //dersom noden ikke har blitt funnet før
                 if (nextNode.distTo == Integer.MAX_VALUE / 2) {
-                    if (current.index == 363572){
-                        System.out.println("test-----------------");
-                        System.out.println(current.pastNode);
-                        System.out.println(current.distToTime);
-                        System.out.println("+");
-                        System.out.println(edge.getWeight());
-                    }
                     //find distance returnerer 0 dersom goal er null
                     nextNode.distTo = current.distToTime + edge.getWeight() + findDistance(nextNode, goal);
                     nextNode.distToTime = current.distToTime + edge.getWeight();
-                    if(current.index == 363572){
-                        System.out.println("=");
-                        System.out.println(nextNode.distToTime);
-                        System.out.println("-----------");
-                    }
                     pq.add(nextNode);
                     nextNode.pastNode = current.index;
                 }
                 //dersom noden vi er i nå har en kortere vei til noden som kanten peker på
                 else if (current.distToTime + edge.getWeight() < nextNode.distToTime) {
-                    nextNode.distTo = current.distTo + edge.getWeight();
+                    nextNode.distTo = current.distTo + edge.getWeight()  + findDistance(nextNode,
+                        goal) - findDistance(current,goal);
                     nextNode.distToTime = current.distToTime + edge.getWeight();
-                    //sjekker at det ikke blir loop
-                    if(current.pastNode != edge.getTo()){
-                        nextNode.pastNode = current.index;
-                    }
+                    nextNode.pastNode = current.index;
                 }
                 //oppdaterer nodene
                 Node top = pq.poll();
@@ -155,7 +141,7 @@ public class Graph {
         }
     }
 
-    public void resetNodes(){
+    private void resetNodes(){
         for (Node node : nodes) {
             node.distTo = Integer.MAX_VALUE / 2;
         }
@@ -258,33 +244,17 @@ public class Graph {
             "Timer, " + ((((dijkstraShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter og" +
             " " + ((dijkstraShortestPath.getLast().distToTime/100)%60) + " sekunder");
 
-        g.resetNodes();
         LinkedList<Node> aStarShortestPath = g.shortestPath(trondheim, helsinki2, true);
         System.out.println("Total reisetid med A* er " + (aStarShortestPath.getLast().distToTime/100)/3600 + " " +
             "Timer, " + ((((aStarShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter " +
             "og " + ((aStarShortestPath.getLast().distToTime/100)%60) + " sekunder");
+
         for (Node node : aStarShortestPath) {
             shortestAStar.add(new Coordinate(node.lat,node.longitude));
         }
         for(Node n : dijkstraShortestPath){
             Coordinate coord = new Coordinate(n.lat,n.longitude);
             shortestDijkstra.add(coord);
-        }
-        int counter = 0;
-        int currentDiff = 0;
-        System.out.println("ulike avstander");
-        for (int i = 0; i < aStarShortestPath.size(); i++) {
-            Node node = aStarShortestPath.get(i);
-            Node dijkstraNode = dijkstraShortestPath.get(i);
-            if(Math.abs(node.distToTime - dijkstraNode.distToTime) > currentDiff){
-                System.out.println("ulik i indeks: ");
-                System.out.println(node.index);
-                System.out.println("forrige indeks");
-                System.out.println(node.pastNode);
-                currentDiff = currentDiff + Math.abs(node.distToTime - dijkstraNode.distToTime);
-                System.out.println("total avstand");
-                System.out.println(currentDiff);
-            }
         }
         g.resetNodes();
         LinkedList<Node>[] arrayOfNodesToStations = g.dijkstraToStation(rorosHotell,4,10);
@@ -304,7 +274,7 @@ public class Graph {
                 pathsToCodes[i].add(coordinate);
             }
         }
-        //DemoApp.main(args);
+        DemoApp.main(args);
     }
 
 }
