@@ -1,8 +1,6 @@
-import com.sothawo.mapjfx.Coordinate;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 public class Graph {
@@ -10,9 +8,9 @@ public class Graph {
     private int noNodes;
     private Node[] nodes;
 
-    static ArrayList<Coordinate> shortestDijkstra;
-    static ArrayList<Coordinate> shortestAStar;
-    static LinkedList<Coordinate>[] pathsToCodes;
+    static ArrayList<Node> shortestDijkstra;
+    static ArrayList<Node> shortestAStar;
+    static ArrayList<Node>[] pathsToCodes;
 
     public Graph(File edgeFile, File nodeFile, File typeFile) throws IOException {
         System.out.println("Innlesing av fil starter...");
@@ -72,13 +70,13 @@ public class Graph {
         }
     }
 
-    public LinkedList<Node>[] dijkstraToStation(int start, int typeGoal, int numToFind){
+    public ArrayList<Node>[] dijkstraToStation(int start, int typeGoal, int numToFind){
         resetNodes();
         System.out.println("Dijkstra begynner søk etter nærmeste bensin/ladestasjoner");
         long startTime = System.currentTimeMillis();
         int otherType = 6-typeGoal;
         int leftToFind = numToFind;
-        LinkedList<Node>[] results = new LinkedList[numToFind];
+        ArrayList<Node>[] results = new ArrayList[numToFind];
         PriorityQueue<Node> pq = new PriorityQueue<>();
         nodes[start].distTo = 0;
         pq.add(nodes[start]);
@@ -129,14 +127,15 @@ public class Graph {
                 }
                 //dersom noden vi er i nå har en kortere vei til noden som kanten peker på
                 else if (current.distToTime + edge.getWeight() < nextNode.distToTime) {
-                    nextNode.distTo = current.distTo + edge.getWeight()  + findDistance(nextNode,
-                        goal) - findDistance(current,goal);
+                    nextNode.distTo = current.distToTime + edge.getWeight()  + findDistance(nextNode,
+                        goal);
                     nextNode.distToTime = current.distToTime + edge.getWeight();
                     nextNode.pastNode = current.index;
+                    //oppdaterer nodene slik i tilfelle noden som vi akkurat oppdaterte nå skal
+                    // ligge øverst
+                    Node top = pq.poll();
+                    if(top != null) pq.add(top);
                 }
-                //oppdaterer nodene
-                Node top = pq.poll();
-                if(top != null) pq.add(top);
             }
         }
     }
@@ -147,7 +146,7 @@ public class Graph {
         }
     }
 
-    public LinkedList<Node> shortestPath(int start, int goal, boolean useAStar){
+    public ArrayList<Node> shortestPath(int start, int goal, boolean useAStar){
         resetNodes();
         //noden som vi bruker til å estimere reisetid, med null så blir ikke denne estimert
         Node goalEstimator = (useAStar) ? nodes[goal] : null;
@@ -183,16 +182,16 @@ public class Graph {
     /**
      * lager en lenket liste med korteste vei ved å bruke node-arrayet
      */
-    private LinkedList<Node> shortestPathLinkedList(int start, int to){
+    private ArrayList<Node> shortestPathLinkedList(int start, int to){
         Node current = nodes[to];
-        LinkedList<Node> result = new LinkedList<>();
-        result.addFirst(current);
+        ArrayList<Node> result = new ArrayList<>();
+        result.add(current);
         while(current.index != start){
             current = nodes[current.pastNode];
             Node newNode = new Node(current.index,current.lat,current.longitude);
             newNode.distTo = current.distTo;
             newNode.distToTime = current.distToTime;
-            result.addFirst(newNode);
+            result.add(newNode);
         }
         return result;
     }
@@ -225,59 +224,31 @@ public class Graph {
     }
 
     public static void main(String[] args) throws IOException {
-        int helsinki = 4142089;
-        int trondheim = 2399829;
-        int oslo =  2353304;
-        int trondheimLufthavn =  6198111;
-        int rorosHotell = 1117256;
-        int kaarvaag = 6013683;
-        int gjemnes = 6225195;
-        int helsinki2 = 1221382;
-        int stockholm = 5916504;
+        int fromNode = Integer.parseInt(args[0]);
+        int toNode = Integer.parseInt(args[1]);
+        int stationNode = Integer.parseInt(args[2]);
+        int stationType = Integer.parseInt(args[3]);
+        int numStations = Integer.parseInt(args[4]);
+
         shortestDijkstra = new ArrayList<>();
         shortestAStar = new ArrayList<>();
 
-        Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia" +
-            "/noder.txt"), new File("files/skandinavia/interessepkt.txt"));
-        //TODO nullpointer på oslo-stockholm
-        LinkedList<Node> dijkstraShortestPath = g.shortestPath(trondheim, helsinki2, false);
-        System.out.println("Total reisetid med dijkstra er " + (dijkstraShortestPath.getLast().distToTime/100)/3600 + " " +
-            "Timer, " + ((((dijkstraShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter og" +
-            " " + ((dijkstraShortestPath.getLast().distToTime/100)%60) + " sekunder");
+        Graph g = new Graph(new File("skandinavia/kanter.txt"), new File("skandinavia/noder.txt"), new File(
+            "skandinavia/interessepkt.txt"));
 
-        LinkedList<Node> aStarShortestPath = g.shortestPath(trondheim, helsinki2, true);
-        System.out.println("Total reisetid med A* er " + (aStarShortestPath.getLast().distToTime/100)/3600 + " " +
-            "Timer, " + ((((aStarShortestPath.getLast().distToTime)/100)%3600)/60) + " Minutter " +
-            "og " + ((aStarShortestPath.getLast().distToTime/100)%60) + " sekunder");
+        shortestDijkstra = g.shortestPath(fromNode, toNode, false);
+        System.out.println("Total reisetid med dijkstra er " + (shortestDijkstra.get(0).distToTime/100)/3600 +
+            " Timer, " + ((((shortestDijkstra.get(0).distToTime)/100)%3600)/60) + " Minutter " +
+            "og " + ((shortestDijkstra.get(0).distToTime/100)%60) + " sekunder");
 
-        for (Node node : aStarShortestPath) {
-            shortestAStar.add(new Coordinate(node.lat,node.longitude));
-        }
-        for(Node n : dijkstraShortestPath){
-            Coordinate coord = new Coordinate(n.lat,n.longitude);
-            shortestDijkstra.add(coord);
-        }
-        g.resetNodes();
-        LinkedList<Node>[] arrayOfNodesToStations = g.dijkstraToStation(rorosHotell,4,10);
-        //konverterer fra Noder til et array med lenkede lister av koordinater
-        pathsToCodes = new LinkedList[arrayOfNodesToStations.length];
-        //går gjennom hver av de linkede listene med korteste vei
-        for (int i = 0; i < arrayOfNodesToStations.length; i++) {
-            //arrayet vårt med lenkede koordinater
-            pathsToCodes[i] = new LinkedList<Coordinate>();
-            //korteste vei til én enkelt stasjon
-            LinkedList<Node> nodesToSingleStation = arrayOfNodesToStations[i];
-            //Går gjennom veien til denne stasjonen
-            for (int j = 0; j < nodesToSingleStation.size(); j++) {
-                Node node = nodesToSingleStation.get(j);
-                Coordinate coordinate = new Coordinate(node.lat,node.longitude);
-                //legger til koordinatene i arrayet vårt
-                pathsToCodes[i].add(coordinate);
-            }
-        }
-        DemoApp.main(args);
+        shortestAStar = g.shortestPath(fromNode, toNode, true);
+        System.out.println("Total reisetid med A* er " + (shortestAStar.get(0).distToTime/100)/3600 +
+            " Timer, " + ((((shortestAStar.get(0).distToTime)/100)%3600)/60) + " Minutter " +
+            "og " + ((shortestAStar.get(0).distToTime/100)%60) + " sekunder");
+
+        pathsToCodes = g.dijkstraToStation(stationNode, stationType, numStations);
+        //DemoApp.main(args);
     }
-
 }
 
 

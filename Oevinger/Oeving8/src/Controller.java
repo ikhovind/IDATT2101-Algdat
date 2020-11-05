@@ -1,6 +1,8 @@
 import com.sothawo.mapjfx.*;
 import com.sothawo.mapjfx.event.MapViewEvent;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 import javafx.fxml.FXML;
 import javafx.scene.paint.Color;
 
@@ -10,7 +12,6 @@ public class Controller {
     private CoordinateLine plottedDijkstra;
     private CoordinateLine plottedAStar;
     private CoordinateLine[] pathToStations;
-    private boolean allHidden = false;
     public Controller() {
     }
 
@@ -28,33 +29,32 @@ public class Controller {
     }
 
     private void afterMapIsInitialized() {
-        pathToStations = new CoordinateLine[Graph.pathsToCodes.length];
+        ArrayList<Coordinate>[] pathToCodes = new ArrayList[Graph.pathsToCodes.length];
+        //går gjennom hver av de linkede listene med korteste vei
         for (int i = 0; i < Graph.pathsToCodes.length; i++) {
-            LinkedList<Coordinate> pathsToCode = Graph.pathsToCodes[i];
-            pathToStations[i] = new CoordinateLine(pathsToCode);
+            pathToCodes[i] = new ArrayList<>();
+            //korteste vei til én enkelt stasjon
+            ArrayList<Node> nodesToSingleStation = Graph.pathsToCodes[i];
+            //Går gjennom veien til denne stasjonen
+            for (int j = 0; j < nodesToSingleStation.size(); j++) {
+                Node node = nodesToSingleStation.get(j);
+                Coordinate coordinate = new Coordinate(node.lat,node.longitude);
+                //legger til koordinatene i arrayet vårt
+                pathToCodes[i].add(coordinate);
+            }
+        }
+
+        pathToStations = new CoordinateLine[Graph.pathsToCodes.length];
+        for (int i = 0; i < pathToCodes.length; i++) {
+            pathToStations[i] = new CoordinateLine(pathToCodes[i]);
             mapView.addCoordinateLine(pathToStations[i]);
             pathToStations[i].visibleProperty().set(true);
         }
-        mapView.addEventHandler(MapViewEvent.MAP_CLICKED,event -> {
-                event.consume();
-                for(int i = 0; i < pathToStations.length; i++){
-                    //skjuler nodene
-                    if(!allHidden && pathToStations[i].visibleProperty().get()){
-                        pathToStations[i].visibleProperty().set(false);
-                        if(i == pathToStations.length-1) allHidden = true;
-                        return;
-                    }
-                    //viser nodene igjen
-                    else if(allHidden && !pathToStations[i].visibleProperty().get()){
-                        pathToStations[i].visibleProperty().set(true);
-                        if(i == pathToStations.length-1) allHidden = false;
-                        return;
-                    }
-                }
-            }
-            );
-        plottedDijkstra = new CoordinateLine(Graph.shortestDijkstra);
-        plottedAStar = new CoordinateLine(Graph.shortestAStar);
+        plottedDijkstra =
+            new CoordinateLine(Graph.shortestDijkstra.stream().map(node -> new Coordinate(node.lat,
+                node.longitude)).collect(Collectors.toList()));
+        plottedAStar = new CoordinateLine(Graph.shortestDijkstra.stream().map(node -> new Coordinate(node.lat,
+            node.longitude)).collect(Collectors.toList()));
 
         plottedDijkstra.setColor(Color.CHOCOLATE);
         plottedAStar.setColor(Color.CRIMSON);
