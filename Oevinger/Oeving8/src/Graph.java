@@ -233,8 +233,9 @@ public class Graph {
         shortestDijkstra = new ArrayList<>();
         shortestAStar = new ArrayList<>();
 
-        Graph g = new Graph(new File("skandinavia/kanter.txt"), new File("skandinavia/noder.txt"), new File(
-            "skandinavia/interessepkt.txt"));
+        Graph g = new Graph(new File("files/skandinavia/kanter.txt"),
+            new File("files/skandinavia/noder.txt"), new File(
+            "files/skandinavia/interessepkt.txt"));
 
         shortestDijkstra = g.shortestPath(fromNode, toNode, false);
         System.out.println("Total reisetid med dijkstra er " + (shortestDijkstra.get(0).distToTime/100)/3600 +
@@ -247,7 +248,7 @@ public class Graph {
             "og " + ((shortestAStar.get(0).distToTime/100)%60) + " sekunder");
 
         pathsToCodes = g.dijkstraToStation(stationNode, stationType, numStations);
-        //DemoApp.main(args);
+        DemoApp.main(args);
     }
 }
 
