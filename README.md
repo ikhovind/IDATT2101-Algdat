@@ -47,5 +47,5 @@ oppg211.cpp & oppg223.cpp are my finished task
 ### Task 8 - Navigation
 [Task](https://github.com/ikhovind/IDATT2101-Algdat/blob/master/Oevinger/Oeving8/opg8.pdf)
 
-[My answer - Dijkstras algorithm and A*](https://github.com/ikhovind/IDATT2101-Algdat/tree/master/Oevinger/Oeving8/src/main/java)
+[My answer - Dijkstras algorithm and A*](https://github.com/ikhovind/IDATT2101-Algdat/tree/master/Oevinger/Oeving8/src)
 
