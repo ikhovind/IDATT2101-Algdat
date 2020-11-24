@@ -233,7 +233,12 @@ public class Graph {
         shortestDijkstra = new ArrayList<>();
         shortestAStar = new ArrayList<>();
 
+<<<<<<< HEAD
         Graph g = new Graph(new File("files/skandinavia/kanter.txt"), new File("files/skandinavia/noder.txt"), new File(
+=======
+        Graph g = new Graph(new File("files/skandinavia/kanter.txt"),
+            new File("files/skandinavia/noder.txt"), new File(
+>>>>>>> 5a9de8e57835076282b750d32d153519ff038264
             "files/skandinavia/interessepkt.txt"));
 
         shortestDijkstra = g.shortestPath(fromNode, toNode, false);
@@ -245,7 +250,7 @@ public class Graph {
             "og " + ((shortestAStar.get(0).distToTime/100)%60) + " sekunder");
 
         pathsToCodes = g.dijkstraToStation(stationNode, stationType, numStations);
-        //DemoApp.main(args);
+        DemoApp.main(args);
     }
 }
 
